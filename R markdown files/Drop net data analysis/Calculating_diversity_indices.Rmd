@@ -1,0 +1,40 @@
+---
+title: "Calculating_diversity_indices"
+author: "Asa Julien"
+date: "November 30, 2016"
+output: html_document
+---
+##species diversity - indices
+```{r, echo=FALSE}
+require(vegan)
+
+#calculating indices; SPLIT INTO 2 SPREADSHEETS, ONE INCLUDING ALPHEUS SP. AND THE OTHER EXCLUDING IT
+
+div.legare.no.alpheus<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity calculations\\diversity_legare_no_alpheus.csv")
+
+alpheus.div.legare<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity calculations\\diversity_legare_alpheus.csv")
+
+shannon.index.no.alpheus<-diversity(div.legare.no.alpheus, index = "shannon")
+alpheus.shannon.index<-diversity(alpheus.div.legare, index = "shannon")
+shan.frame<-data.frame(cbind(shannon.index.no.alpheus,alpheus.shannon.index))
+colnames(shan.frame)<-c("Shan Diversity","Alpheus shan diversity")
+shan.frame
+
+simpson.index.no.alpheus<-diversity(div.legare.no.alpheus, index = "simpson")
+alpheus.simpson.index<-diversity(alpheus.div.legare, index = "simpson")
+simp.frame<-data.frame(cbind(simpson.index.no.alpheus,alpheus.simpson.index))
+colnames(simp.frame)<-c("Simp Diversity","Alpheus simp diversity")
+simp.frame
+
+
+invsim.index.no.alpheus<-diversity(div.legare.no.alpheus, index = "invsimpson")
+alpheus.invsim.index<-diversity(alpheus.div.legare, index = "invsimpson")
+inv.frame<-data.frame(cbind(invsim.index.no.alpheus,alpheus.invsim.index))
+colnames(inv.frame)<-c("Inv Diversity","Alpheus inv diversity")
+inv.frame
+
+#View(c(shan.frame,simp.frame,inv.frame))
+
+```
+
+##end

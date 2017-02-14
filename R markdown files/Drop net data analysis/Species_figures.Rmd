@@ -1,0 +1,196 @@
+---
+title: "Drop net"
+author: "Asa Julien"
+date: "August 2, 2016"
+output: html_document
+---
+
+
+## Sol Legare, general species data
+```{r, echo=FALSE}
+legare.net<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\legare.csv")
+sol.date<-legare.net$Date
+sol.site<-legare.net$Site
+sol.treatment<-legare.net$Treatment
+sol.sp<-legare.net$Species
+tot.length<-legare.net$Total.Length..mm.
+standard.length<-legare.net$Standard.Length..mm.
+add.info<-legare.net$Additional.Info
+sol.trap<-legare.net$Trap.number
+sol.pair<-legare.net$Pairing 
+sol.ord<-legare.net$Order
+
+#abundance by treatment
+tapply(sol.sp,sol.treatment,length)
+
+
+#Abundance by order
+tapply(sol.sp,sol.ord,length) #remember, order#11 had nothing
+
+#Abundance by species, for each sampling event
+div.df<-t(data.frame(tapply(sol.sp,list(sol.sp,sol.treatment,sol.ord),length)))
+div.df[is.na(div.df)]<-0
+#REORDER. Update constantly. SKIP EVERY OTHER (FIX)
+div.df
+
+#abundance by species, all sampling data
+tapply(sol.sp,sol.sp,length) #two P. pugio columns? WHY?
+```
+
+##objects from abundance/diversity analyses, for figures
+```{r, echo=FALSE}
+#abundance
+new.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+
+Nekton.count<-new.df$Abundance....nekton.
+Treatment.count<-new.df$Treatment
+Log.count<-log(Nekton.count+1)
+Date.newdf<-new.df$Date
+Month.newdf<-new.df$Month
+trap.no<-new.df$Trap.number
+pairing.count<-new.df$Pairing
+sal.count<-new.df$Salinity.ppt
+temp.count<-new.df$Temperature.C
+
+#diversity
+
+index.legare<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv") #same file as new.df, be careful
+shannon<-index.legare$Shannon
+Treatment.index<-index.legare$Treatment #Mystery blank treatment level - get rid of this!
+simpson<-index.legare$Simpson
+inv.sim<-index.legare$Inverse.Simpson
+ind.month<-index.legare$Month
+```
+
+
+##figures - getting messy!
+```{r, echo=FALSE}
+
+require(lattice)
+require(ggplot2)
+require(dplyr)
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+
+#Simple comparisons-------------------------------------------------------
+df.compare<-new.df%>%
+  group_by(Treatment)%>%
+  summarise(mean(Abundance....nekton.),std.err(Abundance....nekton.), mean(Shannon), std.err(Shannon), mean(Simpson), std.err(Simpson), mean(Species.richness), std.err(Species.richness))
+colnames(df.compare)<-c("Treatment","Abundance","SE.abun", "Shannon", "SE.shannon", "Simpson", "SE.simpson", "Richness", "SE.richness") #CAREFUL OF NAME OVERLAP! WITH LOWER SECTIONS
+
+
+compare.abun <- ggplot(df.compare,aes(x = Treatment, y = Abundance),position="dodge")
+compare.abun + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25) + labs(x=expression(),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+compare.shan <- ggplot(df.compare,aes(x = Treatment, y = Shannon),position="dodge")
+compare.shan + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Shannon+SE.shannon,ymin=Shannon-SE.shannon), width=0.25) + labs(x=expression(),y=expression(Shannon~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+compare.simp <- ggplot(df.compare,aes(x = Treatment, y = Simpson),position="dodge")
+compare.simp + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Simpson+SE.simpson,ymin=Simpson-SE.simpson), width=0.25) + labs(x=expression(),y=expression(Simpson~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+compare.rich <- ggplot(df.compare,aes(x = Treatment, y = Richness),position="dodge")
+compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Richness+SE.richness,ymin=Richness-SE.richness), width=0.25) + labs(x=expression(),y=expression(Species~richness)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+#Abundance -----------------------------------------
+
+ggplot(new.df, aes(Treatment, Abundance....nekton.))+geom_boxplot()+labs(x = "Treatment", y = "Nekton abundance")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
+
+#ANCOVA, abundance#####################################
+new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January")) #Ordering the months
+
+p<-ggplot(new.df, aes(Treatment,Abundance....nekton.))+geom_boxplot()
+p+facet_grid(~Month)+labs(x="Treatment",y="Nekton abundance") #boxplots - change IQR?
+
+##barplots of averages:
+df.abundance<-new.df%>%
+  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+  group_by(Treatment,Month)%>%
+  summarise(mean(Abundance....nekton.),std.err(Abundance....nekton.))
+colnames(df.abundance)<-c("Treatment","Month","Abundance","SE.abun")
+
+p.abundance <- ggplot(df.abundance,aes(Treatment,Abundance),position="dodge") + facet_grid(~Month)
+p.abundance + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25) + facet_grid(~Month) + labs(x=expression(Treatment),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+
+#Without grass shrimp abundance bar plot------------------------------------------------
+ngs.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\no_grass_shrimp.csv")
+
+ngs.df$Month<-factor(ngs.df$Month, levels = c("July","August","September","October","November","December", "January")) #Ordering the months
+ngs.plot<-ngs.df%>%
+  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+  group_by(Treatment,Month)%>%
+  summarise(mean(Abundance....nekton.),std.err(Abundance....nekton.))
+colnames(ngs.plot)<-c("Treatment","Month","Abundance","SE.abun")
+
+p.ngs<-ggplot(ngs.plot,aes(Treatment,Abundance),position="dodge")+facet_grid(~Month)
+p.ngs+geom_bar(stat="identity")+geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25)+facet_grid(~Month)+labs(title="Without grass shrimp",x=expression(Treatment),y=expression(Nekton~abundance~(individuals~m^{-2})))+theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+######################################################
+
+
+#ANCOVA, indices-----------------------------------
+
+p2<- ggplot(new.df, aes(Treatment,Shannon))+geom_boxplot()
+p2+facet_grid(~Month)+labs(x="Treatment",y="Shannon index")
+
+df.shannon<-new.df%>%
+  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+  group_by(Treatment,Month)%>%
+  summarise(mean(Shannon),std.err(Shannon))
+colnames(df.shannon)<-c("Treatment","Month","Shannon","SE.shan")
+
+p.shannon<-ggplot(df.shannon,aes(Treatment,Shannon),position="dodge")+facet_grid(~Month)
+p.shannon+geom_bar(stat="identity")+geom_errorbar(aes(ymax=Shannon+SE.shan,ymin=Shannon-SE.shan), width=0.25)+facet_grid(~Month)+labs(x="Treatment",y="Shannon diversity index")+theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+#############################################################################
+
+p3<- ggplot(new.df, aes(Treatment,Simpson))+geom_boxplot()
+p3+facet_grid(~Month)+labs(x="Treatment",y="Simpson index")
+
+df.simpson<-new.df%>%
+  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+  group_by(Treatment,Month)%>%
+  summarise(mean(Simpson),std.err(Simpson))
+colnames(df.simpson)<-c("Treatment","Month","Simpson","SE.simp")
+
+p.simpson<-ggplot(df.simpson,aes(Treatment,Simpson),position="dodge")+facet_grid(~Month)
+p.simpson+geom_bar(stat="identity")+geom_errorbar(aes(ymax=Simpson+SE.simp,ymin=Simpson-SE.simp), width=0.25)+facet_grid(~Month)+labs(x="Treatment",y="Simpson diversity index")+theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+#############################################################################
+
+```
+
+##notched boxplots
+```{r, echo=FALSE}
+##NOTCHED BOXPLOTS (is this necessary?):
+df.shannon<-data.frame(cbind(index.legare[,3],index.legare[,14]))
+colnames(df.shannon)<-c("Treatment","Shannon diversity")
+
+#Notched abundance
+p0<-ggplot(data = new.df,aes(factor(x=Treatment.count),Nekton.count))
+p0+geom_boxplot(notch = TRUE) #notch went outside hinges... larger than interquartile range??
+
+#Notched diversity
+p<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Shannon))
+p+geom_boxplot(notch = TRUE)
+
+p2<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Simpson))
+p2+geom_boxplot(notch = TRUE)
+
+p3<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Inverse.Simpson))
+p3+geom_boxplot(notch = TRUE)
+
+
+
+```
+
+
+##size.freq
+```{r, echo=FALSE}
+require(ggplot2)
+ggplot(data=legare.net,aes(x=Total.Length..mm.))+geom_histogram(binwidth = 5)+facet_grid(~Species)+theme_bw()+labs(x="Length (mm)",y="Frequency")
+
+
+```
+

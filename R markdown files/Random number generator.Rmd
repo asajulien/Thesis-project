@@ -1,0 +1,79 @@
+---
+title: "Random treatment assignment"
+author: "Asa Julien"
+date: "July 15, 2016"
+output: html_document
+---
+
+```{r pressure, echo=FALSE}
+#random.patch.quad
+
+N=10
+r.p.q <- NULL
+for(i in 1:N){
+  r.p.q <- rbind(r.p.q,sample(c(1:4),1),sample(c(1:100),1))
+}
+r.p.q
+
+#if the two numbers add up to be even, go right. Odd, go left.
+
+```
+
+
+```{r pressure, echo=FALSE}
+#random.patch.net
+
+N=10
+r.p <- NULL
+for(i in 1:N){
+  r.p <- rbind(r.p,sample(c(1:260),1))
+}
+r.p
+
+#random.direction (for control)
+X=10
+r.d<-NULL
+for (i in 1:X) {
+  r.d<-rbind(r.d,sample(c(1:360),1))
+}
+r.d
+```
+
+
+```{r}
+#random.net 
+
+N=10
+r.n <-NULL
+for(i in 1:N){
+  r.n<-rbind(r.n, sample(c(1:4),4))
+}
+r.n
+```
+
+Random age
+```{r pressure, echo=FALSE}
+#random.age
+
+N=10
+r.a <- NULL
+for(i in 1:N){
+  r.a <- cbind(r.a,sample(c(1:35),10,replace = F))
+}
+r.a
+
+```
+
+Random removal
+```{r pressure, echo=FALSE}
+#random.removal
+
+N=10
+r.r <- NULL
+for(i in 1:N){
+  r.r <- rbind(r.r,sample(c(1:3),3,replace = F))
+}
+r.r
+
+```
+

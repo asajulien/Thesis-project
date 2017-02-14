@@ -1,0 +1,115 @@
+---
+title: "Sol_Legare_06/23/16"
+author: "Asa Julien"
+date: "June 23, 2016"
+output: html_document
+---
+
+
+##Elevation Sol Legare
+
+```{r}
+#Sol Legare
+legare.test <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\legare_test.csv")
+elevation <- legare.test$elevation
+presence <- legare.test$mussels_present
+surface.count <- legare.test$surface_count
+log.count <- log(surface.count+1)
+
+legare.glm <- glm(presence~elevation, family=binomial)
+summary(legare.glm)
+plot(legare.glm)
+
+#Using surface counts
+
+count.lm <- lm(surface.count~elevation)
+summary(count.lm)
+plot(count.lm) #not great at all
+
+logcount.lm <- lm(log.count~elevation)
+summary(logcount.lm)
+plot(logcount.lm)
+
+require(geoR)
+#this is a bit wacky. See if you can transform or model variance structures.
+
+```
+
+# Plots
+
+```{r pressure, echo=FALSE}
+require(lattice)
+
+p.elevation <- ggplot(legare.test,aes(x=mussels_present, y=elevation..m.))
+p.elevation+geom_boxplot()+labs(x = "Geukensia demissa presence" , y = "Elevation (m)")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
+
+bwplot(elevation~presence)
+xyplot(presence~elevation, pch = 19, col = "black", xlab = "Elevation (m)", ylab = "Mussels present?")
+
+xyplot(surface.count~elevation)
+xyplot(log.count~elevation)
+
+
+```
+
+
+##Elevation FBCP
+
+```{r}
+#FBCP
+fbcp.dist <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\FBCP_elevation_survey.csv")
+fbcp.elevation <- fbcp.dist$elevation..m.
+fbcp.presence <- fbcp.dist$mussels_present
+fbcp.surface.count <- fbcp.dist$surface_mussel_count
+fbcp.log.count <- log(fbcp.surface.count+1)
+
+fbcp.glm <- glm(fbcp.presence~fbcp.elevation, family=binomial)
+summary(fbcp.glm)
+plot(fbcp.glm)
+
+#Using surface counts
+fbcp.count.lm <- lm(fbcp.surface.count~fbcp.elevation)
+summary(fbcp.count.lm)
+plot(fbcp.count.lm) #not great at all
+
+fbcp.logcount <- lm(fbcp.log.count~fbcp.elevation)
+summary(fbcp.logcount)
+plot(fbcp.logcount)
+
+
+```
+# Plots
+
+
+```{r pressure, echo=FALSE}
+require(lattice)
+bwplot(fbcp.presence~fbcp.elevation)
+xyplot(fbcp.presence~fbcp.elevation, pch = 19, col = "black", xlab = "Elevation (m)", ylab = "Mussels present?")
+
+xyplot(fbcp.surface.count~fbcp.elevation)
+
+
+
+```
+
+##All points together (master elevation)
+```{r pressure, echo=FALSE}
+master.file<-read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\csv files\\master_presence.csv")
+
+master.presence<-master.file$mussels_present
+master.elevation<-master.file$elevation..m.
+
+master.glm<-glm(master.presence~master.elevation,family = binomial)
+summary(master.glm)
+
+
+require(lattice)
+bwplot(master.presence~master.elevation)
+
+xyplot(master.presence~master.elevation, pch = 19, col = "black", xlab = "Elevation (m)", ylab = "Mussels present?")
+
+
+
+
+```
+d

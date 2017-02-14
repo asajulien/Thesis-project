@@ -1,0 +1,113 @@
+---
+title: "SLI Size_age"
+author: "Asa Julien"
+date: "October 27, 2016"
+output: html_document
+---
+
+## Size frequency, Sol Legare
+
+```{r pressure, echo=FALSE}
+
+size.freq <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\prelim_sizefreq_legare.csv")
+size.freq.live<-size.freq[size.freq$Status!="Dead",] #ONLY the live mussels -- too many dead ones are broken and disregarded to count the few that I measure.
+
+mussel.length<-size.freq.live$Length..anterior.posterior...mm.
+mussel.height<-size.freq.live$Height..dorso.ventral...mm.
+mussel.width<-size.freq.live$Width..lateral.axis...mm.
+mussel.status<-size.freq.live$Status
+mussel.age <- size.freq.live$Left.valve.age
+mussel.sex <- size.freq.live$Yellow.Brown
+quad.id<-size.freq.live$Quadrat.identifier
+sample.date<-size.freq.live$Date.collected
+
+
+
+hist(mussel.length, breaks = 20, main = "June/July 2016, SLI", xlab = "Length (mm)", ylab = "Frequency", xlim = c(0,140), ylim = c(0,35), col = "gray")
+
+#histogram for every quadrat
+require(lattice)
+histogram(~mussel.length|quad.id)
+histogram(~mussel.length|sample.date, col = "Gray")
+
+
+
+
+hist(mussel.height, breaks = 20, main = "All mussels", xlab = "Height (mm)", ylab = "Frequency", xlim = c(0,45), ylim = c(0,50))
+hist(mussel.width, breaks = 20, main = "All mussels", xlab = "Width (mm)", ylab = "Frequency", xlim = c(0,60), ylim = c(0,35))
+hist(mussel.length[mussel.status=="Dead"], breaks = 20)
+
+```
+
+
+#Age frequency
+```{r, echo=FALSE}
+hist(mussel.age)
+require(lattice)
+histogram(~mussel.age|quad.id)
+```
+
+
+#Density
+```{r, echo=FALSE}
+total.by.quadrat<-tapply(mussel.length,quad.id,length)
+total.by.quadrat #patch 2b was smaller than the quadrat size!
+mean.density<-mean(total.by.quadrat)
+mean.density/0.0625
+se.density <-sd(total.by.quadrat)/sqrt(7)
+se.density/0.0625
+
+```
+
+##Sexual dimorphism? Length-age curves
+```{r, echo=FALSE}
+require(lattice)
+xyplot(mussel.length~mussel.age)
+xyplot(log(mussel.length)~mussel.age) #log
+aov.sex<-aov(mussel.length~mussel.sex)
+summary(aov.sex)
+plot(aov.sex) #way off. need to reduce it to brown/yellow.
+bwplot(mussel.length~mussel.sex)
+
+
+#regression split by sex
+xyplot(mussel.length~mussel.age|mussel.sex) #clean up
+
+ancova.sex<-aov(mussel.length~mussel.age*mussel.sex)
+summary(ancova.sex) #again, need to reduce it to brown/yellow.
+
+
+#Trying to learn the von Bertalanffy, FSA package
+age.freq<-read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\prelim_agefreq_legare.csv") #This file will need to be constantly updated!
+
+require(FSA) #I guess he wants to be cited
+
+von.length<-age.freq$Length..anterior.posterior...mm.
+von.age<-age.freq$Left.valve.age
+
+#estimating the parameters (L infinity, K, t0)
+svTypical <- vbStarts(von.length~von.age)
+unlist(svTypical) 
+svTypical
+
+von.list<-list(Linf=109.9575286,K=0.3566954,t0=-0.379303)
+von.list
+
+#nls and model
+require(nlstools)
+
+vbTypical <- von.length~Linf*(1-exp(-K*(von.age-t0)))
+fitTypical <- nls(vbTypical,start=svTypical)
+fitPlot(fitTypical,xlab="Number of growth bands",ylab="Length (mm)",main="")
+overview(fitTypical)
+
+
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+#CHECK ASSUMPTIONS! Look all right to me
+residPlot(fitTypical)
+hist(residuals(fitTypical),main="")
+
+
+```
+g

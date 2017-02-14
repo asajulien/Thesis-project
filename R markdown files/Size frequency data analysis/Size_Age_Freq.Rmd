@@ -1,0 +1,169 @@
+---
+title: "Size and age frequencies"
+author: "Asa Julien"
+date: "August 2, 2016"
+output: html_document
+---
+
+##Size and age frequencies, FOLLY BEACH COUNTY PARK
+```{r, echo=FALSE}
+fbcp.freq <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
+
+
+length.fbcp<-fbcp.freq$Length.mm
+age.fbcp <- fbcp.freq$Growth.bands
+quad.fbcp<-fbcp.freq$Quadrat.identifier
+date.fbcp<-fbcp.freq$Date.collected
+month.code<-fbcp.freq$Month.code
+
+
+hist(length.fbcp, breaks = 20, main = NULL, xlab = "Length (mm)", ylab = "Frequency", , col = "gray",font=2,font.lab=4,cex.lab=1.3,cex.axis=1.3)
+
+
+par(mfrow=c(1,1))
+hist(length.fbcp, breaks = 20, main = "August-October 2016, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
+
+#histogram for every quadrat
+require(lattice)
+histogram(~length.fbcp|fbcp.freq$Date.collected,col="gray")
+
+require(ggplot2)
+###################################################################################
+
+fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January")) #reordering the months
+
+sizeage.plot<- ggplot(data=fbcp.freq,aes(x=Length.mm))+geom_histogram(binwidth = 5)+facet_grid(~Month.code)+theme_bw()+labs(x="Length (mm)",y="Frequency")
+
+sizeage.plot+theme(axis.text = element_text(size=16),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold")) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
+
+###################### 
+
+```
+
+
+##Von Bertalanfyy FOLLY BEACH COUNTY PARK
+```{r, echo=FALSE}
+#von Bertalanffy, FSA package
+fbcp.freq <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv") #This file will need to be constantly updated!
+
+library(FSA)
+library(nlstools)
+
+von.length.fbcp<-fbcp.freq$Length.mm
+von.age.fbcp<-age.fbcp
+
+#estimating the parameters (L infinity, K, t0)
+svTypical.fbcp <- vbStarts(von.length.fbcp~von.age.fbcp)
+unlist(svTypical.fbcp) 
+svTypical.fbcp
+
+von.list.fbcp<-list(Linf=114.0158,K=0.2789884,t0=-0.5618277) #using same Linf variable - CAREFUL
+von.list.fbcp
+
+#nls and model
+
+vbTypical.fbcp <- von.length.fbcp~Linf*(1-exp(-K*(von.age.fbcp-t0)))
+fitTypical.fbcp <- nls(vbTypical.fbcp,start=svTypical.fbcp)
+fitPlot(fitTypical.fbcp,xlab="Number of growth bands",ylab="Length (mm)",main="",cex.axis=1.2,cex.lab=1.4,font.lab=2)
+overview(fitTypical.fbcp)
+
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+#CHECK ASSUMPTIONS! Look all right to me
+residPlot(fitTypical.fbcp)
+hist(residuals(fitTypical.fbcp),main="")
+
+boxplot(von.length.fbcp~von.age.fbcp)
+```
+
+
+#Average age by month (subset of data)
+```{r, echo=FALSE}
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+library(dplyr)
+
+
+av.age = fbcp.freq %>%
+  select(Month.code, Growth.bands) %>%
+  group_by(Month.code) %>%
+  summarise(mean(na.omit(Growth.bands)))
+
+se.age = fbcp.freq %>%
+  select(Month.code, Growth.bands) %>%
+  group_by(Month.code) %>%
+  summarise(std.err(na.omit(Growth.bands)))
+
+
+```
+
+
+#Density FBCP
+```{r, echo=FALSE}
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+library(dplyr)
+
+total.by.quadrat.fbcp<-data.frame(tapply(length.fbcp,quad.fbcp,length))
+total.by.quadrat.fbcp 
+
+density.month<-read.csv("C:\\Users\\juliena\\desktop\\data\\size frequency\\csv files\\density_month_fbcp.csv")
+
+density.month$Month<-factor(density.month$Month, levels = c("August","September","October","November","December", "January")) #Ordering the months
+
+##barplots of average densities:
+df.density<-density.month%>%
+  group_by(Month)%>%
+  summarise(mean(Mussel.density.m..2),std.err(Mussel.density.m..2))
+colnames(df.density)<-c("Month","Density","SE.den")
+
+p.density <- ggplot(df.density,aes(x=Month,y=Density),position="dodge")
+p.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Density+SE.den,ymin=Density-SE.den), width=0.25) + labs(x=expression(Month),y=expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+```
+
+
+
+#Average size, by month
+```{r, echo=FALSE}
+
+fbcp.freq <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
+
+fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December","January")) #reordering the months
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+library(dplyr)
+
+ggplot(fbcp.freq,aes(Month.code,Length.mm))+geom_boxplot()
+
+f <- function(x) {
+  r <- quantile(x, probs = c(0.05, 0.25, 0.5, 0.75, 0.95))
+  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
+  r
+}
+ggplot(fbcp.freq,aes(Month.code,Length.mm))+stat_summary(fun.data = f,geom = "boxplot")
+
+av.length<-aov(length.fbcp~month.code)
+summary(av.length)
+plot(av.length) #resids not normal
+pairwise.t.test(length.fbcp,month.code,p.adjust.method = "bonf") #(sep,oct)-Dec different
+TukeyHSD(av.length) #(sep,oct,nov)-dec different
+
+#non-parametric tests:
+kruskal.test(length.fbcp~month.code)
+pairwise.wilcox.test(length.fbcp,month.code,p.adjust.method = "bonf") #December significantly lower than Nov.,Oct.,Sep 
+
+df.length<-fbcp.freq%>%
+  group_by(Month.code)%>%
+  summarise(mean(Length.mm),std.err(Length.mm))
+colnames(df.length)<-c("Month","Length","SE")
+limits<-aes(ymax=df.length$Length+df.length$SE,ymin=df.length$Length-df.length$SE)
+
+p.size<-ggplot(df.length,aes(Month,Length))
+p.size+geom_bar(stat="identity", width = 0.75)+geom_errorbar(limits, width=0.25)+labs(x="Month",y="Length (mm)")
+```
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

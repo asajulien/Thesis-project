@@ -1,0 +1,79 @@
+---
+title: "Tides"
+author: "Asa Julien"
+date: "August 2, 2016"
+output: html_document
+---
+
+
+##Relationship between NOAA station and sonde, Sol Legare 9/29-10/26
+```{r, echo=FALSE}
+##Just high tides:
+
+september.sonde <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Julien_Legare_092916.csv")
+
+sep.time<-september.sonde$Date...Time
+sep.sonde<-september.sonde$Sonde.height.m
+sep.noaa<-september.sonde$Noaa.height
+
+require(lattice)
+xyplot(sep.sonde~sep.time) #for some reason these plots are not showing up correctly. See excel scatterplots
+xyplot(sep.sonde+sep.noaa~sep.time)
+
+xyplot(sep.sonde~sep.noaa,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+
+lm.september<-lm(sep.sonde~sep.noaa)
+summary(lm.september)
+plot(lm.september) #a little funky
+
+cor.test(sep.sonde,sep.noaa)
+
+```
+.
+
+
+##Relationship between NOAA station and sonde, Sol Legare 7/13-7/22
+```{r, echo=FALSE}
+
+##Just high tides:
+require(lattice)
+hi.tide <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\High tides_July.csv")
+xyplot(hi.tide$Sonde.high.tides..m.~hi.tide$Charleston.high.tides..m.,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+lm.hitide<-lm(hi.tide$Sonde.high.tides..m.~hi.tide$Charleston.high.tides..m.)
+summary(lm.hitide)
+plot(lm.hitide)
+
+cor.test(hi.tide$Sonde.high.tides..m.,hi.tide$Corresponding.Charleston.tides..m.)
+
+```
+.
+
+##All sonde data
+```{r, echo=FALSE}
+master.sonde<-c(hi.tide$Sonde.high.tides..m.,sep.sonde)
+master.noaa<-c(hi.tide$Charleston.high.tides..m.,sep.noaa)
+master.tide<-data.frame(master.sonde,master.noaa)
+master.lm<-lm(master.sonde~master.noaa)
+summary(master.lm)
+plot(master.lm)
+require(lattice)
+xyplot(master.sonde~master.noaa,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+```
+.
+##Plots
+```{r, echo=FALSE}
+require(lattice)
+
+#Sep
+xyplot(sep.sonde~sep.noaa,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+#July
+xyplot(hi.tide$Sonde.high.tides..m.~hi.tide$Charleston.high.tides..m.,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+#All data
+xyplot(master.sonde~master.noaa,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+```
+.

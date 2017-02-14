@@ -1,0 +1,77 @@
+---
+title: "Salinity blocks"
+author: "Asa Julien"
+date: "December 14, 2016"
+output: html_document
+---
+## Calculating salinity averages
+```{r, echo=FALSE}
+
+require(dplyr)
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+
+ashley.salinity<-read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\ashley_salinity.csv")
+
+
+temp.df<-ashley.salinity%>%
+  group_by(Site..)%>%
+  select(Site..,Month,YSI.T..Sal..ppt.)
+
+temp.df$Month<-factor(temp.df$Month, levels = c("May", "June", "July","August","September","October")) #Ordering the months
+
+mean.salinity<-temp.df%>%
+  filter(Month!="October")%>% #REMOVE OCTOBER DATA (TS Joaquin)
+  group_by(Site..)%>%
+  summarise(mean(YSI.T..Sal..ppt.),std.err(YSI.T..Sal..ppt.))
+
+month.mn <- temp.df %>%
+  group_by(Site.., Month) %>%
+  summarise(mean(YSI.T..Sal..ppt.), std.err(YSI.T..Sal..ppt.))
+
+
+```
+
+## Maps
+```{r, echo=FALSE}
+ashley.salinity<-read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\ashley_salinity.csv")
+
+latlong<-ashley.salinity%>%
+  filter(Month!="October")%>% #REMOVE OCTOBER because of the 100 year flood (Hurricane Joaquin)
+  group_by(Site..)%>%
+  select(Site..,Latitude, Longitude)
+  
+salinity.position<-na.omit(latlong)
+
+#average lats and longs by each site - so you just get one point
+
+require(dplyr)
+names(salinity.position)
+
+
+av.latitude<-salinity.position %>%
+  group_by(Site..) %>%
+  summarise(mean(Latitude))
+av.latitude
+
+av.longitude<-salinity.position %>%
+  group_by(Site..) %>%
+  summarise(mean(Longitude))
+av.longitude
+
+df.position<-data.frame(cbind(av.latitude,av.longitude))
+df.position
+
+label<-c("0.95","1.68","3.29","6.37","12.38","14.58","17.98","19.41","23.79","23.87")
+
+#mapping the average points
+
+require(ggplot2)
+require(ggmap)
+mymap <- get_map(location = c(-80.15,32.76,-79.9,32.95),maptype = "satellite")
+ggmap(mymap)+geom_point(data=df.position, aes(x = mean.Longitude., y = mean.Latitude.), size=3, color = "purple")+geom_text(data = df.position, aes(x=mean.Longitude.,y=mean.Latitude.,label =label),size=4,color="white",vjust=1,hjust=0)+labs(x="Longitude",y="Latitude") + theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
+```
+
+
+##end

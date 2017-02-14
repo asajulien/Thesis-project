@@ -1,0 +1,44 @@
+---
+title: "Community composition"
+author: "Asa Julien"
+date: "December 8, 2016"
+output: html_document
+---
+##analyzing abundance
+```{r, echo=FALSE}
+
+spmatrix.alpheus<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity calculations\\diversity_legare_alpheus.csv")
+
+spmatrix.no.alpheus<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity calculations\\diversity_legare_no_alpheus.csv")
+
+spmatrix.test<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity calculations\\bray.csv") #no zero sum rows (row 11 deleted), no alpheus column
+
+require(vegan)
+require(MASS)
+
+bray.alpheus<-vegdist(spmatrix.alpheus,method = "bray",binary = FALSE,na.rm = T)
+
+bray.alpheus
+
+bray.no.alpheus<- vegdist(spmatrix.no.alpheus,method = "bray",binary = FALSE)
+
+bray.no.alpheus
+
+no.alpheus.mds<-metaMDS(spmatrix.no.alpheus, distance = "bray", k = 2, trymax = 20, autotransform =TRUE, noshare = 0.1, expand = TRUE, trace = 1, plot = FALSE) #INSUFFICIENT DATA, ROW 11 MESSES THINGS UP
+
+plot(no.alpheus.mds, choices = c(1,2),type = "n") 
+points(no.alpheus.mds)
+text(no.alpheus.mds, display = c("sites", "species"))
+
+
+##EXAMPLE
+bci.mds<-metaMDS(BCI, distance = "bray", k = 2, trymax = 20, autotransform =TRUE, noshare = 0.1, expand = TRUE, trace = 1, plot = FALSE) #makes the object bci.mds using Bray-Curtis ordination
+
+plot(bci.mds, choices=c(1,2), type="n") #plots the ordination axes
+points(bci.mds, display = c("sites", "species"))#displays both sites and species on the same plot.  Try choosing just "sites" to reduce clutter
+text(bci.mds, display = c("sites", "species"))
+
+
+```
+
+##end

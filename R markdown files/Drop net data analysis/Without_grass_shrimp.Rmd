@@ -1,0 +1,141 @@
+---
+title: "No grass shrimp"
+author: "Asa Julien"
+date: "December 5, 2016"
+output: html_document
+---
+##species diversity - indices
+```{r, echo=FALSE}
+#ngs=no grass shrimp
+
+library(vegan)
+
+#calculating indices; SPLIT INTO 2 SPREADSHEETS, ONE INCLUDING ALPHEUS SP. AND THE OTHER EXCLUDING IT. This gets really messy.
+
+no.alpheus.ngs<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\ngs_indices_no_alpheus.csv")
+
+alpheus.ngs<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\ngs_indices_alpheus.csv")
+
+no.alpheus.shan.ngs<-diversity(no.alpheus.ngs, index = "shannon")
+alpheus.shan.ngs<-diversity(alpheus.ngs, index = "shannon")
+shan.frame.ngs<-data.frame(cbind(no.alpheus.shan.ngs,alpheus.shan.ngs))
+colnames(shan.frame.ngs)<-c("Shan Diversity","Alpheus shan diversity")
+shan.frame.ngs
+
+no.alpheus.simp.ngs<-diversity(no.alpheus.ngs, index = "simpson")
+alpheus.simp.ngs<-diversity(alpheus.ngs, index = "simpson")
+simp.frame.ngs<-data.frame(cbind(no.alpheus.simp.ngs,alpheus.simp.ngs))
+colnames(simp.frame.ngs)<-c("Simp Diversity","Alpheus simp diversity")
+simp.frame.ngs
+
+
+no.alpheus.inv.ngs<-diversity(no.alpheus.ngs, index = "invsimpson")
+alpheus.inv.ngs<-diversity(alpheus.ngs, index = "invsimpson")
+inv.frame.ngs<-data.frame(cbind(no.alpheus.inv.ngs,alpheus.inv.ngs))
+colnames(inv.frame.ngs)<-c("Inv Diversity","Alpheus inv diversity")
+inv.frame.ngs
+
+#View(c(shan.frame.ngs,simp.frame.ngs,inv.frame.ngs))
+
+```
+
+##end
+##analyzing abundance
+```{r, echo=FALSE}
+
+#this works:
+ngs.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\no_grass_shrimp.csv")
+
+Nekton.count.ngs<-ngs.df$Abundance....nekton.
+Treatment.count.ngs<-ngs.df$Treatment
+Log.count.ngs<-log(Nekton.count+1)
+Date.ngs<-ngs.df$Date
+Month.ngs<-ngs.df$Month
+trap.ngs<-ngs.df$number
+pairing.ngs<-ngs.df$Pairing
+sal.ngs<-ngs.df$Salinity.ppt
+temp.ngs<-ngs.df$Temperature.C
+do2.ngs<-ngs.df$dO2.pascals
+
+#anova comparison---------------------------------------------------------------------
+ngs.abundance<-aov(Nekton.count.ngs~Treatment.count.ngs)
+summary(ngs.abundance) #NSD so far.
+plot(ngs.abundance) #residuals not normally distributed, yet
+
+
+#paired t-test------------------------------------------------------------------------
+
+t.abundance.ngs<-t.test(Nekton.count.ngs~Treatment.count.ngs,paired=T)
+t.abundance.ngs #check assumptions
+
+
+##and ancova, abundance by date ------------------------------------------------------
+
+anc.legare.ngs<-aov(Nekton.count.ngs~Treatment.count.ngs*Date.ngs)
+summary(anc.legare.ngs) #no significant effect of treatment, but there is of date. Keep an eye on those residuals.
+plot(anc.legare.ngs)
+
+
+anc.month.ngs<-aov(Nekton.count.ngs~Treatment.count.ngs*Month.ngs)
+summary(anc.month.ngs) #significant effect of month, residuals could be better.
+plot(anc.month.ngs)
+
+
+############################################ repeated measures anchovy (ancova...)
+
+rep.anc.ngs<-aov(Nekton.count.ngs~Treatment.count.ngs*Date.ngs+Error(pairing.ngs/Treatment.count.ngs)) #or should just Error(pairing.count) be used?
+summary(rep.anc.ngs)
+plot(rep.anc.ngs)
+
+################## Pooled by month, rather than individual date
+rep.anc.month.ngs<-aov(Nekton.count.ngs~Treatment.count.ngs*Month.ngs+Error(pairing.ngs/Treatment.count.ngs)) #or should just Error(pairing.count) be used?
+summary(rep.anc.month.ngs)
+plot(rep.anc.month.ngs)
+
+###########################################
+
+
+
+```
+
+##analyzing indices
+```{r, echo=FALSE}
+require(lattice)
+ngs.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\no_grass_shrimp.csv")
+
+shannon.ngs<-ngs.df$Shannon
+Treatment.index.ngs<-ngs.df$Treatment #Mystery blank treatment level - get rid of this!
+simpson.ngs<-ngs.df$Simpson
+inv.sim.ngs<-ngs.df$Inverse.Simpson
+
+aov.shannon.ngs<-aov(shannon.ngs~Treatment.index.ngs)
+summary(aov.shannon.ngs)
+plot(aov.shannon.ngs)
+bwplot(shannon.ngs~Treatment.index.ngs)
+
+aov.simp.ngs<-aov(simpson.ngs~Treatment.index.ngs) #doesn't fit assumptions well; heteroscedastic
+summary(aov.simp.ngs)
+plot(aov.simp.ngs)
+bwplot(simpson.ngs~Treatment.index.ngs)
+
+aov.inv.ngs<-aov(inv.sim.ngs~Treatment.index.ngs) #problems with inf
+summary(aov.inv.ngs)
+plot(aov.inv.ngs)
+bwplot(inv.sim.ngs~Treatment.index.ngs)
+
+#paired t-tests-----------------------------------------------------------------------
+
+t.shan.ngs<-t.test(shannon.ngs~Treatment.index.ngs, paired=T)
+t.shan.ngs #check assumptions
+
+t.simp.ngs<-t.test(simpson.ngs~Treatment.index.ngs, paired=T)
+t.simp.ngs
+
+t.inv.ngs<-t.test(inv.sim.ngs~Treatment.index.ngs, paired=T)
+t.inv.ngs
+
+
+
+```
+
+##end
