@@ -97,7 +97,7 @@ compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=R
 ggplot(new.df, aes(Treatment, Abundance....nekton.))+geom_boxplot()+labs(x = "Treatment", y = "Nekton abundance")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
 
 #ANCOVA, abundance#####################################
-new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January")) #Ordering the months
+new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February")) #Ordering the months
 
 p<-ggplot(new.df, aes(Treatment,Abundance....nekton.))+geom_boxplot()
 p+facet_grid(~Month)+labs(x="Treatment",y="Nekton abundance") #boxplots - change IQR?

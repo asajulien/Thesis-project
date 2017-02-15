@@ -6,7 +6,7 @@ output: html_document
 ---
 ##analyzing abundance
 ```{r, echo=FALSE}
-
+library(car)
 #this works:
 new.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
 
@@ -177,7 +177,7 @@ se.inv
 
 ```
 
-##POOLED BY SAMPLING DAY
+##POOLED BY SAMPLING DAY -- THIS should be removed...
 ```{r cars}
 new.df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity_abundance.csv")
 require(dplyr)

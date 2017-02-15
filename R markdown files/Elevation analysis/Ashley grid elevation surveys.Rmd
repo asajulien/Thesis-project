@@ -1,0 +1,30 @@
+---
+title: "Ashley grid surveys"
+author: "Asa Julien"
+date: "February 15, 2017"
+output: html_document
+---
+##Ashley grid I
+```{r pressure, echo=FALSE}
+
+ashgrid.i = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grid_I.csv"))
+
+ashglm.i = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid.i)
+summary(ashglm.i)
+plot(ashglm.i)
+```
+
+S
+
+```{r pressure, echo=FALSE}
+
+```
+
+##Figures
+```{r pressure, echo=FALSE}
+library(lattice)
+library(ggplot2)
+xyplot(Mussel.presence ~ Elevation, data = ashgrid.i)
+```
+
+S
