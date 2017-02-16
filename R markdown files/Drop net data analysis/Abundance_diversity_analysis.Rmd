@@ -7,46 +7,39 @@ output: html_document
 ##analyzing abundance
 ```{r, echo=FALSE}
 library(car)
-#this works:
-new.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+library(nlme)
+library(lattice)
+library(MASS)
+library(dplyr)
 
-Nekton.count<-new.df$Abundance....nekton.
-Treatment.count<-new.df$Treatment
-Log.count<-log(Nekton.count+1)
-Date.newdf<-new.df$Date
-Month.newdf<-new.df$Month
-trap.no<-as.factor(new.df$Trap.number)
-pairing.count<-new.df$Pairing
-sal.count<-new.df$Salinity.ppt
-temp.count<-new.df$Temperature.C
-do2<-new.df$dO2.pascals
+new.df <- read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+
+Nekton.count <- new.df$Abundance....nekton.
+Treatment.count <- new.df$Treatment
+Log.count <- log(Nekton.count+1)
+Date.newdf <- new.df$Date
+Month.newdf <- new.df$Month
+trap.no <- as.factor(new.df$Trap.number)
+pairing.count <- new.df$Pairing
+sal.count <- new.df$Salinity.ppt
+temp.count <- new.df$Temperature.C
+do2 <- new.df$dO2.pascals
 tide.count <- new.df$Tidal.height.Charleston.Harbor.water.level..m.
 richness.count <- new.df$Species.richness
 
-test.x <- glm(Nekton.count~sal.count + temp.count + Treatment.count + Date.newdf + Treatment.count:Date.newdf) #Is this correct? Order matters for the aov function... log transformation +1 helps with residuals
+test.x <- aov(Nekton.count ~ sal.count + temp.count + Treatment.count + Date.newdf + Treatment.count:Date.newdf) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
 summary(test.x)
 Anova(test.x) #this may be the one to use... what is the difference between type i/ii/iii ss?
 plot(test.x)
 
-#species richness
-
-
-#anova comparison---------------------------------------------------------------------
-aov.abundance<-aov(Nekton.count~Treatment.count)
-summary(aov.abundance) #NSD so far.
-plot(aov.abundance) #residuals not normally distributed, yet
-
-aov.log.abun<-aov(Log.count~Treatment.count)
-summary(aov.log.abun)
-plot(aov.log.abun) 
-
-kruskal.abundance<-kruskal.test(Nekton.count~Treatment.count)
-summary(kruskal.abundance)
-kruskal.abundance
+#Mixed effects model -- loses interaction between date and treatment. Also need tidal height, dO2, pH, and trap number perhaps
+abundance.lme = lme(fixed = Nekton.count ~ Treatment.count + sal.count + temp.count, random = ~1 | Date.newdf/pairing.count)
+summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
+plot(abundance.lme)
 
 #paired t-test------------------------------------------------------------------------
 
-t.abundance<-t.test(Nekton.count~Treatment.count,paired=T)
+t.abundance <- t.test(Nekton.count~Treatment.count,paired=T)
 t.abundance #check assumptions
 
 #blocking by trap number--------------------------------------------------------------
@@ -54,24 +47,6 @@ block.trap<-aov(Nekton.count~Treatment.count+trap.no)
 summary(block.trap) #no effect of trap on abundance
 plot(block.trap)
 
-##and ancova, abundance by date (warning messages due to only one replicate in July) ------------------------------------------------------
-
-anc.legare<-aov(Nekton.count~Treatment.count*Date.newdf)
-summary(anc.legare) #no significant effect of treatment, but there is of date. Keep an eye on those residuals.
-plot(anc.legare)
-
-lm.anc.legare<-lm(Nekton.count~Treatment.count*Date.newdf)
-summary(lm.anc.legare)
-plot(lm.anc.legare)
-
-anc.legare.month<-aov(Nekton.count~Treatment.count*Month.newdf)
-summary(anc.legare.month) #significant effect of month, residuals could be better.
-plot(anc.legare.month)
-
-#salinity and temperature - is this formula correct? Also think AICs
-sal.temp<-aov(Nekton.count~Treatment.count*Month.newdf+sal.count+temp.count+tide.count)
-summary(sal.temp) #significant effect of month, residuals could be better.
-plot(sal.temp)
 
 ################## repeated measures anchovy (ancova...)
 
@@ -82,15 +57,6 @@ plot(rep.anc)
 #https://ww2.coastal.edu/kingw/statistics/R-tutorials/repeated.html
 #also on:
 #https://www.r-bloggers.com/two-way-anova-with-repeated-measures/
-
-#mixed linear model? general linear model
-
-################## Pooled by month, rather than individual date
-rep.anc.month<-aov(Nekton.count~Treatment.count*Month.newdf+Error(pairing.count/Treatment.count)) #or should just Error(pairing.count) be used?
-summary(rep.anc.month)
-plot(rep.anc.month)
-
-###########################################
 
 
 
@@ -111,7 +77,6 @@ se.abun
 
 ##analyzing indices
 ```{r, echo=FALSE}
-require(lattice)
 index.legare<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv") #same file as new.df, be careful
 shannon<-index.legare$Shannon
 Treatment.index<-index.legare$Treatment #Mystery blank treatment level - get rid of this!
@@ -175,48 +140,6 @@ se.simp
 se.inv
 
 
-```
-
-##POOLED BY SAMPLING DAY -- THIS should be removed...
-```{r cars}
-new.df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\diversity_abundance.csv")
-require(dplyr)
-
-mn.abun = new.df %>% #update when new species are found - or remove all species, I don't like this
-  group_by(Date, Treatment, Month) %>%
-  select(Date, Treatment, Month, Abundance....nekton., Shannon, Salinity.ppt, Temperature.C, Tidal.height.Charleston.Harbor.water.level..m., Simpson, Species.richness, dO2.mg.L) %>%
-  summarise(mean(Abundance....nekton.), mean(Shannon), mean(Salinity.ppt), mean(Temperature.C), mean(Tidal.height.Charleston.Harbor.water.level..m.), mean(Simpson), mean(Species.richness), mean(dO2.mg.L))
-
-colnames(mn.abun)=c("Date","Treatment", "Month", "Abundance", "Shannon", "Salinity", "Temperature","Tidal.ht", "Simpson", "Species richness", "dO2")
-
-mn.abun$Month<-factor(mn.abun$Month, levels = c("July","August","September","October","November","December", "January")) #Ordering the months
-
-abun.anova = aov(Abundance ~ Treatment + Salinity + Temperature + Tidal.ht, data = mn.abun) #WHAT ABOUT SAMPLING DAY
-summary(abun.anova)
-plot(abun.anova)
-
-abun.lm = lm(Abundance ~ Treatment + Salinity + Temperature +Tidal.ht, data = mn.abun)
-summary(abun.lm)
-plot(abun.lm)
-
-
-```
-
-d
-
-```{r pressure, echo=FALSE}
-plot(Abundance[Treatment == "Mussels"]~Salinity[Treatment=="Mussels"], data = mn.abun)
-plot(Abundance[Treatment == "Spartina"]~Salinity[Treatment=="Spartina"], data = mn.abun)
-
-plot(Abundance[Treatment == "Mussels"]~Temperature[Treatment=="Mussels"], data = mn.abun)
-plot(Abundance[Treatment == "Spartina"]~Temperature[Treatment=="Spartina"], data = mn.abun)
-
-
-summary(lm(Abundance[Treatment == "Mussels"]~Salinity[Treatment=="Mussels"], data = mn.abun))
-summary(lm(Abundance[Treatment == "Spartina"]~Salinity[Treatment=="Spartina"], data = mn.abun))
-
-summary(lm(Abundance[Treatment == "Mussels"]~Temperature[Treatment=="Mussels"], data = mn.abun))
-summary(lm(Abundance[Treatment == "Spartina"]~Temperature[Treatment=="Spartina"], data = mn.abun))
 ```
 
 d
