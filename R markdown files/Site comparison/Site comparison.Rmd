@@ -1,0 +1,47 @@
+---
+title: "Site comparison"
+author: "Asa Julien"
+date: "February 23, 2017"
+output: html_document
+---
+
+s
+
+```{r, echo=FALSE}
+library(dplyr)
+library(FSA)
+library(nlstools)
+library(lattice)
+library(ggplot2)
+
+std.err<-function(x)
+  sd(x)/sqrt(length(x))
+
+site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
+
+#means
+mean.lengths = site.compare %>%
+  group_by(Status) %>%
+  summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
+
+mean.lengths
+
+#subset the data
+harvest.site = site.compare[site.compare$Status == "Harvested", ]
+control.site = site.compare[site.compare$Status == "Control", ]  
+
+```
+
+ss
+
+```{r, echo=FALSE}
+plot(pressure)
+```
+
+ss
+
+```{r, echo=FALSE}
+plot(pressure)
+```
+
+s

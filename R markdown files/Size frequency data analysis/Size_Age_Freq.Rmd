@@ -32,7 +32,7 @@ require(ggplot2)
 
 fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January")) #reordering the months
 
-sizeage.plot<- ggplot(data=fbcp.freq,aes(x=Length.mm))+geom_histogram(binwidth = 5)+facet_grid(~Month.code)+theme_bw()+labs(x="Length (mm)",y="Frequency")
+sizeage.plot <- ggplot(data=fbcp.freq,aes(x=Length.mm))+geom_histogram(binwidth = 5)+facet_grid(~Month.code)+theme_bw()+labs(x="Length (mm)",y="Frequency")
 
 sizeage.plot+theme(axis.text = element_text(size=16),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold")) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
