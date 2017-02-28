@@ -5,8 +5,7 @@ date: "February 23, 2017"
 output: html_document
 ---
 
-s
-
+##Size frequency
 ```{r, echo=FALSE}
 library(dplyr)
 library(FSA)
@@ -14,7 +13,7 @@ library(nlstools)
 library(lattice)
 library(ggplot2)
 
-std.err<-function(x)
+std.err = function(x)
   sd(x)/sqrt(length(x))
 
 site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
@@ -26,16 +25,89 @@ mean.lengths = site.compare %>%
 
 mean.lengths
 
+den.compare = site.compare %>%
+  group_by(Status, Quadrat.ID) %>%
+  summarise(length(Length.mm))
+
+mean.den = den.compare %>%
+  group_by(Status) %>%
+  summarise(mean(`length(Length.mm)`), std.err(`length(Length.mm)`))
+
+mean.den
+
+#histogram for February data
+compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency")
+
+compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold"))
+
 #subset the data
-harvest.site = site.compare[site.compare$Status == "Harvested", ]
-control.site = site.compare[site.compare$Status == "Control", ]  
+harvested.site = site.compare %>%
+  select(Status, Date, Length.mm, Growth.bands) %>%
+  filter(Status == "Harvested") %>%
+  na.omit()
+
+control.site = site.compare %>%
+  select(Status, Date, Length.mm, Growth.bands) %>%
+  filter(Status == "Control") %>%
+  na.omit() 
 
 ```
 
-ss
 
+##Size at age relationship - something isn't working with the fittypical command
 ```{r, echo=FALSE}
-plot(pressure)
+#Control site (St. Pierre Creek)
+#estimating the parameters (L infinity, K, t0)
+
+von.length.control = site.compare$Length.mm[site.compare$Status == "Control"]
+von.age.control = site.compare$Growth.bands[site.compare$Status == "Control"]
+
+svTypical.control = vbStarts(von.length.control ~ von.age.control)
+unlist(svTypical.control) 
+svTypical.control
+
+von.list.control = list(Linf = 96.83508, K = 0.4127975, t0 = -0.5928139) #using same Linf variable - CAREFUL
+von.list.control
+
+#nls and model
+vbTypical.control = von.length.control ~ Linf * (1-exp(-K * (von.age.control - t0)))
+fitTypical.control = nls(vbTypical.control, start = svTypical.control)
+fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
+overview(fitTypical.control)
+
+residPlot(fitTypical.control)
+hist(residuals(fitTypical.control),main="")
+
+boxplot(Length.mm ~ Growth.bands, data = control.site)
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+
+
+#Harvested site
+#estimating the parameters (L infinity, K, t0)
+von.length.harvested = site.compare$Length.mm[site.compare$Status == "Harvested"]
+von.age.harvested = site.compare$Growth.bands[site.compare$Status == "Harvested"]
+
+svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested)
+unlist(svTypical.harvested) 
+svTypical.harvested
+
+von.list.harvested = list(Linf = 109.1284, K = 0.4001377, t0 = -0.3457546) #using same Linf variable - CAREFUL
+von.list.harvested
+
+#nls and model
+vbTypical.harvested = von.length.harvested ~ Linf * (1-exp(-K * (von.age.harvested - t0)))
+fitTypical.harvested = nls(vbTypical.harvested, start = svTypical.harvested)
+fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
+overview(fitTypical.harvested)
+
+residPlot(fitTypical.harvested)
+hist(residuals(fitTypical.harvested),main="")
+
+boxplot(Length.mm ~ Growth.bands, data = harvested.site)
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+
 ```
 
 ss
