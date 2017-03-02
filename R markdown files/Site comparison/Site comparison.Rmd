@@ -66,7 +66,7 @@ svTypical.control = vbStarts(von.length.control ~ von.age.control)
 unlist(svTypical.control) 
 svTypical.control
 
-von.list.control = list(Linf = 96.83508, K = 0.4127975, t0 = -0.5928139) #using same Linf variable - CAREFUL
+von.list.control = list(Linf = 103.2204, K = 0.3782087, t0 = -0.5802826) #using same Linf variable - CAREFUL
 von.list.control
 
 #nls and model
@@ -92,7 +92,7 @@ svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested)
 unlist(svTypical.harvested) 
 svTypical.harvested
 
-von.list.harvested = list(Linf = 109.1284, K = 0.4001377, t0 = -0.3457546) #using same Linf variable - CAREFUL
+von.list.harvested = list(Linf = 110.1673, K = 0.3440395, t0 = -0.5869062) #using same Linf variable - CAREFUL
 von.list.harvested
 
 #nls and model
