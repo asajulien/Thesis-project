@@ -18,12 +18,18 @@ std.err = function(x)
 
 site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
 
-#means
+#means, medians
 mean.lengths = site.compare %>%
   group_by(Status) %>%
   summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
 
 mean.lengths
+
+med.lengths = site.compare %>%
+  group_by(Status) %>%
+  summarise(median(Length.mm), median(na.omit(Growth.bands)))
+
+med.lengths
 
 den.compare = site.compare %>%
   group_by(Status, Quadrat.ID) %>%
@@ -31,14 +37,25 @@ den.compare = site.compare %>%
 
 mean.den = den.compare %>%
   group_by(Status) %>%
-  summarise(mean(`length(Length.mm)`), std.err(`length(Length.mm)`))
+  summarise(mean(`length(Length.mm)` / 0.0625), std.err(`length(Length.mm)` / 0.0625))
 
 mean.den
 
 #histogram for February data
+
 compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency")
 
-compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold"))
+mn.hists = data.frame(Status = c("Control", "Harvested"), m.x.c = c(76.98644, 87.49173))
+
+compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
+
+
+#average densities
+colnames(mean.den)<-c("Status","Density","SE.den")
+
+comp.density <- ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge")
+comp.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
 
 #subset the data
 harvested.site = site.compare %>%
@@ -54,13 +71,13 @@ control.site = site.compare %>%
 ```
 
 
-##Size at age relationship - something isn't working with the fittypical command
+##Size at age relationship
 ```{r, echo=FALSE}
 #Control site (St. Pierre Creek)
 #estimating the parameters (L infinity, K, t0)
 
-von.length.control = site.compare$Length.mm[site.compare$Status == "Control"]
-von.age.control = site.compare$Growth.bands[site.compare$Status == "Control"]
+von.length.control = control.site$Length.mm
+von.age.control = control.site$Growth.bands
 
 svTypical.control = vbStarts(von.length.control ~ von.age.control)
 unlist(svTypical.control) 
@@ -85,8 +102,8 @@ boxplot(Length.mm ~ Growth.bands, data = control.site)
 
 #Harvested site
 #estimating the parameters (L infinity, K, t0)
-von.length.harvested = site.compare$Length.mm[site.compare$Status == "Harvested"]
-von.age.harvested = site.compare$Growth.bands[site.compare$Status == "Harvested"]
+von.length.harvested = harvested.site$Length.mm
+von.age.harvested = harvested.site$Growth.bands
 
 svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested)
 unlist(svTypical.harvested) 
@@ -107,13 +124,23 @@ hist(residuals(fitTypical.harvested),main="")
 boxplot(Length.mm ~ Growth.bands, data = harvested.site)
 #check out how to add confidence intervals -- has to do with bootstrapping
 
+par(mfrow = c(1,2)) #get scales equal
+fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="Control", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+par(mfrow = c(1,1))
 
 ```
 
 ss
 
 ```{r, echo=FALSE}
-plot(pressure)
+nr.mussels = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(Length.mm))
+
+nr.age = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(na.omit(Growth.bands)))
 ```
 
 s

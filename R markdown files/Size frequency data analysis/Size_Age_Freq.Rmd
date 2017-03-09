@@ -25,16 +25,16 @@ month.code<-fbcp.freq$Month.code
 
 #Histograms
 hist(length.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
-
-#histogram for every quadrat
-histogram(~length.fbcp|fbcp.freq$Date.collected,col="gray")
+hist(age.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
 
 #ggplot, by month
 fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January", "February")) #reordering the months
 
 sizeage.plot <- ggplot(data = fbcp.freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
-sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
+mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18)) #visualizing the averages
+
+sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
 #Number of juveniles
 juv.month = fbcp.freq %>%
@@ -44,6 +44,13 @@ juv.month = fbcp.freq %>%
 
 plot(juv.month$`length(Length.mm)` ~ juv.month$Month.code) #n=10 in some cases, 5 in others
 
+#number of mussels by month
+nr.mussels = fbcp.freq %>%
+  group_by(Month.code) %>%
+  summarise(length(Length.mm))
+nr.age = fbcp.freq %>%
+  summarise(length(na.omit(Growth.bands)))
+
 ```
 
 
@@ -51,15 +58,20 @@ plot(juv.month$`length(Length.mm)` ~ juv.month$Month.code) #n=10 in some cases, 
 ```{r, echo=FALSE}
 #von Bertalanffy, FSA package
 
-von.length.fbcp <- fbcp.freq$Length.mm
-von.age.fbcp <- age.fbcp
+#get rid of NAs
+fbcp.site = fbcp.freq %>%
+  select(Quadrat.identifier, Length.mm, Growth.bands) %>%
+  na.omit() 
+
+von.length.fbcp <- fbcp.site$Length.mm
+von.age.fbcp <- fbcp.site$Growth.bands
 
 #estimating the parameters (L infinity, K, t0)
 svTypical.fbcp <- vbStarts(von.length.fbcp ~ von.age.fbcp)
 unlist(svTypical.fbcp) 
 svTypical.fbcp
 
-von.list.fbcp <- list(Linf = 114.0762, K = 0.2788971, t0 = -0.6052945) #using same Linf variable - CAREFUL
+von.list.fbcp <- list(Linf = 114.0762063, K = 0.2788971, t0 = -0.6052945) #using same Linf variable - CAREFUL
 von.list.fbcp
 
 #nls and model
@@ -69,11 +81,30 @@ fitTypical.fbcp <- nls(vbTypical.fbcp,start=svTypical.fbcp)
 fitPlot(fitTypical.fbcp, xlab = "Number of growth bands", ylab = "Length (mm)", main = "", cex.axis = 1.2, cex.lab = 1.4, font.lab = 2)
 overview(fitTypical.fbcp) #It kind of looks like a cubic function right now...
 
-#check out how to add confidence intervals -- has to do with bootstrapping
 
 #CHECK ASSUMPTIONS! Look all right to me
 residPlot(fitTypical.fbcp)
 hist(residuals(fitTypical.fbcp),main="")
+
+#predict ages for loop
+
+#confidence intervals via bootstrapping
+bootTypical.fbcp = nlsBoot(fitTypical.fbcp,niter=999)
+confint(bootTypical.fbcp,plot=TRUE)
+
+#confidence interval
+ages2plot <- 0:15
+fitPlot(fitTypical.fbcp,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
+LCI <- UCI <- numeric(length(ages2plot))
+
+for (i in 1:length(ages2plot)) {
+pv <- ests[,"Linf"]*(1-exp(-ests[,"K"]*(ages2plot[i]-ests[,"t0"])))
+LCI[i] <- quantile(pv,0.025)
+UCI[i] <- quantile(pv,0.975)
+}
+lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+
 
 boxplot(von.length.fbcp~von.age.fbcp)
 ```

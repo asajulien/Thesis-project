@@ -13,6 +13,11 @@ library(MASS)
 library(dplyr)
 
 new.df <- read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+legare.net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
+#species richness:
+sp.rich = legare.net %>%
+  group_by(Order) %>%
+  summarise(length(unique(Species))) #doesn't include traps with zero...
 
 Nekton.count <- new.df$Abundance....nekton.
 Treatment.count <- new.df$Treatment
