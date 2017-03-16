@@ -1,0 +1,57 @@
+---
+title: "Abundance and diversity analyses"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(car)
+library(nlme)
+library(lattice)
+library(MASS)
+library(dplyr)
+
+#files
+new.df <- read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+new.df = new.df[new.df$Month != "March", ]
+legare.net = read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+
+#objects
+Nekton.count <- new.df$`Abundance (# nekton)`
+Treatment.count <- new.df$Treatment
+Date.newdf <- new.df$Date
+Month.newdf <- new.df$Month
+trap.no <- as.factor(new.df$`Trap number`)
+pairing.count <- new.df$Pairing
+sal.count <- new.df$`Salinity ppt`
+temp.count <- new.df$`Temperature C`
+do2 <- new.df$`dO2 pascals`
+tide.count <- new.df$`Tidal height Charleston Harbor water level (m)`
+richness.count <- new.df$`Species richness`
+
+diff.treat = new.df %>%
+  select(Date, Month, Treatment, `Palaemonetes pugio`, `Fundulus heteroclitus`, `Callinectes sapidus`, `Litopenaeus setiferus`, `Bairdiella chrysoura`, `Fundulus luciae`, `Palaemonetes vulgaris`, `Evorthodus lyricus`, `Gobiosoma bosc`, `Cyprinodon variegatus`, `Leiostomus xanthurus`, `Alpheus heterochaelis`, `Abundance (# nekton)`, Shannon, Simpson, `Inverse Simpson`, `Species richness`, `Salinity ppt`, `Temperature C`, )
+
+#models
+test.x = aov(Nekton.count ~ sal.count + temp.count + tide.count + Treatment.count + Date.newdf + Treatment.count:Date.newdf) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
+summary(test.x)
+Anova(test.x)
+plot(test.x)
+
+#Mixed effects model -- loses interaction between date and treatment. 
+abundance.lme = lme(fixed = log(Nekton.count + 1) ~ Treatment.count + sal.count + temp.count + tide.count, random = ~1 | Date.newdf/pairing.count)
+summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
+plot(abundance.lme)
+
+```
+
+
+```{r cars}
+rep.anc <- aov(Nekton.count ~ temp.count + sal.count + tide.count + Treatment.count * Date.newdf + Error(pairing.count/Treatment.count)) #if env. data are last, they will not appear in the model
+summary(rep.anc)
+plot(rep.anc)
+#formula kind of from: 
+#https://ww2.coastal.edu/kingw/statistics/R-tutorials/repeated.html
+#also on:
+#https://www.r-bloggers.com/two-way-anova-with-repeated-measures/
+```
+
