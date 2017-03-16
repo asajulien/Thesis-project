@@ -6,10 +6,12 @@ output: html_document
 ---
 ##Ashley grid I
 ```{r pressure, echo=FALSE}
+library(lattice)
+library(ggplot2)
 
-ashgrid.i = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grid_I.csv"))
+ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
-ashglm.i = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid.i)
+ashglm.i = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid) #will have to subset this later on
 summary(ashglm.i)
 plot(ashglm.i)
 ```
@@ -17,14 +19,16 @@ plot(ashglm.i)
 S
 
 ```{r pressure, echo=FALSE}
-
+ashglm.ii = glm(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], family = binomial, data = ashgrid)
+summary(ashglm.ii)
+xyplot(Mussel.presence ~ Elevation, data = ashgrid)
 ```
 
 ##Figures
 ```{r pressure, echo=FALSE}
-library(lattice)
-library(ggplot2)
-xyplot(Mussel.presence ~ Elevation, data = ashgrid.i)
+#Individual grids
+xyplot(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], data = ashgrid)
+xyplot(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], data = ashgrid)
 ```
 
 S

@@ -1,0 +1,146 @@
+---
+title: "Site comparison"
+author: "Asa Julien"
+date: "February 23, 2017"
+output: html_document
+---
+
+##Size frequency
+```{r, echo=FALSE}
+library(dplyr)
+library(FSA)
+library(nlstools)
+library(lattice)
+library(ggplot2)
+
+std.err = function(x)
+  sd(x)/sqrt(length(x))
+
+site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
+
+#means, medians
+mean.lengths = site.compare %>%
+  group_by(Status) %>%
+  summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
+
+mean.lengths
+
+med.lengths = site.compare %>%
+  group_by(Status) %>%
+  summarise(median(Length.mm), median(na.omit(Growth.bands)))
+
+med.lengths
+
+den.compare = site.compare %>%
+  group_by(Status, Quadrat.ID) %>%
+  summarise(length(Length.mm))
+
+mean.den = den.compare %>%
+  group_by(Status) %>%
+  summarise(mean(`length(Length.mm)` / 0.0625), std.err(`length(Length.mm)` / 0.0625))
+
+mean.den
+
+#histogram for February data
+
+compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency")
+
+mn.hists = data.frame(Status = c("Control", "Harvested"), m.x.c = c(76.98644, 87.49173))
+
+compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
+
+
+#average densities
+colnames(mean.den)<-c("Status","Density","SE.den")
+
+comp.density <- ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge")
+comp.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+
+
+#subset the data
+harvested.site = site.compare %>%
+  select(Status, Date, Length.mm, Growth.bands) %>%
+  filter(Status == "Harvested") %>%
+  na.omit()
+
+control.site = site.compare %>%
+  select(Status, Date, Length.mm, Growth.bands) %>%
+  filter(Status == "Control") %>%
+  na.omit() 
+
+```
+
+
+##Size at age relationship
+```{r, echo=FALSE}
+#Control site (St. Pierre Creek)
+#estimating the parameters (L infinity, K, t0)
+
+von.length.control = control.site$Length.mm
+von.age.control = control.site$Growth.bands
+
+svTypical.control = vbStarts(von.length.control ~ von.age.control)
+unlist(svTypical.control) 
+svTypical.control
+
+von.list.control = list(Linf = 103.2204, K = 0.3782087, t0 = -0.5802826) #using same Linf variable - CAREFUL
+von.list.control
+
+#nls and model
+vbTypical.control = von.length.control ~ Linf * (1-exp(-K * (von.age.control - t0)))
+fitTypical.control = nls(vbTypical.control, start = svTypical.control)
+fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
+overview(fitTypical.control)
+
+residPlot(fitTypical.control)
+hist(residuals(fitTypical.control),main="")
+
+boxplot(Length.mm ~ Growth.bands, data = control.site)
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+
+
+#Harvested site
+#estimating the parameters (L infinity, K, t0)
+von.length.harvested = harvested.site$Length.mm
+von.age.harvested = harvested.site$Growth.bands
+
+svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested)
+unlist(svTypical.harvested) 
+svTypical.harvested
+
+von.list.harvested = list(Linf = 110.1673, K = 0.3440395, t0 = -0.5869062) #using same Linf variable - CAREFUL
+von.list.harvested
+
+#nls and model
+vbTypical.harvested = von.length.harvested ~ Linf * (1-exp(-K * (von.age.harvested - t0)))
+fitTypical.harvested = nls(vbTypical.harvested, start = svTypical.harvested)
+fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
+overview(fitTypical.harvested)
+
+residPlot(fitTypical.harvested)
+hist(residuals(fitTypical.harvested),main="")
+
+boxplot(Length.mm ~ Growth.bands, data = harvested.site)
+#check out how to add confidence intervals -- has to do with bootstrapping
+
+par(mfrow = c(1,2)) #get scales equal
+fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="Control", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+par(mfrow = c(1,1))
+
+```
+
+ss
+
+```{r, echo=FALSE}
+nr.mussels = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(Length.mm))
+
+nr.age = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(na.omit(Growth.bands)))
+```
+
+s
