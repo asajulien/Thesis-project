@@ -1,0 +1,62 @@
+---
+title: "Abundance and diversity analyses"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(car)
+library(nlme)
+library(lattice)
+library(MASS)
+library(dplyr)
+library(vegan)
+
+#files
+new.df <- read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+new.df = new.df[new.df$Month != "March", ] #Just for the purposes of this analysis!
+legare.net = read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+
+#objects
+
+diff.treat = new.df %>%
+  group_by(Date, Pairing) %>%
+  select(Date, Treatment, Pairing, Abundance, Shannon, Simpson, InverseS, Richness, PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis) %>%
+  summarise(diff(Abundance), diff(Shannon), diff(Simpson), diff(InverseS), diff(Richness), diff(PalaemonetesPugio), diff(FundulusHeteroclitus), diff(CallinectesSapidus), diff(LitopenaeusSetiferus), diff(BairdiellaChrysoura), diff(FundulusLuciae), diff(PalaemonetesVulgaris), diff(EvorthodusLyricus), diff(GobiosomaBosc), diff(CyprinodonVariegatus), diff(LeiostomusXanthurus), diff(AlpheusHeterochaelis))
+
+#This is all Spartina - Mussels (don't know how to change that). So, the more negative it is, the more there are around mussel patches.
+#For loop time?
+
+#what do I do from here? Sum them all up? What kind of statistical test can I use? Also, note the total difference of P. pugio (73 in favor of Spartina) and F heter (55 in favor of mussels)
+
+t.one = t.test(diff.treat$`diff(Abundance)`)
+t.pugio = t.test(diff.treat$`diff(PalaemonetesPugio)`)
+t.mummichog = t.test(diff.treat$`diff(FundulusHeteroclitus)`)
+
+#models
+test.x = aov(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
+summary(test.x)
+Anova(test.x)
+plot(test.x)
+
+#Mixed effects model -- loses interaction between date and treatment. 
+abundance.lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new.df)
+summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
+plot(abundance.lme)
+
+```
+
+
+```{r, echo = FALSE}
+#Community composition and direct ordination (trying both RDA and CCA)
+marsh = new.df[, c(seq(7, 17))] #no A. heterochaelis
+marsh.env = new.df[, c(24, 25, 30)] #Just temp, salinity, and tidal height. Can't put factors in for some reason?
+
+#rda analysis
+marsh.rda = rda(marsh, marsh.env)
+summary(marsh.rda)
+plot(marsh.rda)
+
+#cca
+marsh.cca = cca(marsh ~., marsh.env) #All rows have to be greater than zero
+```
+
