@@ -12,9 +12,9 @@ library(dplyr)
 library(vegan)
 
 #files
-new.df <- read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+new.df <- read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
 new.df = new.df[new.df$Month != "March", ] #Just for the purposes of this analysis!
-legare.net = read_csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+legare.net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
 
 #objects
 
@@ -33,10 +33,15 @@ t.pugio = t.test(diff.treat$`diff(PalaemonetesPugio)`)
 t.mummichog = t.test(diff.treat$`diff(FundulusHeteroclitus)`)
 
 #models
-test.x = aov(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
+test.x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
 summary(test.x)
+anova(test.x)
 Anova(test.x)
 plot(test.x)
+
+glm.x = glm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df)
+summary(glm.x) #why is this so different from the aov function? 
+
 
 #Mixed effects model -- loses interaction between date and treatment. 
 abundance.lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new.df)
