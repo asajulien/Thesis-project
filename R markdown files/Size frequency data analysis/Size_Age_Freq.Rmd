@@ -71,8 +71,8 @@ svTypical.fbcp <- vbStarts(von.length.fbcp ~ von.age.fbcp)
 unlist(svTypical.fbcp) 
 svTypical.fbcp
 
-von.list.fbcp <- list(Linf = 114.0762063, K = 0.2788971, t0 = -0.6052945) #using same Linf variable - CAREFUL
-von.list.fbcp
+svTypical.fbcp <- list(Linf = 114.0762063, K = 0.2788971, t0 = -0.6052945) #using same Linf variable - CAREFUL
+svTypical.fbcp
 
 #nls and model
 

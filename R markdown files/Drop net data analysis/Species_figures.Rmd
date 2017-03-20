@@ -76,40 +76,40 @@ std.err <- function(x)
 #Simple comparisons-------------------------------------------------------
 df.compare <- new.df %>%
   group_by(Treatment) %>%
-  summarise(mean(Abundance....nekton.), std.err(Abundance....nekton.), mean(Shannon), std.err(Shannon), mean(Simpson), std.err(Simpson), mean(Species.richness), std.err(Species.richness))
+  summarise(mean(Abundance), std.err(Abundance), mean(Shannon), std.err(Shannon), mean(Simpson), std.err(Simpson), mean(Richness), std.err(Richness))
 colnames(df.compare) <- c("Treatment","Abundance","SE.abun", "Shannon", "SE.shannon", "Simpson", "SE.simpson", "Richness", "SE.richness") #CAREFUL OF NAME OVERLAP! WITH LOWER SECTIONS
 
 
 compare.abun <- ggplot(df.compare, aes(x = Treatment, y = Abundance), position="dodge")
-compare.abun + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.15) + labs(x=expression(),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+compare.abun + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.15) + labs(x=expression(),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 compare.shan <- ggplot(df.compare,aes(x = Treatment, y = Shannon),position="dodge")
-compare.shan + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Shannon+SE.shannon,ymin=Shannon-SE.shannon), width=0.15) + labs(x=expression(),y=expression(Shannon~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+compare.shan + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Shannon+SE.shannon,ymin=Shannon-SE.shannon), width=0.15) + labs(x=expression(),y=expression(Shannon~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 compare.simp <- ggplot(df.compare,aes(x = Treatment, y = Simpson),position="dodge")
-compare.simp + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Simpson+SE.simpson,ymin=Simpson-SE.simpson), width=0.15) + labs(x=expression(),y=expression(Simpson~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+compare.simp + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Simpson+SE.simpson,ymin=Simpson-SE.simpson), width=0.15) + labs(x=expression(),y=expression(Simpson~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 compare.rich <- ggplot(df.compare,aes(x = Treatment, y = Richness),position="dodge")
 compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Richness+SE.richness,ymin=Richness-SE.richness), width=0.15) + labs(x=expression(),y=expression(Species~richness)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 
 #Abundance -----------------------------------------
 
-ggplot(new.df, aes(Treatment, Abundance....nekton.))+geom_boxplot()+labs(x = "Treatment", y = "Nekton abundance")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
+ggplot(new.df, aes(Treatment, Abundance))+geom_boxplot()+labs(x = "Treatment", y = "Nekton abundance")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
 
 #ANCOVA, abundance#####################################
-new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February")) #Ordering the months
+new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February", "March")) #Ordering the months
 
-p<-ggplot(new.df, aes(Treatment,Abundance....nekton.))+geom_boxplot()
+p<-ggplot(new.df, aes(Treatment, Abundance))+geom_boxplot()
 p+facet_grid(~Month)+labs(x="Treatment",y="Nekton abundance") #boxplots - change IQR?
 
 ##barplots of averages:
-df.abundance<-new.df%>%
-  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+df.abundance = new.df %>%
+  filter(Month!="July") %>% #REMOVE JULY, since I only have one set of samples at this point
   group_by(Treatment,Month)%>%
-  summarise(mean(Abundance....nekton.),std.err(Abundance....nekton.))
+  summarise(mean(Abundance),std.err(Abundance))
 colnames(df.abundance)<-c("Treatment","Month","Abundance","SE.abun")
 
-p.abundance <- ggplot(df.abundance,aes(Treatment,Abundance),position="dodge") + facet_grid(~Month)
+p.abundance <- ggplot(df.abundance,aes(Treatment, Abundance),position="dodge") + facet_grid(~Month)
 p.abundance + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25) + facet_grid(~Month) + labs(x=expression(Treatment),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 
 
@@ -163,25 +163,6 @@ p.simpson+geom_bar(stat="identity")+geom_errorbar(aes(ymax=Simpson+SE.simp,ymin=
 
 ##notched boxplots
 ```{r, echo=FALSE}
-##NOTCHED BOXPLOTS (is this necessary?):
-df.shannon<-data.frame(cbind(index.legare[,3],index.legare[,14]))
-colnames(df.shannon)<-c("Treatment","Shannon diversity")
-
-#Notched abundance
-p0<-ggplot(data = new.df,aes(factor(x=Treatment.count),Nekton.count))
-p0+geom_boxplot(notch = TRUE) #notch went outside hinges... larger than interquartile range??
-
-#Notched diversity
-p<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Shannon))
-p+geom_boxplot(notch = TRUE)
-
-p2<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Simpson))
-p2+geom_boxplot(notch = TRUE)
-
-p3<-ggplot(data = index.legare,aes(factor(x=Treatment.count),Inverse.Simpson))
-p3+geom_boxplot(notch = TRUE)
-
-
 
 ```
 
