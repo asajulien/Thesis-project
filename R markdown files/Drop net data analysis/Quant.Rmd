@@ -23,14 +23,14 @@ diff.treat = new.df %>%
   select(Date, Treatment, Pairing, Abundance, Shannon, Simpson, InverseS, Richness, PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis) %>%
   summarise(diff(Abundance), diff(Shannon), diff(Simpson), diff(InverseS), diff(Richness), diff(PalaemonetesPugio), diff(FundulusHeteroclitus), diff(CallinectesSapidus), diff(LitopenaeusSetiferus), diff(BairdiellaChrysoura), diff(FundulusLuciae), diff(PalaemonetesVulgaris), diff(EvorthodusLyricus), diff(GobiosomaBosc), diff(CyprinodonVariegatus), diff(LeiostomusXanthurus), diff(AlpheusHeterochaelis))
 
+colnames(diff.treat) = c("Date", "Pairing", "Abundance", "Shannon", "Simpson", "InverseS", "Richness", "PalaemonetesPugio", "FundulusHeteroclitus", "CallinectesSapidus", "LitopenaeusSetiferus", "BairdiellaChrysoura", "FundulusLuciae", "PalaemonetesVulgaris", "EvorthodusLyricus", "GobiosomaBosc", "CyprinodonVariegatus", "LeiostomusXanthurus", "AlpheusHeterochaelis")
+
 #This is all Spartina - Mussels (don't know how to change that). So, the more negative it is, the more there are around mussel patches.
 #For loop time?
 
 #what do I do from here? Sum them all up? What kind of statistical test can I use? Also, note the total difference of P. pugio (73 in favor of Spartina) and F heter (55 in favor of mussels)
 
-t.one = t.test(diff.treat$`diff(Abundance)`)
-t.pugio = t.test(diff.treat$`diff(PalaemonetesPugio)`)
-t.mummichog = t.test(diff.treat$`diff(FundulusHeteroclitus)`)
+t.abun = t.test(diff.treat$Abundance)
 
 #models
 test.x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
@@ -40,12 +40,13 @@ Anova(test.x)
 plot(test.x)
 
 glm.x = glm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df)
-summary(glm.x) #why is this so different from the aov function? 
+summary(glm.x) #anova table?
 
 
 #Mixed effects model -- loses interaction between date and treatment. 
 abundance.lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new.df)
 summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
+anova(abundance.lme)
 plot(abundance.lme)
 
 ```
