@@ -11,17 +11,25 @@ library(ggplot2)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
-ashglm.i = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid) #will have to subset this later on
-summary(ashglm.i)
-plot(ashglm.i)
+#All together
+ashglm = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid) #will have to subset this later on
+summary(ashglm)
+plot(ashglm)
+
+xyplot(Mussel.presence ~ Elevation, data = ashgrid)
 ```
 
 S
 
 ```{r pressure, echo=FALSE}
+ashglm.i = glm(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], family = binomial, data = ashgrid)
+summary(ashglm.i)
+
 ashglm.ii = glm(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], family = binomial, data = ashgrid)
 summary(ashglm.ii)
-xyplot(Mussel.presence ~ Elevation, data = ashgrid)
+
+ashglm.iii = glm(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], family = binomial, data = ashgrid)
+summary(ashglm.iii)
 ```
 
 ##Figures
@@ -29,6 +37,7 @@ xyplot(Mussel.presence ~ Elevation, data = ashgrid)
 #Individual grids
 xyplot(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], data = ashgrid)
 xyplot(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], data = ashgrid)
+xyplot(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], data = ashgrid)
 ```
 
 S

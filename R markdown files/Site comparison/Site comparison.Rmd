@@ -45,7 +45,7 @@ mean.den
 
 compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency")
 
-mn.hists = data.frame(Status = c("Control", "Harvested"), m.x.c = c(76.98644, 87.49173))
+mn.hists = data.frame(Status = c("Unharvested", "Harvested"), m.x.c = c(76.98644, 87.49173))
 
 compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
 
@@ -54,7 +54,7 @@ compare.hist + theme(axis.text = element_text(size=16), axis.title = element_tex
 colnames(mean.den)<-c("Status","Density","SE.den")
 
 comp.density <- ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge")
-comp.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+comp.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 22,face = "bold"), strip.text = element_text(size=20,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 
 #subset the data
@@ -63,9 +63,9 @@ harvested.site = site.compare %>%
   filter(Status == "Harvested") %>%
   na.omit()
 
-control.site = site.compare %>%
+unharvested.site = site.compare %>%
   select(Status, Date, Length.mm, Growth.bands) %>%
-  filter(Status == "Control") %>%
+  filter(Status == "Unharvested") %>%
   na.omit() 
 
 ```
@@ -76,26 +76,26 @@ control.site = site.compare %>%
 #Control site (St. Pierre Creek)
 #estimating the parameters (L infinity, K, t0)
 
-von.length.control = control.site$Length.mm
-von.age.control = control.site$Growth.bands
+von.length.unharvested = unharvested.site$Length.mm
+von.age.unharvested = unharvested.site$Growth.bands
 
-svTypical.control = vbStarts(von.length.control ~ von.age.control)
-unlist(svTypical.control) 
-svTypical.control
+svTypical.unharvested = vbStarts(von.length.unharvested ~ von.age.unharvested)
+unlist(svTypical.unharvested) 
+svTypical.unharvested
 
-von.list.control = list(Linf = 103.2204, K = 0.3782087, t0 = -0.5802826) #using same Linf variable - CAREFUL
-von.list.control
+von.list.unharvested = list(Linf = 103.2204, K = 0.3782087, t0 = -0.5802826) #using same Linf variable - CAREFUL
+von.list.unharvested
 
 #nls and model
-vbTypical.control = von.length.control ~ Linf * (1-exp(-K * (von.age.control - t0)))
-fitTypical.control = nls(vbTypical.control, start = svTypical.control)
-fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
-overview(fitTypical.control)
+vbTypical.unharvested = von.length.unharvested ~ Linf * (1-exp(-K * (von.age.unharvested - t0)))
+fitTypical.unharvested = nls(vbTypical.unharvested, start = svTypical.unharvested)
+fitPlot(fitTypical.unharvested, xlab="Number of growth bands", ylab="Length (mm)", main="", cex.axis=1.2, cex.lab=1.4, font.lab=2)
+overview(fitTypical.unharvested)
 
-residPlot(fitTypical.control)
-hist(residuals(fitTypical.control),main="")
+residPlot(fitTypical.unharvested)
+hist(residuals(fitTypical.unharvested),main="")
 
-boxplot(Length.mm ~ Growth.bands, data = control.site)
+boxplot(Length.mm ~ Growth.bands, data = unharvested.site)
 #check out how to add confidence intervals -- has to do with bootstrapping
 
 
@@ -125,7 +125,7 @@ boxplot(Length.mm ~ Growth.bands, data = harvested.site)
 #check out how to add confidence intervals -- has to do with bootstrapping
 
 par(mfrow = c(1,2)) #get scales equal
-fitPlot(fitTypical.control, xlab="Number of growth bands", ylab="Length (mm)", main="Control", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+fitPlot(fitTypical.unharvested, xlab="Number of growth bands", ylab="Length (mm)", main="Unharvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
 fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
 par(mfrow = c(1,1))
 

@@ -12,50 +12,35 @@ library(lattice)
 library(MASS)
 library(dplyr)
 
-new.df <- read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+new.df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
 legare.net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
 #species richness:
 sp.rich = legare.net %>%
   group_by(Order) %>%
   summarise(length(unique(Species))) #doesn't include traps with zero...
 
-Nekton.count <- new.df$Abundance....nekton.
-Treatment.count <- new.df$Treatment
-Log.count <- log(Nekton.count+1)
-Date.newdf <- new.df$Date
-Month.newdf <- new.df$Month
-trap.no <- as.factor(new.df$Trap.number)
-pairing.count <- new.df$Pairing
-sal.count <- new.df$Salinity.ppt
-temp.count <- new.df$Temperature.C
-do2 <- new.df$dO2.pascals
-tide.count <- new.df$Tidal.height.Charleston.Harbor.water.level..m.
-richness.count <- new.df$Species.richness
-
-test.x <- aov(Nekton.count ~ sal.count + temp.count + Treatment.count + Date.newdf + Treatment.count:Date.newdf) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
+test.x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
 summary(test.x)
+anova(test.x)
 Anova(test.x) #this may be the one to use... what is the difference between type i/ii/iii ss?
 plot(test.x)
 
+
 #Mixed effects model -- loses interaction between date and treatment. Also need tidal height, dO2, pH, and trap number perhaps
-abundance.lme = lme(fixed = Nekton.count ~ Treatment.count + sal.count + temp.count, random = ~1 | Date.newdf/pairing.count)
+abundance.lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new.df)
 summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
 plot(abundance.lme)
 
-#paired t-test------------------------------------------------------------------------
-
-t.abundance <- t.test(Nekton.count ~ Treatment.count, paired=T)
-t.abundance #check assumptions
 
 #blocking by trap number--------------------------------------------------------------
-block.trap <- aov(Nekton.count ~ Treatment.count + trap.no)
+block.trap <- aov(Abundance ~ Treatment + TrapNo, data = new.df)
 summary(block.trap) #no effect of trap on abundance
 plot(block.trap)
 
 
 ################## repeated measures anchovy (ancova...)
 
-rep.anc <- aov(Nekton.count ~ Treatment.count * Date.newdf + Error(pairing.count/Treatment.count)) #or should just Error(pairing.count) be used?
+rep.anc <- aov(Abundance ~ Treatment * Date + Error(Pairing/Treatment), data = new.df) #or should just Error(pairing.count) be used?
 summary(rep.anc)
 plot(rep.anc)
 #formula kind of from: 
@@ -63,86 +48,20 @@ plot(rep.anc)
 #also on:
 #https://www.r-bloggers.com/two-way-anova-with-repeated-measures/
 
-
-
-#means etc. --------------------------------------------------------------------------
-
-std.err <- function(x)
-  sd(x)/sqrt(length(x))
-
-mean.abun <- tapply(Nekton.count, Treatment.count, mean)
-mean.abun
-med.abun <- tapply(Nekton.count, Treatment.count, median)
-med.abun
-sd.abun <- tapply(Nekton.count, Treatment.count, sd)
-sd.abun
-se.abun <- tapply(Nekton.count, Treatment.count, std.err)
-se.abun
 ```
 
+##individual species patterns
+```{r, echo=FALSE}
+spp.date = new.df %>%
+  select(PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis)
+
+
+
+```
+
+d
 ##analyzing indices
 ```{r, echo=FALSE}
-index.legare <- read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv") #same file as new.df, be careful
-shannon <- index.legare$Shannon
-Treatment.index <- index.legare$Treatment #Mystery blank treatment level - get rid of this!
-simpson <- index.legare$Simpson
-inv.sim <- index.legare$Inverse.Simpson
-ind.month <- index.legare$Month
-
-aov.shannon <- aov(shannon ~ Treatment.index)
-summary(aov.shannon)
-plot(aov.shannon)
-bwplot(shannon ~ Treatment.index)
-
-aov.simp <- aov(simpson ~ Treatment.index) #doesn't fit assumptions well; heteroscedastic
-summary(aov.simp)
-plot(aov.simp)
-bwplot(simpson ~ Treatment.index)
-
-aov.inv <- aov(inv.sim ~ Treatment.index) #problems with inf
-summary(aov.inv)
-plot(aov.inv)
-bwplot(inv.sim ~ Treatment.index)
-
-#paired t-tests-----------------------------------------------------------------------
-
-t.shan <- t.test(shannon ~ Treatment.index, paired=T)
-t.shan #check assumptions
-
-t.simp <- t.test(simpson ~ Treatment.index, paired=T)
-t.simp
-
-t.inv <- t.test(inv.sim ~ Treatment.index, paired=T)
-t.inv
-
-#ancovas---------------------------------------------------------------------
-anc.shan <- aov(shannon ~ Treatment.index + ind.month)
-summary(anc.shan)
-plot(anc.shan)
-
-anc.sim <- aov(simpson ~ Treatment.index + ind.month)
-summary(anc.sim)
-plot(anc.sim)
-
-anc.inv <- inv.sim ~ Treatment.index + ind.month
-summary(anc.inv)
-
-
-#Means, errors --------------------------------------------------------------
-
-mean.shan <- tapply(shannon, Treatment.index, mean)
-mean.simp <- tapply(simpson, Treatment.index, mean)
-mean.inv < -tapply(inv.sim, Treatment.index, mean) #problems w/ blank and infinity
-mean.shan
-mean.simp
-mean.inv
-
-se.shan <- tapply(shannon, Treatment.index, std.err)
-se.simp <- tapply(simpson, Treatment.index, std.err)
-se.inv <- tapply(inv.sim, Treatment.index, std.err)
-se.shan
-se.simp
-se.inv
 
 
 ```
