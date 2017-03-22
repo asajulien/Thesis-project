@@ -12,7 +12,7 @@ library(ggplot2)
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
 #All together
-ashglm = glm(Mussel.presence ~ Elevation, family = binomial, data = ashgrid) #will have to subset this later on
+ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid) #will have to subset this later on
 summary(ashglm)
 plot(ashglm)
 
