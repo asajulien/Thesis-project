@@ -90,19 +90,14 @@ compare.simp <- ggplot(df.compare,aes(x = Treatment, y = Simpson),position="dodg
 compare.simp + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Simpson+SE.simpson,ymin=Simpson-SE.simpson), width=0.15) + labs(x=expression(),y=expression(Simpson~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 compare.rich <- ggplot(df.compare,aes(x = Treatment, y = Richness),position="dodge")
-compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Richness+SE.richness,ymin=Richness-SE.richness), width=0.15) + labs(x=expression(),y=expression(Species~richness)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=Richness+SE.richness,ymin=Richness-SE.richness), width=0.15) + labs(x=expression(),y=expression(Species~richness)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 #Abundance -----------------------------------------
 
-ggplot(new.df, aes(Treatment, Abundance))+geom_boxplot()+labs(x = "Treatment", y = "Nekton abundance")+theme(axis.text = element_text(size=16,face = "bold"),axis.title = element_text(size = 20,face = "bold"),strip.text = element_text(size=18,face = "bold"))
-
-#ANCOVA, abundance#####################################
 new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February", "March")) #Ordering the months
 
-p<-ggplot(new.df, aes(Treatment, Abundance))+geom_boxplot()
-p+facet_grid(~Month)+labs(x="Treatment",y="Nekton abundance") #boxplots - change IQR?
 
-##barplots of averages:
+##0barplots of averages:
 df.abundance = new.df %>%
   filter(Month!="July") %>% #REMOVE JULY, since I only have one set of samples at this point
   group_by(Treatment,Month)%>%
@@ -110,7 +105,7 @@ df.abundance = new.df %>%
 colnames(df.abundance)<-c("Treatment","Month","Abundance","SE.abun")
 
 p.abundance <- ggplot(df.abundance,aes(Treatment, Abundance),position="dodge") + facet_grid(~Month)
-p.abundance + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25) + facet_grid(~Month) + labs(x=expression(Treatment),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p.abundance + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Abundance+SE.abun,ymin=Abundance-SE.abun), width=0.25) + facet_grid(~Month) + labs(x=expression(Treatment),y=expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size= 11,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 
 
 #Without grass shrimp abundance bar plot------------------------------------------------
@@ -118,7 +113,7 @@ ngs.df<-read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Withou
 
 ngs.df$Month<-factor(ngs.df$Month, levels = c("July","August","September","October","November","December", "January")) #Ordering the months
 ngs.plot<-ngs.df%>%
-  filter(Month!="July")%>% #REMOVE JULY, since I only have one set of samples at this point
+  filter(Month!="July") %>% #REMOVE JULY, since I only have one set of samples at this point
   group_by(Treatment,Month)%>%
   summarise(mean(Abundance....nekton.),std.err(Abundance....nekton.))
 colnames(ngs.plot)<-c("Treatment","Month","Abundance","SE.abun")

@@ -43,7 +43,7 @@ mean.den
 
 #histogram for February data
 
-compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency")
+compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
 
 mn.hists = data.frame(Status = c("Unharvested", "Harvested"), m.x.c = c(76.98644, 87.49173))
 

@@ -11,60 +11,68 @@ library(nlme)
 library(lattice)
 library(MASS)
 library(dplyr)
+library(vegan)
 
-new.df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
-legare.net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
+new_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
+legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
 #species richness:
-sp.rich = legare.net %>%
+sp_rich = legare_net %>%
   group_by(Order) %>%
   summarise(length(unique(Species))) #doesn't include traps with zero...
 
-test.x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + Date + Treatment:Date, data = new.df) #Is this correct? Order matters for the aov function... salinity and temperature have to go first in order to be included in the model, why? log transformation +1 helps with residuals
-summary(test.x)
-anova(test.x)
-Anova(test.x) #this may be the one to use... what is the difference between type i/ii/iii ss?
-plot(test.x)
+#models
+test_x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+summary(test_x)
+plot(test_x) #log transform!
 
+test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+summary(test_y)
+plot(test_y)
 
-#Mixed effects model -- loses interaction between date and treatment. Also need tidal height, dO2, pH, and trap number perhaps
-abundance.lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new.df)
-summary(abundance.lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
-plot(abundance.lme)
+test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+summary(test_z)
+plot(test_z)
 
-
-#blocking by trap number--------------------------------------------------------------
-block.trap <- aov(Abundance ~ Treatment + TrapNo, data = new.df)
-summary(block.trap) #no effect of trap on abundance
-plot(block.trap)
-
-
-################## repeated measures anchovy (ancova...)
-
-rep.anc <- aov(Abundance ~ Treatment * Date + Error(Pairing/Treatment), data = new.df) #or should just Error(pairing.count) be used?
-summary(rep.anc)
-plot(rep.anc)
-#formula kind of from: 
-#https://ww2.coastal.edu/kingw/statistics/R-tutorials/repeated.html
-#also on:
-#https://www.r-bloggers.com/two-way-anova-with-repeated-measures/
+#Mixed effects model
+abundance_lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new_df)
+summary(abundance_lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
+anova(abundance_lme)
+plot(abundance_lme)
 
 ```
 
-##individual species patterns
-```{r, echo=FALSE}
-spp.date = new.df %>%
-  select(PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis)
 
+##Multivariate community composition
+```{r, echo = FALSE}
+#Community composition and direct ordination (trying both RDA and CCA)
+marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 
+#rda analysis
+marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #square root transformation makes treatment significant
+marsh_rda
+plot(marsh_rda)
+
+anova(marsh_rda, by='margin')
+
+#cca
+marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #All rows have to be greater than zero
+```
+
+##Differences between paired plot types
+```{r}
+diff_treat = new_df %>%
+  group_by(Date, Pairing) %>%
+  select(Date, Treatment, Pairing, Salinity, Temperature, CharlestonHeight, dO2, Abundance, Shannon, Simpson, InverseS, Richness, PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis) %>%
+  summarise(mean(Temperature), mean(Salinity), mean(CharlestonHeight), mean(dO2), diff(Abundance), diff(Shannon), diff(Simpson), diff(InverseS), diff(Richness), diff(PalaemonetesPugio), diff(FundulusHeteroclitus), diff(CallinectesSapidus), diff(LitopenaeusSetiferus), diff(BairdiellaChrysoura), diff(FundulusLuciae), diff(PalaemonetesVulgaris), diff(EvorthodusLyricus), diff(GobiosomaBosc), diff(CyprinodonVariegatus), diff(LeiostomusXanthurus), diff(AlpheusHeterochaelis)) #Note: "Mean" for temp, sal, tidal height, and dO2 is okay to use since on a given day/pairing, the mean is equal to both the values that contribute to it (see new.df)
+
+colnames(diff_treat) = c("Date", "Pairing", "Temperature", "Salinity", "CharlestonHeight", "dO2", "Abundance", "Shannon", "Simpson", "InverseS", "Richness", "PalaemonetesPugio", "FundulusHeteroclitus", "CallinectesSapidus", "LitopenaeusSetiferus", "BairdiellaChrysoura", "FundulusLuciae", "PalaemonetesVulgaris", "EvorthodusLyricus", "GobiosomaBosc", "CyprinodonVariegatus", "LeiostomusXanthurus", "AlpheusHeterochaelis")
+
+#This is all Spartina - Mussels (don't know how to change that). So, the more negative it is, the more there are around mussel patches.
+
+t_abun = t.test(diff_treat$Abundance)
+t.abun
 
 ```
 
-d
-##analyzing indices
-```{r, echo=FALSE}
 
-
-```
-
-d
 ##end
