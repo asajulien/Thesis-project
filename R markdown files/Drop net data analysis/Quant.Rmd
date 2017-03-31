@@ -13,19 +13,19 @@ library(vegan)
 
 #files
 new_df <- read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
-new_df = new.df[new.df$Month != "March", ] #Just for the purposes of this analysis!
+new_df = new_df[new_df$Month != "March", ] #Just for the purposes of this analysis!
 legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
 
 #models
-test_x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
 summary(test_x)
 plot(test_x)
 
-test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
 summary(test_y)
 plot(test_y)
 
-test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
 summary(test_z)
 plot(test_z)
 
@@ -43,29 +43,33 @@ plot(abundance_lme)
 marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 
 #rda analysis
-marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #square root transformation makes treatment significant
+marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) #square root transformation makes treatment significant
 marsh_rda
 plot(marsh_rda)
 
-anova(marsh_rda, by='margin')
+anova(marsh_rda, by = 'margin')
 
 #cca
 marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #All rows have to be greater than zero
 ```
 
-##Differences between paired plot types
-```{r}
-diff_treat = new_df %>%
-  group_by(Date, Pairing) %>%
-  select(Date, Treatment, Pairing, Salinity, Temperature, CharlestonHeight, dO2, Abundance, Shannon, Simpson, InverseS, Richness, PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis) %>%
-  summarise(mean(Temperature), mean(Salinity), mean(CharlestonHeight), mean(dO2), diff(Abundance), diff(Shannon), diff(Simpson), diff(InverseS), diff(Richness), diff(PalaemonetesPugio), diff(FundulusHeteroclitus), diff(CallinectesSapidus), diff(LitopenaeusSetiferus), diff(BairdiellaChrysoura), diff(FundulusLuciae), diff(PalaemonetesVulgaris), diff(EvorthodusLyricus), diff(GobiosomaBosc), diff(CyprinodonVariegatus), diff(LeiostomusXanthurus), diff(AlpheusHeterochaelis)) #Note: "Mean" for temp, sal, tidal height, and dO2 is okay to use since on a given day/pairing, the mean is equal to both the values that contribute to it (see new.df)
+##NGS (no grass shrimp)
+```{r, echo = FALSE}
+new_df$abun_ngs = rowSums(new_df[, seq(8, 17)]) #no A. heterochaelis right now because of NAs
 
-colnames(diff_treat) = c("Date", "Pairing", "Temperature", "Salinity", "CharlestonHeight", "dO2", "Abundance", "Shannon", "Simpson", "InverseS", "Richness", "PalaemonetesPugio", "FundulusHeteroclitus", "CallinectesSapidus", "LitopenaeusSetiferus", "BairdiellaChrysoura", "FundulusLuciae", "PalaemonetesVulgaris", "EvorthodusLyricus", "GobiosomaBosc", "CyprinodonVariegatus", "LeiostomusXanthurus", "AlpheusHeterochaelis")
+#abundance model
+test_ngs = lm(log(abun_ngs + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+summary(test_ngs)
+plot(test_ngs)
 
-#This is all Spartina - Mussels (don't know how to change that). So, the more negative it is, the more there are around mussel patches.
+#NGS rda analysis
+marsh_ngs = new_df[, c(seq(8, 17))] #No P. pugio or A. heterochaelis
+ngs_rda = rda(sqrt(marsh_ngs) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) #square root transformation makes treatment significant
+ngs_rda
+plot(ngs_rda)
 
-t_abun = t.test(diff_treat$Abundance)
-t.abun
-
+anova(marsh_rda, by = 'margin')
 ```
+
+
 
