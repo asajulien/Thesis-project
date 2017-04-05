@@ -58,7 +58,7 @@ marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, d
 new_df$abun_ngs = rowSums(new_df[, seq(8, 17)]) #no A. heterochaelis right now because of NAs
 
 #abundance model
-test_ngs = lm(log(abun_ngs + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_ngs = lm(log(abun_ngs + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
 summary(test_ngs)
 plot(test_ngs)
 
@@ -72,4 +72,39 @@ anova(marsh_rda, by = 'margin')
 ```
 
 
+##Elevation data
+```{r}
+library(lattice)
+library(ggplot2)
+
+ashgrid = read.csv(("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv"))
+
+#All together
+ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid) #will have to subset this later on
+summary(ashglm)
+plot(ashglm)
+
+ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
+ash_plot + geom_point(aes(colour = Block))
+
+xyplot(Mussel.presence ~ Elevation, data = ashgrid)
+
+#Individual salinity blocks
+ashglm.i = glm(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], family = binomial, data = ashgrid)
+summary(ashglm.i)
+
+ashglm.ii = glm(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], family = binomial, data = ashgrid)
+summary(ashglm.ii)
+
+ashglm.iii = glm(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], family = binomial, data = ashgrid)
+summary(ashglm.iii)
+
+ashglm.iv = glm(Mussel.presence[Grid.ID == "Ash 4"] ~ Elevation[Grid.ID == "Ash 4"], family = binomial, data = ashgrid)
+summary(ashglm.iv)
+
+##Figures 
+xyplot(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], data = ashgrid)
+xyplot(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], data = ashgrid)
+xyplot(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], data = ashgrid)
+```
 
