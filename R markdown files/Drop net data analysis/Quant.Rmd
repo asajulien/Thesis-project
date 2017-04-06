@@ -17,15 +17,15 @@ new_df = new_df[new_df$Month != "March", ] #Just for the purposes of this analys
 legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
 
 #models
-test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_x)
 plot(test_x)
 
-test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
+test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_y)
 plot(test_y)
 
-test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
+test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_z)
 plot(test_z)
 
@@ -47,10 +47,18 @@ marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHei
 marsh_rda
 plot(marsh_rda)
 
-anova(marsh_rda, by = 'margin')
+anova(marsh_rda, by = 'margin', permutations = 2000)
+with(new_df, varpart(sqrt(marsh_rda), ifelse(Treatment == 'Mussels', 1, 0),  
+                     data.frame(Temperature, Salinity), CharlestonHeight))
 
 #cca
-marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #All rows have to be greater than zero
+marsh_2 = marsh[rowSums(marsh) != 0,]
+rowSums(marsh_2)
+marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight,                      data = new_df[-c(11, 62, 63, 65, 66, 68, 70),]) #All rows                         have to be greater than zero
+marsh_cca
+plot(marsh_cca)
+anova(marsh_cca, by = 'margin', permutations = 2000) #Different than the rda analysis. Tidal height becomes much less important. Treatment is way more important. Temperature remains fairly important.
+
 ```
 
 ##NGS (no grass shrimp)
@@ -58,17 +66,23 @@ marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, d
 new_df$abun_ngs = rowSums(new_df[, seq(8, 17)]) #no A. heterochaelis right now because of NAs
 
 #abundance model
-test_ngs = lm(log(abun_ngs + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Datecode + Pairing, data = new_df) 
+test_ngs = lm(log(abun_ngs + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_ngs)
 plot(test_ngs)
 
 #NGS rda analysis
 marsh_ngs = new_df[, c(seq(8, 17))] #No P. pugio or A. heterochaelis
-ngs_rda = rda(sqrt(marsh_ngs) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) #square root transformation makes treatment significant
+ngs_rda = rda(sqrt(marsh_ngs) ~ Treatment + Temperature + Salinity +
+              CharlestonHeight, data = new_df) 
+#square root transformation makes treatment significant
 ngs_rda
+RsquareAdj(ngs_rda)
 plot(ngs_rda)
 
-anova(marsh_rda, by = 'margin')
+anova(ngs_rda, by = 'margin', permutations = 2000)
+with(new_df, varpart(sqrt(marsh_ngs), ifelse(Treatment == 'Mussels', 1, 0),  
+                     data.frame(Temperature, Salinity), CharlestonHeight))
+
 ```
 
 
@@ -79,10 +93,33 @@ library(ggplot2)
 
 ashgrid = read.csv(("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv"))
 
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
 #All together
-ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid) #will have to subset this later on
+ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid)
 summary(ashglm)
 plot(ashglm)
+
+full_mod = ashglm
+main_mod = update(full_mod, . ~ . - Elevation:Block)
+elev_mod = update(main_mod, . ~ . - Block)
+elev_mod2 = update(elev_mod, . ~. + I(Elevation^2))
+elev_mod3 = update(elev_mod2, . ~. + I(Elevation^3))
+elev_mod4 = update(elev_mod2, . ~. + Block + Elevation:Block)
+
+anova(full_mod, main_mod, elev_mod, test='LRT')
+anova(elev_mod, elev_mod2, elev_mod3, elev_mod4, test='LRT')
+#add salinity back in - plot both
+plot(elev_mod2)
+
+new_data = data.frame(Elevation = seq(0, .8, .05))
+plot(Mussel.presence ~ Elevation, data=ashgrid)
+lines(new_data$Elevation, predict(elev_mod, newdata=new_data, type='response'),
+      col='red')
+lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
+      col='blue')
+lines(new_data$Elevation, predict(elev_mod4, newdata=new_data, type='response'),
+      col='green') #This isn't right and I have no idea how to do this...
 
 ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
 ash_plot + geom_point(aes(colour = Block))
