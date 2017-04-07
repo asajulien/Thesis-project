@@ -13,7 +13,6 @@ library(vegan)
 
 #files
 new_df <- read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
-new_df = new_df[new_df$Month != "March", ] #Just for the purposes of this analysis!
 legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
 
 #models
@@ -50,6 +49,8 @@ plot(marsh_rda)
 anova(marsh_rda, by = 'margin', permutations = 2000)
 with(new_df, varpart(sqrt(marsh_rda), ifelse(Treatment == 'Mussels', 1, 0),  
                      data.frame(Temperature, Salinity), CharlestonHeight))
+
+RsquareAdj(marsh_rda)
 
 #cca
 marsh_2 = marsh[rowSums(marsh) != 0,]
@@ -103,12 +104,17 @@ plot(ashglm)
 full_mod = ashglm
 main_mod = update(full_mod, . ~ . - Elevation:Block)
 elev_mod = update(main_mod, . ~ . - Block)
-elev_mod2 = update(elev_mod, . ~. + I(Elevation^2))
-elev_mod3 = update(elev_mod2, . ~. + I(Elevation^3))
-elev_mod4 = update(elev_mod2, . ~. + Block + Elevation:Block)
+elev_mod2 = update(elev_mod, . ~ . + I(Elevation^2))
+elev_mod3 = update(elev_mod2, . ~ . + I(Elevation^3))
+elev_mod4 = update(elev_mod2, . ~ . + Block)
+elev_mod5 = update(elev_mod2, . ~ . + Block + Elevation:Block)
 
 anova(full_mod, main_mod, elev_mod, test='LRT')
-anova(elev_mod, elev_mod2, elev_mod3, elev_mod4, test='LRT')
+AIC(full_mod, main_mod, elev_mod)
+
+anova(elev_mod, elev_mod2, elev_mod4, elev_mod5, test='LRT')
+AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best?
+
 #add salinity back in - plot both
 plot(elev_mod2)
 
