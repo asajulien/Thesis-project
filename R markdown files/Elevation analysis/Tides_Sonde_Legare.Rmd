@@ -44,7 +44,7 @@ lm.hitide<-lm(hi.tide$Sonde.high.tides..m.~hi.tide$Charleston.high.tides..m.)
 summary(lm.hitide)
 plot(lm.hitide)
 
-cor.test(hi.tide$Sonde.high.tides..m.,hi.tide$Corresponding.Charleston.tides..m.)
+cor.test(hi.tide$Sonde.high.tides..m.,hi.tide$Charleston.high.tides..m.)
 
 ```
 .
@@ -60,6 +60,12 @@ plot(master.lm)
 require(lattice)
 xyplot(master.sonde~master.noaa,type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
 
+cor.test(master.tide$master.sonde, master.tide$master.noaa)
+
+#Without storm? What day was this (point 32)
+xyplot(master.sonde[-32]~master.noaa[-32],type=c("p","r"), pch=19, col = "black", xlab = "Charleston Harbor height (m)", ylab = "Sol Legare height (m)")
+
+cor.test(master.tide$master.sonde[-32], master.tide$master.noaa[-32])
 ```
 .
 ##Plots

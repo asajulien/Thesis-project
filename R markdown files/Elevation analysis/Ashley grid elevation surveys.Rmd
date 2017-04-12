@@ -16,12 +16,16 @@ ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashg
 summary(ashglm)
 plot(ashglm)
 
+ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
+ash_plot + geom_point(aes(colour = Block))
+
 xyplot(Mussel.presence ~ Elevation, data = ashgrid)
 ```
 
 S
 
 ```{r pressure, echo=FALSE}
+#By grid
 ashglm.i = glm(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], family = binomial, data = ashgrid)
 summary(ashglm.i)
 
@@ -30,6 +34,14 @@ summary(ashglm.ii)
 
 ashglm.iii = glm(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], family = binomial, data = ashgrid)
 summary(ashglm.iii)
+
+
+#By salinity block
+ashblock.i = glm(Mussel.presence[Block == "20-25"] ~ Elevation[Block == "20-25"], family = binomial, data = ashgrid)
+summary(ashblock.i)
+
+ashblock.ii = glm(Mussel.presence[Block == "15-20"] ~ Elevation[Block == "15-20"], family = binomial, data = ashgrid)
+summary(ashblock.ii)
 ```
 
 ##Figures

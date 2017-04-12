@@ -21,7 +21,7 @@ sp_rich = legare_net %>%
   summarise(length(unique(Species))) #doesn't include traps with zero...
 
 #models
-test_x = lm(Abundance ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
 summary(test_x)
 plot(test_x) #log transform!
 
