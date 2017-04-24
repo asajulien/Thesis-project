@@ -33,11 +33,10 @@ test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + as
 summary(test_z)
 plot(test_z)
 
-#Mixed effects model
-abundance_lme = lme(fixed = Abundance ~ Treatment + Salinity + Temperature + CharlestonHeight, random = ~1 | Date/Pairing, data = new_df)
-summary(abundance_lme) #Residuals a little better when log transformed; salinity becomes less "important" when this happens
-anova(abundance_lme)
-plot(abundance_lme)
+test_w = lm(Simpson ~ Salinity + CharlestonHeight + Treatment * Temperature + Pairing, data = new_df)
+summary(test_w)
+plot(test_w)
+
 
 ```
 
@@ -51,26 +50,28 @@ marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #square root transformation makes treatment significant
 marsh_rda
 plot(marsh_rda)
+plot(marsh_rda, display=c('sp', 'cn'))
 
-anova(marsh_rda, by='margin')
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) +
+                 Condition(Salinity) + Condition(CharlestonHeight),
+                 data = new_df)
+plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
+
+anova(marsh_rda, by='margin', permutations = 2000)
+RsquareAdj(marsh_rda)
+
 
 #cca
-marsh_cca = cca(marsh ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #All rows have to be greater than zero
+marsh_2 = marsh[rowSums(marsh) != 0,]
+rowSums(marsh_2)
+marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df[-c(11, 62, 63, 65, 66, 68, 70),]) #All rows have to be greater than zero
+marsh_cca
+plot(marsh_cca)
+anova(marsh_cca, by = 'margin', permutations = 2000)
 ```
 
-##Differences between paired plot types
+
 ```{r}
-diff_treat = new_df %>%
-  group_by(Date, Pairing) %>%
-  select(Date, Treatment, Pairing, Salinity, Temperature, CharlestonHeight, dO2, Abundance, Shannon, Simpson, InverseS, Richness, PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, BairdiellaChrysoura, FundulusLuciae, PalaemonetesVulgaris, EvorthodusLyricus, GobiosomaBosc, CyprinodonVariegatus, LeiostomusXanthurus, AlpheusHeterochaelis) %>%
-  summarise(mean(Temperature), mean(Salinity), mean(CharlestonHeight), mean(dO2), diff(Abundance), diff(Shannon), diff(Simpson), diff(InverseS), diff(Richness), diff(PalaemonetesPugio), diff(FundulusHeteroclitus), diff(CallinectesSapidus), diff(LitopenaeusSetiferus), diff(BairdiellaChrysoura), diff(FundulusLuciae), diff(PalaemonetesVulgaris), diff(EvorthodusLyricus), diff(GobiosomaBosc), diff(CyprinodonVariegatus), diff(LeiostomusXanthurus), diff(AlpheusHeterochaelis)) #Note: "Mean" for temp, sal, tidal height, and dO2 is okay to use since on a given day/pairing, the mean is equal to both the values that contribute to it (see new.df)
-
-colnames(diff_treat) = c("Date", "Pairing", "Temperature", "Salinity", "CharlestonHeight", "dO2", "Abundance", "Shannon", "Simpson", "InverseS", "Richness", "PalaemonetesPugio", "FundulusHeteroclitus", "CallinectesSapidus", "LitopenaeusSetiferus", "BairdiellaChrysoura", "FundulusLuciae", "PalaemonetesVulgaris", "EvorthodusLyricus", "GobiosomaBosc", "CyprinodonVariegatus", "LeiostomusXanthurus", "AlpheusHeterochaelis")
-
-#This is all Spartina - Mussels (don't know how to change that). So, the more negative it is, the more there are around mussel patches.
-
-t_abun = t.test(diff_treat$Abundance)
-t.abun
 
 ```
 

@@ -8,6 +8,8 @@ output: html_document
 ```{r pressure, echo=FALSE}
 library(lattice)
 library(ggplot2)
+library(rms)
+library(pscl)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
@@ -30,13 +32,22 @@ anova(full_mod, main_mod, elev_mod, test='LRT')
 AIC(full_mod, main_mod, elev_mod)
 
 anova(elev_mod, elev_mod2, elev_mod4, elev_mod5, test='LRT')
-AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best?
+AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best
 
 #add salinity back in - plot both
 plot(elev_mod2)
 plot(elev_mod4)
 summary(elev_mod4)
 
+#model fits; pseudo r^2
+full_r2 = pR2(full_mod)
+main_r2 = pR2(main_mod)
+mod_r2 = pR2(elev_mod)
+mod2_r2 = pR2(elev_mod2)
+mod4_r2 = pR2(elev_mod4)
+mod5_r2 = pR2(elev_mod5)
+
+#plotting data and values predicted by models
 new_data = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("20-25"), each = 50))
 new_data2 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("15-20"), each = 50))
 new_data3 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("10-15"), each = 50))
