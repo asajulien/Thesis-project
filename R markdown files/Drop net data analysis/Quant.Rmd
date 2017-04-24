@@ -42,22 +42,31 @@ plot(abundance_lme)
 marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 
 #rda analysis
+marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) #square root transformation makes treatment significant
 marsh_rda
 plot(marsh_rda)
 plot(marsh_rda, display=c('sp', 'cn'))
 
-marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) +
-                 Condition(Salinity) + Condition(CharlestonHeight),
-                 data = new_df)
-plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
-
 anova(marsh_rda, by='margin', permutations = 2000)
 RsquareAdj(marsh_rda)
+
+#Just looking at treatment effect
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) + Condition(Salinity) + Condition(CharlestonHeight), data = new_df)
+
+plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
+
+ordi_plot = ordiplot(marsh_rda2, type = "none")
+text(ordi_plot, "species", col="blue", cex=1)
+points(ordi_plot, "centroids", pch = 19, col = c("red", "black"), cex = 3)
+legend(2, 2, c("Mussels", "No mussels"), col = c("red", "black"), pch = 19)
+
+anova(marsh_rda2, by = 'margin', permutations = 2000)
+RsquareAdj(marsh_rda2) #really low
 
 #cca
 marsh_2 = marsh[rowSums(marsh) != 0,]
 rowSums(marsh_2)
-marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight,                      data = new_df[-c(11, 62, 63, 65, 66, 68, 70),]) #All rows                         have to be greater than zero
+marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df[-c(11, 62, 63, 65, 66, 68, 70),]) #All rows have to be greater than zero
 marsh_cca
 plot(marsh_cca)
 anova(marsh_cca, by = 'margin', permutations = 2000) #Different than the rda analysis. Tidal height becomes much less important. Treatment is way more important. Temperature remains fairly important.
@@ -75,16 +84,14 @@ plot(test_ngs)
 
 #NGS rda analysis
 marsh_ngs = new_df[, c(seq(8, 17))] #No P. pugio or A. heterochaelis
-ngs_rda = rda(sqrt(marsh_ngs) ~ Treatment + Temperature + Salinity +
-              CharlestonHeight, data = new_df) 
+ngs_rda = rda(sqrt(marsh_ngs) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) 
 #square root transformation makes treatment significant
 ngs_rda
 RsquareAdj(ngs_rda)
 plot(ngs_rda)
 
 anova(ngs_rda, by = 'margin', permutations = 2000)
-with(new_df, varpart(sqrt(marsh_ngs), ifelse(Treatment == 'Mussels', 1, 0),  
-                     data.frame(Temperature, Salinity), CharlestonHeight))
+with(new_df, varpart(sqrt(marsh_ngs), ifelse(Treatment == 'Mussels', 1, 0), data.frame(Temperature, Salinity), CharlestonHeight))
 
 ```
 
