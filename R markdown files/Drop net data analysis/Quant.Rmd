@@ -42,14 +42,16 @@ plot(abundance_lme)
 marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 
 #rda analysis
-marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df) #square root transformation makes treatment significant
 marsh_rda
 plot(marsh_rda)
+plot(marsh_rda, display=c('sp', 'cn'))
 
-anova(marsh_rda, by = 'margin', permutations = 2000)
-with(new_df, varpart(sqrt(marsh_rda), ifelse(Treatment == 'Mussels', 1, 0),  
-                     data.frame(Temperature, Salinity), CharlestonHeight))
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) +
+                 Condition(Salinity) + Condition(CharlestonHeight),
+                 data = new_df)
+plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
 
+anova(marsh_rda, by='margin', permutations = 2000)
 RsquareAdj(marsh_rda)
 
 #cca
@@ -91,6 +93,8 @@ with(new_df, varpart(sqrt(marsh_ngs), ifelse(Treatment == 'Mussels', 1, 0),
 ```{r}
 library(lattice)
 library(ggplot2)
+library(rms)
+library(pscl)
 
 ashgrid = read.csv(("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv"))
 
@@ -117,7 +121,17 @@ AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best?
 
 #add salinity back in - plot both
 plot(elev_mod2)
+plot(elev_mod4)
 
+#model fits; pseudo r^2
+full_r2 = pR2(full_mod)
+main_r2 = pR2(main_mod)
+mod_r2 = pR2(elev_mod)
+mod2_r2 = pR2(elev_mod2)
+mod4_r2 = pR2(elev_mod4)
+mod5_r2 = pR2(elev_mod5)
+
+#Predicted values and plots
 new_data = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("15-20"), each = 50))
 new_data2 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("20-25"), each = 50))
 
@@ -133,27 +147,5 @@ lines(new_data$Elevation, predict(elev_mod4, newdata=new_data, type='response'),
 lines(new_data2$Elevation, predict(elev_mod4, newdata=new_data2, type='response'),
       col='red')
 
-ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
-ash_plot + geom_point(aes(colour = Block))
-
-xyplot(Mussel.presence ~ Elevation, data = ashgrid)
-
-#Individual salinity blocks
-ashglm.i = glm(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], family = binomial, data = ashgrid)
-summary(ashglm.i)
-
-ashglm.ii = glm(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], family = binomial, data = ashgrid)
-summary(ashglm.ii)
-
-ashglm.iii = glm(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], family = binomial, data = ashgrid)
-summary(ashglm.iii)
-
-ashglm.iv = glm(Mussel.presence[Grid.ID == "Ash 4"] ~ Elevation[Grid.ID == "Ash 4"], family = binomial, data = ashgrid)
-summary(ashglm.iv)
-
-##Figures 
-xyplot(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], data = ashgrid)
 ```
 
