@@ -51,20 +51,24 @@ mod5_r2 = pR2(elev_mod5)
 new_data = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("20-25"), each = 50))
 new_data2 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("15-20"), each = 50))
 new_data3 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("10-15"), each = 50))
+new_data4 = data.frame(Elevation = seq(0, .8, length.out = 50), Block = rep(c("5-10"), each = 50))
 
-plot(Mussel.presence ~ Elevation, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation (m)", ylab = "Geukensia demissa presence")
-legend(-0.1, 1, unique(ashgrid$Block), col = c("green", "red", "black"), pch = 20)
+plot(Mussel.presence ~ Elevation, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation (m)", ylab = "Probability of Geukensia demissa occurrence")
+legend(-0.1, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
 
-lines(new_data$Elevation, predict(elev_mod, newdata=new_data, type='response'),
-      col='blue')
-lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
-      col='pink')
 lines(new_data$Elevation, predict(elev_mod4, newdata=new_data, type='response'),
       col='green')
 lines(new_data2$Elevation, predict(elev_mod4, newdata=new_data2, type='response'),
       col='red')
 lines(new_data3$Elevation, predict(elev_mod4, newdata=new_data3, type='response'),
       col='black')
+lines(new_data4$Elevation, predict(elev_mod4, newdata=new_data4, type='response'),
+      col='blue')
+
+lines(new_data$Elevation, predict(elev_mod, newdata=new_data, type='response'),
+      col='purple')
+lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
+      col='pink')
 
 ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
 ash_plot + geom_point(aes(colour = Block))
