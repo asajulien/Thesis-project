@@ -28,11 +28,11 @@ hist(length.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab 
 hist(age.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
 
 #ggplot, by month
-fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January", "February")) #reordering the months
+fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April")) #reordering the months
 
 sizeage.plot <- ggplot(data = fbcp.freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
-mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18)) #visualizing the averages
+mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18)) #visualizing the averages
 
 sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
@@ -46,7 +46,7 @@ plot(juv.month$`length(Length.mm)` ~ juv.month$Month.code) #n=10 in some cases, 
 
 #number of mussels by month
 nr.mussels = fbcp.freq %>%
-  group_by(Month.code) %>%
+  group_by(Month.code, Quadrat.identifier) %>%
   summarise(length(Length.mm))
 nr.age = fbcp.freq %>%
   summarise(length(na.omit(Growth.bands)))
@@ -71,7 +71,7 @@ svTypical.fbcp <- vbStarts(von.length.fbcp ~ von.age.fbcp)
 unlist(svTypical.fbcp) 
 svTypical.fbcp
 
-svTypical.fbcp <- list(Linf = 114.0762063, K = 0.2788971, t0 = -0.6052945) #using same Linf variable - CAREFUL
+svTypical.fbcp <- list(Linf = 113.2532, K = 0.28309, t0 = -0.61066) #using same Linf variable - CAREFUL
 svTypical.fbcp
 
 #nls and model
@@ -134,7 +134,7 @@ colnames(mn.lengths.fbcp) = c("Month", "Length", "SE.length", "Age", "SE.age")
 mn.lengths.fbcp
 
 #plots
-mn.lengths.fbcp$Month<-factor(mn.lengths.fbcp$Month, levels = c("August","September","October","November","December", "January", "February")) #Ordering the months
+mn.lengths.fbcp$Month<-factor(mn.lengths.fbcp$Month, levels = c("August","September","October","November","December", "January", "February", "March", "April")) #Ordering the months
 
 limits.size <- aes(ymax = mn.lengths.fbcp$Length + mn.lengths.fbcp$SE.length, ymin = mn.lengths.fbcp$Length - mn.lengths.fbcp$SE.length)
 
@@ -158,7 +158,7 @@ den.fbcp
 
 density.month<-read.csv("C:\\Users\\juliena\\desktop\\data\\size frequency\\csv files\\density_month_fbcp.csv")
 
-density.month$Month<-factor(density.month$Month, levels = c("August","September","October","November","December", "January", "February")) #Ordering the months
+density.month$Month<-factor(density.month$Month, levels = c("August","September","October","November","December", "January", "February", "March", "April")) #Ordering the months
 
 ##barplots of average densities:
 df.density<-density.month%>%
