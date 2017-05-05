@@ -32,7 +32,7 @@ fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","Septembe
 
 sizeage.plot <- ggplot(data = fbcp.freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
-mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18)) #visualizing the averages
+mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18, 82.8, 86.39)) #visualizing the averages
 
 sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
