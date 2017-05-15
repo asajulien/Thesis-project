@@ -21,19 +21,19 @@ sp_rich = legare_net %>%
   summarise(length(unique(Species))) #doesn't include traps with zero...
 
 #models
-test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_x)
-plot(test_x) #log transform!
+plot(test_x)
 
-test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_y)
 plot(test_y)
 
-test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + as.numeric(Date) + Pairing, data = new_df) 
+test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
 summary(test_z)
 plot(test_z)
 
-test_w = lm(Simpson ~ Salinity + CharlestonHeight + Treatment * Temperature + Pairing, data = new_df)
+test_w = lm(Simpson ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df)
 summary(test_w)
 plot(test_w)
 
@@ -60,6 +60,18 @@ plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
 anova(marsh_rda, by='margin', permutations = 2000)
 RsquareAdj(marsh_rda)
 
+#Just looking at treatment effect
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) + Condition(Salinity) + Condition(CharlestonHeight), data = new_df)
+
+plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
+
+ordi_plot = ordiplot(marsh_rda2, type = "none")
+text(ordi_plot, "species", col="blue", cex=1)
+points(ordi_plot, "centroids", pch = 19, col = c("red", "black"), cex = 3)
+legend(2, 2, c("Mussels", "No mussels"), col = c("red", "black"), pch = 19)
+
+anova(marsh_rda2, by = 'margin', permutations = 2000)
+RsquareAdj(marsh_rda2) #really low
 
 #cca
 marsh_2 = marsh[rowSums(marsh) != 0,]
