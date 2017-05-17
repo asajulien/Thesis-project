@@ -96,4 +96,67 @@ xyplot(Mussel.presence[Grid.ID == "Ash 5"] ~ Elevation[Grid.ID == "Ash 5"], data
 ```
 
 
-S
+##Elevation above MHW
+```{r pressure, echo=FALSE}
+
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
+#All together
+ashglm_mhw = glm(Mussel.presence ~ MHW * Block, family = binomial, data = ashgrid)
+summary(ashglm_mhw)
+plot(ashglm_mhw)
+
+full_mhw = ashglm_mhw
+main_mhw = update(full_mhw, . ~ . - MHW:Block)
+elev_mhw = update(main_mhw, . ~ . - Block)
+elev_mhw2 = update(elev_mhw, . ~ . + I(MHW^2))
+elev_mhw3 = update(elev_mhw2, . ~ . + I(MHW^3))
+elev_mhw4 = update(elev_mhw2, . ~ . + Block)
+elev_mhw5 = update(elev_mhw2, . ~ . + Block + MHW:Block)
+
+anova(full_mhw, main_mhw, elev_mhw, test='LRT')
+AIC(full_mhw, main_mhw, elev_mhw)
+
+anova(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5, test='LRT')
+AIC(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5) #model 4 is the best
+
+#add salinity back in - plot both
+plot(elev_mhw2)
+plot(elev_mhw4)
+summary(elev_mhw4)
+
+#model fits; pseudo r^2
+pR2(full_mhw)
+pR2(main_mhw)
+pR2(elev_mhw)
+pR2(elev_mhw2)
+pR2(elev_mhw4)
+pR2(elev_mhw5)
+
+#plotting data and values predicted by models
+new_data = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("20-25"), each = 50))
+new_data2 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("15-20"), each = 50))
+new_data3 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("10-15"), each = 50))
+new_data4 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("5-10"), each = 50))
+
+plot(Mussel.presence ~ MHW, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation above MHW (m)", ylab = "Probability of Geukensia demissa occurrence")
+legend(-1.1, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
+text(-1.03, 0.78, "Salinity (ppt)")
+
+lines(new_data$MHW, predict(elev_mhw4, newdata=new_data, type='response'),
+      col='green')
+lines(new_data2$MHW, predict(elev_mhw4, newdata=new_data2, type='response'),
+      col='red')
+lines(new_data3$MHW, predict(elev_mhw4, newdata=new_data3, type='response'),
+      col='black')
+lines(new_data4$MHW, predict(elev_mhw4, newdata=new_data4, type='response'),
+      col='blue')
+
+lines(new_data$MHW, predict(elev_mhw, newdata=new_data, type='response'),
+      col='purple')
+lines(new_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
+      col='pink')
+
+```
+
+d
