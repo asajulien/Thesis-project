@@ -101,7 +101,7 @@ xyplot(Mussel.presence[Grid.ID == "Ash 5"] ~ Elevation[Grid.ID == "Ash 5"], data
 
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
-#All together
+#All together - something weird goes on when above chunk is executed, but the code below will work
 ashglm_mhw = glm(Mussel.presence ~ MHW * Block, family = binomial, data = ashgrid)
 summary(ashglm_mhw)
 plot(ashglm_mhw)
@@ -143,18 +143,18 @@ plot(Mussel.presence ~ MHW, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = 
 legend(-1.1, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
 text(-1.03, 0.78, "Salinity (ppt)")
 
-lines(new_data$MHW, predict(elev_mhw4, newdata=MHW_data, type='response'),
+lines(MHW_data$MHW, predict(elev_mhw4, newdata=MHW_data, type='response'),
       col='green')
-lines(new_data2$MHW, predict(elev_mhw4, newdata=MHW_data2, type='response'),
+lines(MHW_data2$MHW, predict(elev_mhw4, newdata=MHW_data2, type='response'),
       col='red')
-lines(new_data3$MHW, predict(elev_mhw4, newdata=MHW_data3, type='response'),
+lines(MHW_data3$MHW, predict(elev_mhw4, newdata=MHW_data3, type='response'),
       col='black')
-lines(new_data4$MHW, predict(elev_mhw4, newdata=MHW_data4, type='response'),
+lines(MHW_data4$MHW, predict(elev_mhw4, newdata=MHW_data4, type='response'),
       col='blue')
 
-lines(new_data$MHW, predict(elev_mhw, newdata=new_data, type='response'),
+lines(MHW_data$MHW, predict(elev_mhw, newdata=new_data, type='response'),
       col='purple')
-lines(new_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
+lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
       col='pink')
 
 ```
