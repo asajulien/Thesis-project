@@ -7,37 +7,37 @@ output: html_document
 
 ##Size and age frequencies, FOLLY BEACH COUNTY PARK
 ```{r, echo=FALSE}
-fbcp.freq <- read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
+fbcp_freq = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
 library(FSA)
 library(nlstools)
 library(ggplot2)
 library(lattice)
 library(dplyr)
 
-std.err<-function(x)
+std.err = function(x)
   sd(x)/sqrt(length(x))
 
-length.fbcp <- fbcp.freq$Length.mm
-age.fbcp <- fbcp.freq$Growth.bands
-quad.fbcp<-fbcp.freq$Quadrat.identifier
-date.fbcp<-fbcp.freq$Date.collected
-month.code<-fbcp.freq$Month.code
+length.fbcp = fbcp_freq$Length.mm
+age.fbcp = fbcp_freq$Growth.bands
+quad.fbcp = fbcp_freq$Quadrat.identifier
+date.fbcp = fbcp_freq$Date.collected
+month.code = fbcp_freq$Month.code
 
 #Histograms
 hist(length.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
 hist(age.fbcp, breaks = 20, main = "August 2016 - February 2017, FBCP", xlab = "Length (mm)", ylab = "Frequency", col = "gray")
 
 #ggplot, by month
-fbcp.freq$Month.code<-factor(fbcp.freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April")) #reordering the months
+fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April")) #reordering the months
 
-sizeage.plot <- ggplot(data = fbcp.freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
+sizeage.plot <- ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
 mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18, 82.8, 86.39)) #visualizing the averages
 
 sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
 #Number of juveniles
-juv.month = fbcp.freq %>%
+juv.month = fbcp_freq %>%
   filter(Length.mm < 30) %>% #Arbitrarily chose 30. Use a more informed size
   group_by(Month.code, Quadrat.identifier) %>%
   summarise(length(Length.mm))
@@ -45,10 +45,10 @@ juv.month = fbcp.freq %>%
 plot(juv.month$`length(Length.mm)` ~ juv.month$Month.code) #n=10 in some cases, 5 in others
 
 #number of mussels by month
-nr.mussels = fbcp.freq %>%
+nr.mussels = fbcp_freq %>%
   group_by(Month.code, Quadrat.identifier) %>%
   summarise(length(Length.mm))
-nr.age = fbcp.freq %>%
+nr.age = fbcp_freq %>%
   summarise(length(na.omit(Growth.bands)))
 
 ```
@@ -59,25 +59,25 @@ nr.age = fbcp.freq %>%
 #von Bertalanffy, FSA package
 
 #get rid of NAs
-fbcp.site = fbcp.freq %>%
+fbcp.site = fbcp_freq %>%
   select(Quadrat.identifier, Length.mm, Growth.bands) %>%
   na.omit() 
 
-von.length.fbcp <- fbcp.site$Length.mm
-von.age.fbcp <- fbcp.site$Growth.bands
+von.length.fbcp = fbcp.site$Length.mm
+von.age.fbcp = fbcp.site$Growth.bands
 
 #estimating the parameters (L infinity, K, t0)
-svTypical.fbcp <- vbStarts(von.length.fbcp ~ von.age.fbcp)
+svTypical.fbcp = vbStarts(von.length.fbcp ~ von.age.fbcp, plot = TRUE)
 unlist(svTypical.fbcp) 
 svTypical.fbcp
 
-svTypical.fbcp <- list(Linf = 113.2532, K = 0.28309, t0 = -0.61066) #using same Linf variable - CAREFUL
+svTypical.fbcp = list(Linf = 113.2532, K = 0.28309, t0 = -0.61066) #using same Linf variable - CAREFUL
 svTypical.fbcp
 
 #nls and model
 
-vbTypical.fbcp <- von.length.fbcp~Linf*(1-exp(-K*(von.age.fbcp-t0)))
-fitTypical.fbcp <- nls(vbTypical.fbcp,start=svTypical.fbcp)
+vbTypical.fbcp = von.length.fbcp ~ Linf * (1 - exp(-K * (von.age.fbcp - t0)))
+fitTypical.fbcp = nls(vbTypical.fbcp, start = svTypical.fbcp)
 fitPlot(fitTypical.fbcp, xlab = "Number of growth bands", ylab = "Length (mm)", main = "", cex.axis = 1.2, cex.lab = 1.4, font.lab = 2)
 overview(fitTypical.fbcp) #It kind of looks like a cubic function right now...
 
@@ -86,19 +86,32 @@ overview(fitTypical.fbcp) #It kind of looks like a cubic function right now...
 residPlot(fitTypical.fbcp)
 hist(residuals(fitTypical.fbcp),main="")
 
-#predict ages for loop
-
 #confidence intervals via bootstrapping
-bootTypical.fbcp = nlsBoot(fitTypical.fbcp,niter=999)
-confint(bootTypical.fbcp,plot=TRUE)
+boot_df = na.omit(fbcp_freq[, c(6,7)])
+colnames(boot_df) = c("boot_length", "boot_age")
+boot_fbcp <- as.formula(boot_length ~ boot_Linf * (1 - exp(-boot_K * (boot_age - boot_t0))))
+boot_nls1 <- nls(boot_fbcp, start = list(boot_Linf = 113.2532, boot_K = 0.28309, boot_t0 = -0.61066), data = boot_df)
+boot_strap1 <- nlsBoot(boot_nls1, niter = 999)
+plot(boot_strap1)
+plot(boot_strap1, type = "boxplot", ask = FALSE)
+summary(boot_strap1)
+
+confint(boot_strap1, plot = TRUE)
+
+htest(boot_strap1, "boot_K", 0.36, "less") #not sure what this accomplishes
+
+#example at age 8
+ests = boot_strap1$coefboot
+pv = ests[,"boot_Linf"]*(1-exp(-ests[,"boot_K"]*(8-ests[,"boot_t0"])))
+quantile(pv,c(0.025,0.975))
 
 #confidence interval
-ages2plot <- 0:15
+ages2plot <- 0:18
 fitPlot(fitTypical.fbcp,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
 LCI <- UCI <- numeric(length(ages2plot))
 
 for (i in 1:length(ages2plot)) {
-pv <- ests[,"Linf"]*(1-exp(-ests[,"K"]*(ages2plot[i]-ests[,"t0"])))
+pv <- ests[,"boot_Linf"]*(1-exp(-ests[,"boot_K"]*(ages2plot[i]-ests[,"boot_t0"])))
 LCI[i] <- quantile(pv,0.025)
 UCI[i] <- quantile(pv,0.975)
 }
@@ -106,7 +119,7 @@ lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 
-boxplot(von.length.fbcp~von.age.fbcp)
+boxplot(von.length.fbcp ~ von.age.fbcp)
 ```
 
 
@@ -114,19 +127,19 @@ boxplot(von.length.fbcp~von.age.fbcp)
 ```{r, echo=FALSE}
 
 
-av.age = fbcp.freq %>%
+av.age = fbcp_freq %>%
   select(Month.code, Growth.bands) %>%
   group_by(Month.code) %>%
   summarise(mean(na.omit(Growth.bands)))
 
-se.age = fbcp.freq %>%
+se.age = fbcp_freq %>%
   select(Month.code, Growth.bands) %>%
   group_by(Month.code) %>%
   summarise(std.err(na.omit(Growth.bands)))
 
 
 #mean lengths and ages
-mn.lengths.fbcp = fbcp.freq %>%
+mn.lengths.fbcp = fbcp_freq %>%
   group_by(Month.code) %>%
   summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
 colnames(mn.lengths.fbcp) = c("Month", "Length", "SE.length", "Age", "SE.age")
@@ -150,7 +163,7 @@ p.age + geom_bar(stat = "identity", width = 0.75) + geom_errorbar(limits.age, wi
 
 #Density FBCP
 ```{r, echo=FALSE}
-den.fbcp = fbcp.freq %>%
+den.fbcp = fbcp_freq %>%
   group_by(Month.code, Quadrat.identifier) %>%
   summarise(length(Length.mm))
 

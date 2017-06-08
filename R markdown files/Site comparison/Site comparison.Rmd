@@ -5,7 +5,7 @@ date: "February 23, 2017"
 output: html_document
 ---
 
-##Size frequency
+##Size frequency GOING TO NEED TO SPLIT UP BY DATE
 ```{r, echo=FALSE}
 library(dplyr)
 library(FSA)
@@ -71,7 +71,7 @@ unharvested.site = site.compare %>%
 ```
 
 
-##Size at age relationship
+##Size at age relationship, unharvested
 ```{r, echo=FALSE}
 #Control site (St. Pierre Creek)
 #estimating the parameters (L infinity, K, t0)
@@ -79,7 +79,7 @@ unharvested.site = site.compare %>%
 von.length.unharvested = unharvested.site$Length.mm
 von.age.unharvested = unharvested.site$Growth.bands
 
-svTypical.unharvested = vbStarts(von.length.unharvested ~ von.age.unharvested)
+svTypical.unharvested = vbStarts(von.length.unharvested ~ von.age.unharvested, plot = TRUE)
 unlist(svTypical.unharvested) 
 svTypical.unharvested
 
@@ -96,16 +96,46 @@ residPlot(fitTypical.unharvested)
 hist(residuals(fitTypical.unharvested),main="")
 
 boxplot(Length.mm ~ Growth.bands, data = unharvested.site)
-#check out how to add confidence intervals -- has to do with bootstrapping
+
+#confidence intervals, unharvested
+unharvested_boot = na.omit(unharvested.site[, c(3,4)])
+colnames(unharvested_boot) = c("un_Length", "un_Age")
+un_formula <- as.formula(un_Length ~ un_Linf * (1 - exp(-un_K * (un_Age - un_t0))))
+un_nls1 <- nls(un_formula, start = list(un_Linf = 103.2, un_K = 0.38, un_t0 = -0.58), data = unharvested_boot)
+un_strap1 <- nlsBoot(un_nls1, niter = 999)
+plot(un_strap1)
+plot(un_strap1, type = "boxplot", ask = FALSE)
+summary(un_strap1)
+
+confint(un_strap1, plot = TRUE)
+
+htest(un_strap1, "un_K", 0.36, "less") #not sure what this accomplishes
+
+#confidence interval
+ages2plot <- 0:18
+fitPlot(fitTypical.unharvested,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
+LCI <- UCI <- numeric(length(ages2plot))
+
+for (i in 1:length(ages2plot)) {
+pv <- ests[,"un_Linf"]*(1-exp(-ests[,"un_K"]*(ages2plot[i]-ests[,"un_t0"])))
+LCI[i] <- quantile(pv,0.025)
+UCI[i] <- quantile(pv,0.975)
+}
+lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 
+```
+
+##Size at age relationship, harvested
+```{r, echo=FALSE}
 
 #Harvested site
 #estimating the parameters (L infinity, K, t0)
 von.length.harvested = harvested.site$Length.mm
 von.age.harvested = harvested.site$Growth.bands
 
-svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested)
+svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested, plot = TRUE)
 unlist(svTypical.harvested) 
 svTypical.harvested
 
@@ -122,18 +152,47 @@ residPlot(fitTypical.harvested)
 hist(residuals(fitTypical.harvested),main="")
 
 boxplot(Length.mm ~ Growth.bands, data = harvested.site)
-#check out how to add confidence intervals -- has to do with bootstrapping
 
-par(mfrow = c(1,2)) #get scales equal
-fitPlot(fitTypical.unharvested, xlab="Number of growth bands", ylab="Length (mm)", main="Unharvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
-fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
-par(mfrow = c(1,1))
+#confidence intervals, harvested
+
+harvested_boot = na.omit(harvested.site[, c(3,4)])
+colnames(harvested_boot) = c("h_Length", "h_Age")
+h_formula <- as.formula(h_Length ~ h_Linf * (1 - exp(-h_K * (h_Age - h_t0))))
+h_nls1 <- nls(h_formula, start = list(h_Linf = 110.2, h_K = 0.34, h_t0 = -0.59), data = harvested_boot)
+h_strap1 <- nlsBoot(h_nls1, niter = 999)
+plot(h_strap1)
+plot(h_strap1, type = "boxplot", ask = FALSE)
+summary(h_strap1)
+
+confint(h_strap1, plot = TRUE)
+
+htest(h_strap1, "h_K", 0.36, "less") #not sure what this accomplishes
+
+ages2plot <- 0:18
+fitPlot(fitTypical.harvested,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
+LCI <- UCI <- numeric(length(ages2plot))
+
+for (i in 1:length(ages2plot)) {
+pv <- ests[,"h_Linf"]*(1-exp(-ests[,"h_K"]*(ages2plot[i]-ests[,"h_t0"])))
+LCI[i] <- quantile(pv,0.025)
+UCI[i] <- quantile(pv,0.975)
+}
+lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 ```
 
 ss
 
 ```{r, echo=FALSE}
+
+#both plots together
+par(mfrow = c(1,2)) #get scales equal
+fitPlot(fitTypical.unharvested, xlab="Number of growth bands", ylab="Length (mm)", main="Unharvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
+par(mfrow = c(1,1))
+
+
 nr.mussels = site.compare %>%
   group_by(Status) %>%
   summarise(length(Length.mm))
