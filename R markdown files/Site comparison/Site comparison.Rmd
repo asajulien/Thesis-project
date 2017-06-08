@@ -112,14 +112,16 @@ confint(un_strap1, plot = TRUE)
 htest(un_strap1, "un_K", 0.36, "less") #not sure what this accomplishes
 
 #confidence interval
+un_ests = un_strap1$coefboot
+
 ages2plot <- 0:18
 fitPlot(fitTypical.unharvested,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
 LCI <- UCI <- numeric(length(ages2plot))
 
 for (i in 1:length(ages2plot)) {
-pv <- ests[,"un_Linf"]*(1-exp(-ests[,"un_K"]*(ages2plot[i]-ests[,"un_t0"])))
-LCI[i] <- quantile(pv,0.025)
-UCI[i] <- quantile(pv,0.975)
+un_pv <- un_ests[,"un_Linf"]*(1-exp(-un_ests[,"un_K"]*(ages2plot[i]-un_ests[,"un_t0"])))
+LCI[i] <- quantile(un_pv,0.025)
+UCI[i] <- quantile(un_pv,0.975)
 }
 lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
@@ -168,14 +170,16 @@ confint(h_strap1, plot = TRUE)
 
 htest(h_strap1, "h_K", 0.36, "less") #not sure what this accomplishes
 
+h_ests = h_strap1$coefboot
+
 ages2plot <- 0:18
 fitPlot(fitTypical.harvested,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
 LCI <- UCI <- numeric(length(ages2plot))
 
 for (i in 1:length(ages2plot)) {
-pv <- ests[,"h_Linf"]*(1-exp(-ests[,"h_K"]*(ages2plot[i]-ests[,"h_t0"])))
-LCI[i] <- quantile(pv,0.025)
-UCI[i] <- quantile(pv,0.975)
+h_pv <- h_ests[,"h_Linf"]*(1-exp(-h_ests[,"h_K"]*(ages2plot[i]-h_ests[,"h_t0"])))
+LCI[i] <- quantile(h_pv,0.025)
+UCI[i] <- quantile(h_pv,0.975)
 }
 lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)

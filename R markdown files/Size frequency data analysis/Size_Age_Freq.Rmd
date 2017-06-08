@@ -100,9 +100,8 @@ confint(boot_strap1, plot = TRUE)
 
 htest(boot_strap1, "boot_K", 0.36, "less") #not sure what this accomplishes
 
-#example at age 8
 ests = boot_strap1$coefboot
-pv = ests[,"boot_Linf"]*(1-exp(-ests[,"boot_K"]*(8-ests[,"boot_t0"])))
+pv = ests[,"boot_Linf"]*(1-exp(-ests[,"boot_K"]*(8-ests[,"boot_t0"]))) #exampple at age 8
 quantile(pv,c(0.025,0.975))
 
 #confidence interval
