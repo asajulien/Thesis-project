@@ -10,6 +10,7 @@ library(lattice)
 library(ggplot2)
 library(rms)
 library(pscl)
+library(pROC)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
@@ -161,11 +162,8 @@ lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
 
 ##Goodness of fit/model diagnostics
 ```{r}
-
-library(pROC)
 #chi square test, not really useful
-output = elev_mhw4
-fit_mhw = output$fitted.values
+fit_mhw = elev_mhw4$fitted.values
 hist(fit_mhw) #what does this mean?
 r_mhw = (ashgrid$Mussel.presence - fit_mhw)/(sqrt(fit_mhw*(1-fit_mhw)))
 sum(r_mhw^2)
@@ -193,23 +191,48 @@ abline(a = 0, b = 1)
 
 #sensitivity and specificity, ROC curves. There are 108 presences (I THINK) and 132 absences. Calculating these at different 'cutoffs'
 
+fit_mhw = elev_mhw4$fitted.values
+fit_mhw2 = elev_mhw4$fitted.values[ashgrid$Block == "20-25"]
+fit_mhw3 = elev_mhw4$fitted.values[ashgrid$Block == "15-20"]
+fit_mhw4 = elev_mhw4$fitted.values[ashgrid$Block == "10-15"]
+fit_mhw5 = elev_mhw4$fitted.values[ashgrid$Block == "5-10"]
 
 #Using the R package pROC
 summary(elev_mhw4)
 prob = predict(elev_mhw4, type = c("response")) #same as fit_mhw!
-ashgrid$prob = prob
+
+ashgrid$prob = fit_mhw
+
+ashgrid$prob2 = fit_mhw2
+ashgrid$prob3 = fit_mhw3
+ashgrid$prob4 = fit_mhw4
+ashgrid$prob5 = fit_mhw5
+
 g = roc(Mussel.presence ~ prob, data = ashgrid)
+g2 = roc(Mussel.presence ~ prob2, data = ashgrid)
+g3 = roc(Mussel.presence ~ prob3, data = ashgrid)
+g4 = roc(Mussel.presence ~ prob4, data = ashgrid)
+g5 = roc(Mussel.presence ~ prob5, data = ashgrid)
+
 plot(g)
+plot(g2)
+plot(g3)
+plot(g4)
+plot(g5)
+
 auc(g) #86.2%! Corroborated; see below.
 # "Although it is not obvious from its definition, the area under the ROC curve (AUC) has a somewhat appealing interpretation. It turns out that the AUC is the probability that if you were to take a random pair of observations, one with Y=1 and one with Y=0, the observation with Y=1 has a higher predicted probability than the other. The AUC thus gives the probability that the model correctly ranks such pairs of observations."
+auc(g2)
+auc(g3)
+auc(g4)
+auc(g5) #Not good for this model, I don't think. Bad at getting things right within a specific salinity block. Experiment with making salinity continuous? Elevation model 2 might be better than elevation model 4, but you should double check with somebody more experienced.
 
 #AUC (area under ROC)
 fit_pos = fit_mhw[ashgrid$Mussel.presence==1]
 fit_neg = fit_mhw[ashgrid$Mussel.presence==0]
 wilcox.test(x = fit_pos, y = fit_neg)
 12290/(108*132)
-#AUC = 86.2%... maybe I did something wrong with the graph??
-# "Why does this work? May have seen in 607 that Mann-Whitney statistic is equivalent to probability of correctly selecting the higher of a pair of numbers, which is equivalent to the definition of the AUC of an ROC curve"
+#AUC = 86.2%
 ```
 
 d
