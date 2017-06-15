@@ -159,4 +159,57 @@ lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
 
 ```
 
+##Goodness of fit/model diagnostics
+```{r}
+
+library(pROC)
+#chi square test, not really useful
+output = elev_mhw4
+fit_mhw = output$fitted.values
+hist(fit_mhw) #what does this mean?
+r_mhw = (ashgrid$Mussel.presence - fit_mhw)/(sqrt(fit_mhw*(1-fit_mhw)))
+sum(r_mhw^2)
+1-pchisq(245.1, df = 234) # p> 0.05 on 234 df from the model; "cannot reject the null hyp that this model is not exactly correct" - still doesn't really answer questions of fit other than it's not terrible, I suppose
+
+#hosmer thing - I have no idea what I'm doing
+index_mhw = sort.list(fit_mhw)
+
+hosmer = matrix(c(ashgrid$Mussel.presence[index_mhw], fit_mhw[index_mhw]), byrow = F, nrow = 240)
+
+observed_mhw = rep(NA, 10)
+for (i in 1:10) {
+  observed_mhw[i] = sum(hosmer[(20*(i-1)+1):(20*i),1])/20
+}
+observed_mhw
+
+predicted_mhw = rep(NA, 10)
+for (i in 1:10) {
+  predicted_mhw[i] <- sum(hosmer[(20*(i-1)+1):(20*i),2])/20
+  }
+predicted_mhw
+
+plot(predicted_mhw, observed_mhw, type = "b")
+abline(a = 0, b = 1)
+
+#sensitivity and specificity, ROC curves. There are 108 presences (I THINK) and 132 absences. Calculating these at different 'cutoffs'
+
+
+#Using the R package pROC
+summary(elev_mhw4)
+prob = predict(elev_mhw4, type = c("response")) #same as fit_mhw!
+ashgrid$prob = prob
+g = roc(Mussel.presence ~ prob, data = ashgrid)
+plot(g)
+auc(g) #86.2%! Corroborated; see below.
+# "Although it is not obvious from its definition, the area under the ROC curve (AUC) has a somewhat appealing interpretation. It turns out that the AUC is the probability that if you were to take a random pair of observations, one with Y=1 and one with Y=0, the observation with Y=1 has a higher predicted probability than the other. The AUC thus gives the probability that the model correctly ranks such pairs of observations."
+
+#AUC (area under ROC)
+fit_pos = fit_mhw[ashgrid$Mussel.presence==1]
+fit_neg = fit_mhw[ashgrid$Mussel.presence==0]
+wilcox.test(x = fit_pos, y = fit_neg)
+12290/(108*132)
+#AUC = 86.2%... maybe I did something wrong with the graph??
+# "Why does this work? May have seen in 607 that Mann-Whitney statistic is equivalent to probability of correctly selecting the higher of a pair of numbers, which is equivalent to the definition of the AUC of an ROC curve"
+```
+
 d
