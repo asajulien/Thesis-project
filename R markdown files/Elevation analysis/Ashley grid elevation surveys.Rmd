@@ -192,10 +192,10 @@ abline(a = 0, b = 1)
 #sensitivity and specificity, ROC curves. There are 108 presences (I THINK) and 132 absences. Calculating these at different 'cutoffs'
 
 fit_mhw = elev_mhw4$fitted.values
-fit_mhw2 = elev_mhw4$fitted.values[ashgrid$Block == "20-25"]
-fit_mhw3 = elev_mhw4$fitted.values[ashgrid$Block == "15-20"]
-fit_mhw4 = elev_mhw4$fitted.values[ashgrid$Block == "10-15"]
-fit_mhw5 = elev_mhw4$fitted.values[ashgrid$Block == "5-10"]
+fit_mhw2 = elev_mhw4$fitted.values[ashgrid$Block == "20-25"] #1-60
+fit_mhw3 = elev_mhw4$fitted.values[ashgrid$Block == "15-20"] #61-120
+fit_mhw4 = elev_mhw4$fitted.values[ashgrid$Block == "10-15"] #121-180
+fit_mhw5 = elev_mhw4$fitted.values[ashgrid$Block == "5-10"] #181-240
 
 #Using the R package pROC
 summary(elev_mhw4)
@@ -203,16 +203,16 @@ prob = predict(elev_mhw4, type = c("response")) #same as fit_mhw!
 
 ashgrid$prob = fit_mhw
 
-ashgrid$prob2 = fit_mhw2
+ashgrid$prob2 = fit_mhw2 #EACH OF THESE should ONLY be 60, BUT THEY REPEAT IN REGULAR DATA FRAME!
 ashgrid$prob3 = fit_mhw3
 ashgrid$prob4 = fit_mhw4
 ashgrid$prob5 = fit_mhw5
 
 g = roc(Mussel.presence ~ prob, data = ashgrid)
-g2 = roc(Mussel.presence ~ prob2, data = ashgrid)
-g3 = roc(Mussel.presence ~ prob3, data = ashgrid)
-g4 = roc(Mussel.presence ~ prob4, data = ashgrid)
-g5 = roc(Mussel.presence ~ prob5, data = ashgrid)
+g2 = roc(Mussel.presence[1:60] ~ prob2[1:60], data = ashgrid)
+g3 = roc(Mussel.presence[61:120] ~ prob3[61:120], data = ashgrid)
+g4 = roc(Mussel.presence[121:180] ~ prob4[121:180], data = ashgrid)
+g5 = roc(Mussel.presence[181:240] ~ prob5[181:240], data = ashgrid)
 
 plot(g)
 plot(g2)
@@ -225,7 +225,7 @@ auc(g) #86.2%! Corroborated; see below.
 auc(g2)
 auc(g3)
 auc(g4)
-auc(g5) #Not good for this model, I don't think. Bad at getting things right within a specific salinity block. Experiment with making salinity continuous? Elevation model 2 might be better than elevation model 4, but you should double check with somebody more experienced.
+auc(g5) #Not as good a fit for the most and least saline blocks, but not bad for the middle two. Not sure what to do about this discrepancy.
 
 #AUC (area under ROC)
 fit_pos = fit_mhw[ashgrid$Mussel.presence==1]
