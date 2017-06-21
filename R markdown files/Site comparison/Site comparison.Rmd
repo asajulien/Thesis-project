@@ -20,41 +20,51 @@ site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV
 
 #means, medians
 mean.lengths = site.compare %>%
-  group_by(Status) %>%
+  group_by(Status, Date) %>%
   summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
 
 mean.lengths
 
 med.lengths = site.compare %>%
-  group_by(Status) %>%
+  group_by(Status, Date) %>%
   summarise(median(Length.mm), median(na.omit(Growth.bands)))
 
 med.lengths
 
 den.compare = site.compare %>%
-  group_by(Status, Quadrat.ID) %>%
+  group_by(Status, Quadrat.ID, Date) %>%
   summarise(length(Length.mm))
 
 mean.den = den.compare %>%
-  group_by(Status) %>%
+  group_by(Status, Date) %>%
   summarise(mean(`length(Length.mm)` / 0.0625), std.err(`length(Length.mm)` / 0.0625))
 
 mean.den
+colnames(mean.den) = c("Status", "Date", "Density", "SE.den")
+
+feb_compare = site.compare[site.compare$Date == "2/6/2017",]
+may_compare = site.compare[site.compare$Date == "5/18/2017",]
+
 
 #histogram for February data
 
-compare.hist <- ggplot(data = site.compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
+feb_hist = ggplot(data = feb_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
 
 mn.hists = data.frame(Status = c("Unharvested", "Harvested"), m.x.c = c(76.98644, 87.49173))
 
-compare.hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
+feb_hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
 
+
+#histogram for May data
+may_hist = ggplot(data = may_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
+
+mn.may = data.frame(Status = c("Unharvested", "Harvested"), may.x.c = c(73.79, 86.12))
+
+may_hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = may.x.c), mn.may)
 
 #average densities
-colnames(mean.den)<-c("Status","Density","SE.den")
-
-comp.density <- ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge")
-comp.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 22,face = "bold"), strip.text = element_text(size=20,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
+feb_density = ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge") + facet_grid(~Date)
+feb_density + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 22,face = "bold"), strip.text = element_text(size=20,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
 
 
 #subset the data
@@ -83,7 +93,7 @@ svTypical.unharvested = vbStarts(von.length.unharvested ~ von.age.unharvested, p
 unlist(svTypical.unharvested) 
 svTypical.unharvested
 
-von.list.unharvested = list(Linf = 103.2204, K = 0.3782087, t0 = -0.5802826) #using same Linf variable - CAREFUL
+von.list.unharvested = list(Linf = 100.83, K = 0.36, t0 = -0.47) #using same Linf variable - CAREFUL
 von.list.unharvested
 
 #nls and model
@@ -101,7 +111,7 @@ boxplot(Length.mm ~ Growth.bands, data = unharvested.site)
 unharvested_boot = na.omit(unharvested.site[, c(3,4)])
 colnames(unharvested_boot) = c("un_Length", "un_Age")
 un_formula <- as.formula(un_Length ~ un_Linf * (1 - exp(-un_K * (un_Age - un_t0))))
-un_nls1 <- nls(un_formula, start = list(un_Linf = 103.2, un_K = 0.38, un_t0 = -0.58), data = unharvested_boot)
+un_nls1 <- nls(un_formula, start = list(un_Linf = 100.83, un_K = 0.36, un_t0 = -0.47), data = unharvested_boot)
 un_strap1 <- nlsBoot(un_nls1, niter = 999)
 plot(un_strap1)
 plot(un_strap1, type = "boxplot", ask = FALSE)
@@ -141,7 +151,7 @@ svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested, plot = 
 unlist(svTypical.harvested) 
 svTypical.harvested
 
-von.list.harvested = list(Linf = 110.1673, K = 0.3440395, t0 = -0.5869062) #using same Linf variable - CAREFUL
+von.list.harvested = list(Linf = 110.66, K = 0.29, t0 = -0.65) #using same Linf variable - CAREFUL
 von.list.harvested
 
 #nls and model
@@ -160,7 +170,7 @@ boxplot(Length.mm ~ Growth.bands, data = harvested.site)
 harvested_boot = na.omit(harvested.site[, c(3,4)])
 colnames(harvested_boot) = c("h_Length", "h_Age")
 h_formula <- as.formula(h_Length ~ h_Linf * (1 - exp(-h_K * (h_Age - h_t0))))
-h_nls1 <- nls(h_formula, start = list(h_Linf = 110.2, h_K = 0.34, h_t0 = -0.59), data = harvested_boot)
+h_nls1 <- nls(h_formula, start = list(h_Linf = 110.66, h_K = 0.29, h_t0 = -0.65), data = harvested_boot)
 h_strap1 <- nlsBoot(h_nls1, niter = 999)
 plot(h_strap1)
 plot(h_strap1, type = "boxplot", ask = FALSE)
