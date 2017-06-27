@@ -18,7 +18,7 @@ std.err = function(x)
   sd(x)/sqrt(length(x))
 
 #ggplot, by month
-fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May")) #reordering the months
+fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June")) #reordering the months
 
 sizeage.plot <- ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
@@ -61,7 +61,7 @@ svTypical.fbcp = vbStarts(von.length.fbcp ~ von.age.fbcp, plot = TRUE)
 unlist(svTypical.fbcp) 
 svTypical.fbcp
 
-svTypical.fbcp = list(Linf = 113.71, K = 0.28, t0 = -0.63) #using same Linf variable - CAREFUL
+svTypical.fbcp = list(Linf = 113.79, K = 0.28, t0 = -0.62) #using same Linf variable - CAREFUL
 svTypical.fbcp
 
 #nls and model
@@ -80,7 +80,7 @@ hist(residuals(fitTypical.fbcp),main="")
 boot_df = na.omit(fbcp_freq[, c(6,7)])
 colnames(boot_df) = c("boot_length", "boot_age")
 boot_fbcp <- as.formula(boot_length ~ boot_Linf * (1 - exp(-boot_K * (boot_age - boot_t0))))
-boot_nls1 <- nls(boot_fbcp, start = list(boot_Linf = 113.71, boot_K = 0.28, boot_t0 = -0.63), data = boot_df)
+boot_nls1 <- nls(boot_fbcp, start = list(boot_Linf = 113.79, boot_K = 0.28, boot_t0 = -0.62), data = boot_df)
 boot_strap1 <- nlsBoot(boot_nls1, niter = 999)
 plot(boot_strap1)
 plot(boot_strap1, type = "boxplot", ask = FALSE)
