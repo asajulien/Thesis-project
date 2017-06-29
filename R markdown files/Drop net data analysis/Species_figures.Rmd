@@ -94,7 +94,7 @@ compare.rich + geom_bar(stat="identity", width = 0.5) + geom_errorbar(aes(ymax=R
 
 #Abundance -----------------------------------------
 
-new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February", "March")) #Ordering the months
+new.df$Month<-factor(new.df$Month, levels = c("July","August","September","October","November","December", "January", "February", "March", "April", "May", "June")) #Ordering the months
 
 
 ##0barplots of averages:
