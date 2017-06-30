@@ -50,12 +50,12 @@ marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
 marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #square root transformation makes treatment significant
 marsh_rda
 plot(marsh_rda)
-plot(marsh_rda, display=c('sp', 'cn'))
+plot(marsh_rda, display = c('sp', 'cn'))
 
 marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) +
                  Condition(Salinity) + Condition(CharlestonHeight),
                  data = new_df)
-plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
+plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
 
 anova(marsh_rda, by='margin', permutations = 2000)
 RsquareAdj(marsh_rda)
@@ -63,7 +63,7 @@ RsquareAdj(marsh_rda)
 #Just looking at treatment effect
 marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) + Condition(Salinity) + Condition(CharlestonHeight), data = new_df)
 
-plot(marsh_rda2, display=c('sp', 'cn')) #ordiplot
+plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
 
 ordi_plot = ordiplot(marsh_rda2, type = "none")
 text(ordi_plot, "species", col="blue", cex=1)
@@ -74,11 +74,12 @@ anova(marsh_rda2, by = 'margin', permutations = 2000)
 RsquareAdj(marsh_rda2) #really low
 
 #cca
+#View(new_df[new_df$Abundance == 0,])
 marsh_2 = marsh[rowSums(marsh) != 0,]
 rowSums(marsh_2)
-marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df[-c(11, 62, 63, 65, 66, 68, 70),]) #All rows have to be greater than zero
+marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df[-c(11, 62, 63, 65, 66, 68, 70, 93),]) #All rows have to be greater than zero
 marsh_cca
-plot(marsh_cca)
+plot(marsh_cca, display=  c('sp', 'cn'))
 anova(marsh_cca, by = 'margin', permutations = 2000)
 ```
 
