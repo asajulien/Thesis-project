@@ -26,23 +26,14 @@ mn.lines = data.frame(Month.code = c("August", "September", "October", "November
 
 sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
-#percent hists - there must be a way to do this with geom_hist and faceting... the (..count../sum(..count..) thing can be a mess...)
-pg13 = ggplot_build(sizeage.plot)
-cp3 = data.frame(pg13$data)
-cp4 = cp3 %>%
-  group_by(PANEL) %>%
-  mutate(count/sum(count)) #WORKS, need barplot
+#percent hists 
+mydata = fbcp_freq %>%
+  select(Length.mm, Month.code)
+  colnames(mydata) = c("Length", "Month")
+  
+pcent = ggplot(data = mydata, aes(x = Length)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5) + facet_grid(.~Month) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)") 
 
-cp4$percent = cp4$`count/sum(count)`
-cp4$Bin = as.factor(cp4$x)
-
-lj23 = ggplot(cp4, aes(x = Bin, y = percent))
-lj23 + facet_grid(~PANEL) + geom_bar(stat = "identity") #BASIC IDEA, NEEDS FORMATTING
-
-
-sizeage.plot <- ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(aes(y=(..count..)/sum(..count..)), binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency") 
-
-
+pcent
 
 #Number of juveniles
 juv.month = fbcp_freq %>%
