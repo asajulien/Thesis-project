@@ -48,19 +48,26 @@ may_compare = site.compare[site.compare$Date == "5/18/2017",]
 
 #histogram for February data
 
-feb_hist = ggplot(data = feb_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
+feb_hist = ggplot(data = feb_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)") + scale_x_continuous(limits = c(0, 130))
 
 mn.hists = data.frame(Status = c("Unharvested", "Harvested"), m.x.c = c(76.98644, 87.49173))
 
 feb_hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = m.x.c), mn.hists)
 
+pcent_feb = ggplot(data = feb_compare, aes(x = Length.mm)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5) + facet_grid(.~Status) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)") 
+
+pcent_feb + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold"))
 
 #histogram for May data
-may_hist = ggplot(data = may_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)")
+may_hist = ggplot(data = may_compare, aes(x=Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Status) + theme_bw() + labs(x="Length (mm)",y="Frequency (number)") + scale_x_continuous(limits = c(0, 130))
 
 mn.may = data.frame(Status = c("Unharvested", "Harvested"), may.x.c = c(73.79, 86.12))
 
 may_hist + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = may.x.c), mn.may)
+
+pcent_may = ggplot(data = may_compare, aes(x = Length.mm)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5) + facet_grid(.~Status) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)") 
+
+pcent_may + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold"))
 
 #average densities
 feb_density = ggplot(mean.den, aes(x = Status, y = Density, width = 0.5), position="dodge") + facet_grid(~Date)
