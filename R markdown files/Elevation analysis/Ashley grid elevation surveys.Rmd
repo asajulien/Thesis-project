@@ -16,6 +16,8 @@ ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\As
 
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
+
 #All together
 ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid)
 summary(ashglm)
