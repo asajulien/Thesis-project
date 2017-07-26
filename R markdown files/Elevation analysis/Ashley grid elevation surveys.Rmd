@@ -14,9 +14,9 @@ library(pROC)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 
-ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
-
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
+
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
 #All together
 ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid)
@@ -164,33 +164,6 @@ lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
 
 ##Goodness of fit/model diagnostics
 ```{r}
-#chi square test, not really useful
-fit_mhw = elev_mhw4$fitted.values
-hist(fit_mhw) #what does this mean?
-r_mhw = (ashgrid$Mussel.presence - fit_mhw)/(sqrt(fit_mhw*(1-fit_mhw)))
-sum(r_mhw^2)
-1-pchisq(245.1, df = 234) # p> 0.05 on 234 df from the model; "cannot reject the null hyp that this model is not exactly correct" - still doesn't really answer questions of fit other than it's not terrible, I suppose
-
-#hosmer thing - I have no idea what I'm doing
-index_mhw = sort.list(fit_mhw)
-
-hosmer = matrix(c(ashgrid$Mussel.presence[index_mhw], fit_mhw[index_mhw]), byrow = F, nrow = 240)
-
-observed_mhw = rep(NA, 10)
-for (i in 1:10) {
-  observed_mhw[i] = sum(hosmer[(20*(i-1)+1):(20*i),1])/20
-}
-observed_mhw
-
-predicted_mhw = rep(NA, 10)
-for (i in 1:10) {
-  predicted_mhw[i] <- sum(hosmer[(20*(i-1)+1):(20*i),2])/20
-  }
-predicted_mhw
-
-plot(predicted_mhw, observed_mhw, type = "b")
-abline(a = 0, b = 1)
-
 #sensitivity and specificity, ROC curves. There are 108 presences (I THINK) and 132 absences. Calculating these at different 'cutoffs'
 
 fit_mhw = elev_mhw4$fitted.values
@@ -236,5 +209,119 @@ wilcox.test(x = fit_pos, y = fit_neg)
 12290/(108*132)
 #AUC = 86.2%
 ```
+
+
+##Elevation in relation to tidal position
+```{r pressure, echo=FALSE}
+
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
+#All together - something weird goes on when above chunk is executed, but the code below will work
+ashglm_position = glm(Mussel.presence ~ Position * Block, family = binomial, data = ashgrid)
+summary(ashglm_position)
+
+full_position = ashglm_position
+main_position = update(full_position, . ~ . - Position:Block)
+elev_position = update(main_position, . ~ . - Block)
+elev_position2 = update(elev_position, . ~ . + I(Position^2))
+elev_position3 = update(elev_position2, . ~ . + I(Position^3))
+elev_position4 = update(elev_position2, . ~ . + Block)
+elev_position5 = update(elev_position2, . ~ . + Block + Position:Block)
+
+anova(full_position, main_position, elev_position, test='LRT')
+AIC(full_position, main_position, elev_position)
+
+anova(elev_position, elev_position2, elev_position4, elev_position5, test='LRT')
+AIC(elev_position, elev_position2, elev_position4, elev_position5) #model 4 is the best
+
+#add salinity back in - plot both
+summary(elev_position4)
+
+#model fits; pseudo r^2
+pR2(full_position)
+pR2(main_position)
+pR2(elev_position)
+pR2(elev_position2)
+pR2(elev_position4)
+pR2(elev_position5)
+
+#plotting data and values predicted by models
+position_data = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("20-25"), each = 50))
+position_data2 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("15-20"), each = 50))
+position_data3 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("10-15"), each = 50))
+position_data4 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("5-10"), each = 50))
+
+plot(Mussel.presence ~ Position, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Tidal position (%)", ylab = "Probability of Geukensia demissa occurrence")
+legend(.4, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
+text(0.44, 0.78, "Salinity (ppt)")
+
+lines(position_data$Position, predict(elev_position4, newdata=position_data, type='response'),
+      col='green')
+lines(position_data2$Position, predict(elev_position4, newdata=position_data2, type='response'),
+      col='red')
+lines(position_data3$Position, predict(elev_position4, newdata=position_data3, type='response'),
+      col='black')
+lines(position_data4$Position, predict(elev_position4, newdata=position_data4, type='response'),
+      col='blue')
+
+
+```
+
+
+##Salinity as a continuous variable
+```{r pressure, echo=FALSE}
+site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.67457, 23.05144)) #YOU SHOULD DOUBLE CHECK THESE AND MAKE SURE THEY ARE CALCULATED WELL
+
+ashgrid$salinity = rep(site_sal, each = 30) #salinity at each site is now continuous, based on interpolation from Kelsey's data
+
+#models
+ashglm_x = glm(Mussel.presence ~ MHW + salinity, family = binomial, data = ashgrid)
+summary(ashglm_x)
+
+full_x = ashglm_x
+elev_x = update(full_x, . ~ . - salinity)
+elev_x2 = update(elev_x, . ~ . + I(MHW^2))
+elev_x3 = update(elev_x2, . ~ . + I(MHW^3))
+elev_x4 = update(elev_x2, . ~ . + salinity)
+elev_x5 = update(elev_x4, . ~ . + I(salinity^2))
+elev_x6 = update(elev_x5, . ~ . - salinity)
+elev_x7 = update(elev_x5, . ~ . - MHW)
+
+anova(full_x, elev_x, test='LRT')
+AIC(full_x, elev_x)
+
+anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, test='LRT')
+AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7) #model 5 is the best
+
+summary(elev_x5) #has a lower and upper salinity tolerance - just like elevation - which might be why the quadratic equation works better
+
+#model fits; pseudo r^2
+pR2(full_x)
+pR2(elev_x)
+pR2(elev_x2)
+pR2(elev_x4)
+pR2(elev_x5)
+pR2(elev_x6)
+
+#plotting data and values predicted by models
+x_data = data.frame(MHW = seq(-1.2, 0.2, length.out = 50), salinity = rep(seq(0,35,1), each = 50))
+
+plot(Mussel.presence ~ MHW, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation above MHW (m)", ylab = "Probability of Geukensia demissa occurrence")
+
+lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
+      col='red')
+x_data$response =  predict(elev_x5, newdata=x_data, type='response')
+
+which(x_data == max(x_data$response), arr.ind=TRUE)
+x_data[987,]
+
+#ROC curve
+fit_x = elev_x5$fitted.values
+g_x = roc(Mussel.presence ~ fit_x, data = ashgrid)
+plot(g_x)
+auc(g_x) #0.87, not too shabby
+
+```
+
 
 d

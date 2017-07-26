@@ -48,7 +48,6 @@ salinity.position = na.omit(latlong)
 require(dplyr)
 names(salinity.position)
 
-
 av.latitude = salinity.position %>%
   group_by(Site..) %>%
   summarise(mean(Latitude))
@@ -72,5 +71,34 @@ mymap = get_map(location = c(-80.15,32.76,-79.9,32.95), maptype = "satellite")
 ggmap(mymap) + geom_point(data=df.position, aes(x = mean.Longitude., y = mean.Latitude.), size=3, color = "purple") + geom_text(data = df.position, aes(x=mean.Longitude.,y=mean.Latitude.,label = label), size=4, color="white", vjust=1, hjust=0) + labs(x="Longitude", y="Latitude") + theme(axis.text = element_text(size=16, face = "bold"), axis.title = element_text(size = 20, face = "bold"), strip.text = element_text(size=18, face = "bold"))
 ```
 
+## Interpolating and continuous salinity
+```{r, echo=FALSE}
+
+Sal_dist = read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\Salinity_distance.csv")
+
+plot(Salinity ~ Distance.m, data = Sal_dist) #looks sigmoidal. found something online
+
+x = Sal_dist$Distance.m
+y = Sal_dist$Salinity
+
+#starting values
+plot(y ~ x)
+fit <- nls(y ~ SSlogis(x, Asym, xmid, scal), data = data.frame(x, y))
+
+summary(fit)
+
+alpha = coef(fit)
+plot(Salinity ~ Distance.m, data = Sal_dist)
+curve(alpha[1]/(1 + exp(-(x - alpha[2])/alpha[3])), add = T, col = "red")  # Fitted model
+curve(24.525/(1 + exp(-(x - 13106.12)/3953.79)), add = T, col = "red")
+
+xxx = Sal_dist$xxx
+fitxxx = 24.525/(1 + exp(-(xxx - 13106.12)/3953.79))
+
+points(xxx, fitxxx, col='blue', pch = 16)
+
+#>>Models with salinity as a continuous variable
+
+```
 
 ##end
