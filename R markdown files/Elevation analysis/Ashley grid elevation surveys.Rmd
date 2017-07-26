@@ -13,15 +13,12 @@ library(pscl)
 library(pROC)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
-
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
-
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
 #All together
 ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid)
 summary(ashglm)
-plot(ashglm)
 
 full_mod = ashglm
 main_mod = update(full_mod, . ~ . - Elevation:Block)
@@ -38,8 +35,6 @@ anova(elev_mod, elev_mod2, elev_mod4, elev_mod5, test='LRT')
 AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best
 
 #add salinity back in - plot both
-plot(elev_mod2)
-plot(elev_mod4)
 summary(elev_mod4)
 
 #model fits; pseudo r^2
@@ -74,40 +69,18 @@ lines(new_data$Elevation, predict(elev_mod, newdata=new_data, type='response'),
 lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
       col='pink')
 
-ash_plot = ggplot(ashgrid, aes(x = Elevation, y = Mussel.presence))
-ash_plot + geom_point(aes(colour = Block))
-
-#Individual salinity blocks
-ashglm.i = glm(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], family = binomial, data = ashgrid)
-summary(ashglm.i)
-
-ashglm.ii = glm(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], family = binomial, data = ashgrid)
-summary(ashglm.ii)
-
-ashglm.iii = glm(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], family = binomial, data = ashgrid)
-summary(ashglm.iii)
-
-ashglm.iv = glm(Mussel.presence[Grid.ID == "Ash 4"] ~ Elevation[Grid.ID == "Ash 4"], family = binomial, data = ashgrid)
-summary(ashglm.iv)
-
-##Figures 
-xyplot(Mussel.presence[Grid.ID == "Ash 1"] ~ Elevation[Grid.ID == "Ash 1"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 2"] ~ Elevation[Grid.ID == "Ash 2"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 3"] ~ Elevation[Grid.ID == "Ash 3"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 4"] ~ Elevation[Grid.ID == "Ash 4"], data = ashgrid)
-xyplot(Mussel.presence[Grid.ID == "Ash 5"] ~ Elevation[Grid.ID == "Ash 5"], data = ashgrid)
 ```
 
 
 ##Elevation above MHW
 ```{r pressure, echo=FALSE}
-
+ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
 #All together - something weird goes on when above chunk is executed, but the code below will work
 ashglm_mhw = glm(Mussel.presence ~ MHW * Block, family = binomial, data = ashgrid)
 summary(ashglm_mhw)
-plot(ashglm_mhw)
 
 full_mhw = ashglm_mhw
 main_mhw = update(full_mhw, . ~ . - MHW:Block)
@@ -124,8 +97,6 @@ anova(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5, test='LRT')
 AIC(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5) #model 4 is the best
 
 #add salinity back in - plot both
-plot(elev_mhw2)
-plot(elev_mhw4)
 summary(elev_mhw4)
 
 #model fits; pseudo r^2
@@ -213,7 +184,8 @@ wilcox.test(x = fit_pos, y = fit_neg)
 
 ##Elevation in relation to tidal position
 ```{r pressure, echo=FALSE}
-
+ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
 #All together - something weird goes on when above chunk is executed, but the code below will work
@@ -270,6 +242,10 @@ lines(position_data4$Position, predict(elev_position4, newdata=position_data4, t
 
 ##Salinity as a continuous variable
 ```{r pressure, echo=FALSE}
+ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
 site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.67457, 23.05144)) #YOU SHOULD DOUBLE CHECK THESE AND MAKE SURE THEY ARE CALCULATED WELL
 
 ashgrid$salinity = rep(site_sal, each = 30) #salinity at each site is now continuous, based on interpolation from Kelsey's data
