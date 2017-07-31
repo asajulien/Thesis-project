@@ -18,11 +18,11 @@ std.err = function(x)
   sd(x)/sqrt(length(x))
 
 #ggplot, by month
-fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June")) #reordering the months
+fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June", "July")) #reordering the months
 
 sizeage.plot <- ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
-mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18, 82.8, 86.39)) #visualizing the averages
+mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June", "July"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18, 82.8, 86.39,0,0,0)) #visualizing the averages
 
 sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
 
@@ -143,7 +143,7 @@ colnames(mn.lengths.fbcp) = c("Month", "Length", "SE.length", "Age", "SE.age")
 mn.lengths.fbcp
 
 #plots
-mn.lengths.fbcp$Month<-factor(mn.lengths.fbcp$Month, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May")) #Ordering the months
+mn.lengths.fbcp$Month<-factor(mn.lengths.fbcp$Month, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June", "July")) #Ordering the months
 
 limits.size <- aes(ymax = mn.lengths.fbcp$Length + mn.lengths.fbcp$SE.length, ymin = mn.lengths.fbcp$Length - mn.lengths.fbcp$SE.length)
 
