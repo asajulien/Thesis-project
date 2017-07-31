@@ -12,6 +12,7 @@ library(FSA)
 library(nlstools)
 library(lattice)
 library(ggplot2)
+library(lmtest)
 
 std.err = function(x)
   sd(x)/sqrt(length(x))
@@ -221,6 +222,62 @@ nr.mussels = site.compare %>%
 nr.age = site.compare %>%
   group_by(Status) %>%
   summarise(length(na.omit(Growth.bands)))
+```
+
+sss
+##Comparison of VB equations (just site comparison for now)
+```{r, echo=FALSE}
+#models to compare, potentially
+vbLKt = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0[Location])))
+vbLK = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0)))
+vbLt = Length.mm ~ Linf[Location] * (1 - exp(-K * (Growth.bands - t0[Location])))
+vbKt = Length.mm ~ Linf * (1 - exp(-K[Location] * (Growth.bands - t0[Location])))
+vbL = Length.mm ~ Linf[Location] * (1 - exp(-K * (Growth.bands - t0)))
+vbK = Length.mm ~ Linf * (1 - exp(-K[Location] * (Growth.bands - t0)))
+vbt = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0[Location])))
+vb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
+
+#try growthfunshow!!!
+
+#starting values. They are fairly similar so I'm going to use the same for each group (pooled).
+sv0 = vbStarts(Length.mm ~ Growth.bands, data = site.compare)
+svLKt = Map(rep, sv0, c(2,2,2))
+
+#fit model
+fitLKt = nls(vbLKt, data = site.compare, start = svLKt)
+residPlot(fitLKt, col = rgb(0, 0, 0, 1/3))
+
+fit0 = nls(vb0, data = site.compare, start = sv0)
+residPlot(fit0)
+
+lrt(fit0, com = fitLKt, com.name = "All param differ", sim.names = "No param differ") #Differences!
+extraSS(fit0, com = fitLKt, com.name = "All param differ", sim.names = "No param differ")
+
+#differences in nested models
+svLK = Map(rep, sv0, c(2,2,1))
+svLt = Map(rep, sv0, c(2,1,2))
+svKt = Map(rep, sv0, c(1,2,2))
+
+fitLK = nls(vbLK, data = site.compare, start = svLK)
+fitLt = nls(vbLt, data = site.compare, start = svLt)
+fitKt = nls(vbKt, data = site.compare, start = svKt)
+
+lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
+sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
+
+
+#next subsets compared to fitLK, highest loglikelihood
+svL = Map(rep, sv0, c(2,1,1))
+svK = Map(rep, sv0, c(1,2,1))
+fitL = nls(vbL, data = site.compare, start = svL)
+fitK = nls(vbK, data = site.compare, start = svK)
+
+lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
+sim.names=c("Linf dif","K dif")) #Linf differs but K does not? Should double check this
+
+
+#final check:
+lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
 ```
 
 s
