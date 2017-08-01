@@ -265,7 +265,6 @@ fitKt = nls(vbKt, data = site.compare, start = svKt)
 lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
 sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
 
-
 #next subsets compared to fitLK, highest loglikelihood
 svL = Map(rep, sv0, c(2,1,1))
 svK = Map(rep, sv0, c(1,2,1))
@@ -273,11 +272,35 @@ fitL = nls(vbL, data = site.compare, start = svL)
 fitK = nls(vbK, data = site.compare, start = svK)
 
 lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
-sim.names=c("Linf dif","K dif")) #Linf differs but K does not? Should double check this
+sim.names=c("Linf dif","K dif")) #Linf differs but K does not
 
+lrt(fitL,fitK,com=fitLKt,com.name="Linf,K,t dif",
+sim.names=c("Linf dif","K dif")) #JUST Linf DIFFERS
 
 #final check:
 lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
+
+#all together now
+svt = Map(rep, sv0, c(1,1,2))
+fitt = nls(vbt, data = site.compare, start = svt)
+
+cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
+BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
+
 ```
 
-s
+##Another plot
+```{r}
+vbTyp <- vbFuns("typical")
+scu <- filterD(site.compare,Status=="Unharvested")
+fitu <- nls(Length.mm~vbTyp(Growth.bands,Linf,K,t0),data=scu,start=sv0)
+bootu <- nlsBoot(fitu) #something is wrong here
+cbind(coef(fitu),confint(scu))
+```
+ssss
+
+##Schnute model
+```{r}
+
+```
+sssss
