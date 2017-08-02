@@ -1,0 +1,98 @@
+---
+title: "Untitled"
+author: "Asa Julien"
+date: "August 2, 2017"
+output: html_document
+---
+
+#Comparison between Folly, Unharvested, and harvested sites
+```{r cars}
+tricomp = read.csv("C:\\Users\\juliena\\Desktop\\tricomp.csv")
+library(FSA)
+#models to compare, potentially
+tvbLKt = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0[Location])))
+tvbLK = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0)))
+tvbLt = Length.mm ~ Linf[Location] * (1 - exp(-K * (Growth.bands - t0[Location])))
+tvbKt = Length.mm ~ Linf * (1 - exp(-K[Location] * (Growth.bands - t0[Location])))
+tvbL = Length.mm ~ Linf[Location] * (1 - exp(-K * (Growth.bands - t0)))
+tvbK = Length.mm ~ Linf * (1 - exp(-K[Location] * (Growth.bands - t0)))
+tvbt = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0[Location])))
+tvb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
+
+#try growthfunshow!!!
+
+#starting values. They are fairly similar so I'm going to use the same for each group (pooled).
+tsv0 = vbStarts(Length.mm ~ Growth.bands, data = tricomp)
+tsvLKt = Map(rep, tsv0, c(3,3,3))
+
+#fit model
+tfitLKt = nls(tvbLKt, data = tricomp, start = tsvLKt)
+residPlot(tfitLKt, col = rgb(0, 0, 0, 1/3))
+
+tfit0 = nls(tvb0, data = tricomp, start = tsv0)
+residPlot(tfit0)
+
+lrt(tfit0, com = tfitLKt, com.name = "All param differ", sim.names = "No param differ") #Differences!
+extraSS(tfit0, com = tfitLKt, com.name = "All param differ", sim.names = "No param differ")
+
+#differences in nested models
+tsvLK = Map(rep, tsv0, c(3,3,2))
+tsvLt = Map(rep, tsv0, c(3,2,3))
+tsvKt = Map(rep, tsv0, c(2,3,3))
+
+tfitLK = nls(tvbLK, data = tricomp, start = tsvLK)
+tfitLt = nls(tvbLt, data = tricomp, start = tsvLt)
+tfitKt = nls(tvbKt, data = tricomp, start = tsvKt)
+
+lrt(tfitLK,tfitLt,tfitKt,com=tfitLKt,com.name="All param diff",
+sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
+
+
+
+Map(rep, tsv0, c(3,2,2))
+Map(rep, tsv0, c(2,2,3))
+Map(rep, tsv0, c(2,3,2))
+
+Map(rep, tsv0, c(3,3,1))
+Map(rep, tsv0, c(3,1,3))
+
+Map(rep, tsv0, c(3,2,1))
+Map(rep, tsv0, c(3,1,1))
+Map(rep, tsv0, c(3,1,2))
+
+Map(rep, tsv0, c(2,3,1))
+Map(rep, tsv0, c(1,3,2))
+Map(rep, tsv0, c(1,3,1))
+
+Map(rep, tsv0, c(1,3,3))
+Map(rep, tsv0, c(2,1,3))
+Map(rep, tsv0, c(1,2,3))
+
+Map(rep, tsv0, c(1,1,3))
+
+
+
+#next subsets compared to fitLK, highest loglikelihood
+svL = Map(rep, sv0, c(2,1,1))
+svK = Map(rep, sv0, c(1,2,1))
+fitL = nls(vbL, data = site.compare, start = svL)
+fitK = nls(vbK, data = site.compare, start = svK)
+
+lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
+sim.names=c("Linf dif","K dif")) #Linf differs but K does not
+
+lrt(fitL,fitK,com=fitLKt,com.name="Linf,K,t dif",
+sim.names=c("Linf dif","K dif")) #JUST Linf DIFFERS
+
+#final check:
+lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
+
+#all together now
+svt = Map(rep, sv0, c(1,1,2))
+fitt = nls(vbt, data = site.compare, start = svt)
+
+cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
+BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
+
+```
+
