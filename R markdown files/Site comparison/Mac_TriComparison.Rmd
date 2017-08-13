@@ -1,0 +1,91 @@
+---
+title: "Mac_tricompare"
+author: "Asa Julien"
+date: "8/13/2017"
+output: html_document
+---
+
+#Comparison between Folly, Unharvested, and harvested sites
+```{r cars}
+library(FSA)
+library(dplyr)
+
+fbcp_freq = read.csv("~/Documents/Ribbed mussel/Data/Size frequency/CSV files/sizeagefreq_fbcp.csv")
+site.compare = read.csv("~/Documents/Ribbed mussel/Data/Site comparison/CSV files/Comparison.csv")
+
+xybby = fbcp_freq[, c(6,7)]
+xybby$Status = "Folly"
+xybby = xybby[,c(3,1,2)]
+colnames(xybby) = c("Status", "Length.mm", "Growth.bands")
+mydf = rbind(xybby, site.compare[,c(1,5,6)])
+
+mydf_un = mydf %>%
+  filter(Status != "Harvested") %>%
+  na.omit()
+
+mydf_ha = mydf %>%
+  filter(Status != "Unharvested") %>%
+  na.omit()
+
+
+#FOLLY AND UNHARVESTED
+#models to compare
+UvbLKt = Length.mm ~ Linf[Status] * (1 - exp(-K[Status] * (Growth.bands - t0[Status])))
+UvbLK = Length.mm ~ Linf[Status] * (1 - exp(-K[Status] * (Growth.bands - t0)))
+UvbLt = Length.mm ~ Linf[Status] * (1 - exp(-K * (Growth.bands - t0[Status])))
+UvbKt = Length.mm ~ Linf * (1 - exp(-K[Status] * (Growth.bands - t0[Status])))
+UvbL = Length.mm ~ Linf[Status] * (1 - exp(-K * (Growth.bands - t0)))
+UvbK = Length.mm ~ Linf * (1 - exp(-K[Status] * (Growth.bands - t0)))
+Uvbt = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0[Status])))
+Uvb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
+
+
+#starting values. They are fairly similar so I'm going to use the same for each group (pooled).
+Usv0 = vbStarts(Length.mm ~ Growth.bands, data = mydf_un)
+UsvLKt = Map(rep, Usv0, c(2,2,2))
+
+#fit model
+UfitLKt = nls(UvbLKt, data = mydf_un, start = UsvLKt)
+residPlot(UfitLKt, col = rgb(0, 0, 0, 1/3))
+
+Ufit0 = nls(Uvb0, data = mydf_un, start = Usv0)
+residPlot(Ufit0)
+
+lrt(Ufit0, com = UfitLKt, com.name = "All param differ", sim.names = "No param differ")
+
+#differences in nested models
+svLK = Map(rep, sv0, c(2,2,1))
+svLt = Map(rep, sv0, c(2,1,2))
+svKt = Map(rep, sv0, c(1,2,2))
+
+fitLK = nls(vbLK, data = site.compare, start = svLK)
+fitLt = nls(vbLt, data = site.compare, start = svLt)
+fitKt = nls(vbKt, data = site.compare, start = svKt)
+
+lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
+sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
+
+#next subsets compared to fitLK, highest loglikelihood
+svL = Map(rep, sv0, c(2,1,1))
+svK = Map(rep, sv0, c(1,2,1))
+fitL = nls(vbL, data = site.compare, start = svL)
+fitK = nls(vbK, data = site.compare, start = svK)
+
+lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
+sim.names=c("Linf dif","K dif")) #Linf differs but K does not
+
+lrt(fitL,fitK,com=fitLKt,com.name="Linf,K,t dif",
+sim.names=c("Linf dif","K dif")) #JUST Linf DIFFERS
+
+#final check:
+lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
+
+#all together now
+svt = Map(rep, sv0, c(1,1,2))
+fitt = nls(vbt, data = site.compare, start = svt)
+
+cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
+BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
+
+```
+

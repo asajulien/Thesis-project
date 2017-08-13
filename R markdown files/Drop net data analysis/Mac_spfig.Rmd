@@ -1,7 +1,7 @@
 ---
-title: "Drop net"
+title: "Mac_spfig"
 author: "Asa Julien"
-date: "August 2, 2016"
+date: "8/13/2017"
 output: html_document
 ---
 ## Sol Legare, general species data
@@ -13,8 +13,8 @@ require(dplyr)
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
-new_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
-legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\legare.csv")
+new_df = read.csv(read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/legare.csv")
 
 #abundance by treatment
 with(legare_net, tapply(Species, Treatment, length))

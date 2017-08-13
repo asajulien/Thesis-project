@@ -5,7 +5,6 @@ date: "July 21, 2017"
 output: html_document
 ---
 
-
 ```{r}
 library(reshape2)
 library(zoo)

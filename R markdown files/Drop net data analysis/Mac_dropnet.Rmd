@@ -1,0 +1,93 @@
+---
+title: "Mac_dropnet"
+author: "Asa Julien"
+date: "8/13/2017"
+output: html_document
+---
+##analyzing abundance
+```{r, echo=FALSE}
+library(car)
+library(nlme)
+library(lattice)
+library(MASS)
+library(dplyr)
+library(vegan)
+
+new_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+
+#species richness:
+sp_rich = legare_net %>%
+  group_by(Order) %>%
+  summarise(length(unique(Species))) #doesn't include traps with zero...
+
+#models
+test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+summary(test_x)
+plot(test_x)
+
+test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+summary(test_y)
+plot(test_y)
+
+test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+summary(test_z)
+plot(test_z)
+
+test_w = lm(Simpson ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df)
+summary(test_w)
+plot(test_w)
+
+
+```
+
+
+##Multivariate community composition
+```{r, echo = FALSE}
+#Community composition and direct ordination (trying both RDA and CCA)
+marsh = new_df[, c(seq(7, 17))] #All species except for A. heterochaelis
+
+#rda analysis
+marsh_rda = rda(sqrt(marsh) ~ Treatment + Temperature + Salinity + CharlestonHeight, data=new_df) #square root transformation makes treatment significant
+marsh_rda
+plot(marsh_rda)
+plot(marsh_rda, display = c('sp', 'cn'))
+
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) +
+                 Condition(Salinity) + Condition(CharlestonHeight),
+                 data = new_df)
+plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
+
+anova(marsh_rda, by='margin', permutations = 2000)
+RsquareAdj(marsh_rda)
+
+#Just looking at treatment effect
+marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) + Condition(Salinity) + Condition(CharlestonHeight), data = new_df)
+
+plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
+
+ordi_plot = ordiplot(marsh_rda2, type = "none")
+text(ordi_plot, "species", col="blue", cex=1)
+points(ordi_plot, "centroids", pch = 19, col = c("red", "black"), cex = 3)
+legend(2, 2, c("Mussels", "No mussels"), col = c("red", "black"), pch = 19)
+
+anova(marsh_rda2, by = 'margin', permutations = 2000)
+RsquareAdj(marsh_rda2) #really low
+
+#cca
+#View(new_df[new_df$Abundance == 0,])
+marsh_2 = marsh[rowSums(marsh) != 0,]
+rowSums(marsh_2)
+marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight, data = new_df[-c(11, 62, 63, 65, 66, 68, 70, 93),]) #All rows have to be greater than zero
+marsh_cca
+plot(marsh_cca, display=  c('sp', 'cn'))
+anova(marsh_cca, by = 'margin', permutations = 2000)
+```
+
+
+```{r}
+
+```
+
+
+##end
