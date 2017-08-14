@@ -5,59 +5,28 @@ date: "July 21, 2017"
 output: html_document
 ---
 
+##Inundation period
 ```{r}
-library(reshape2)
-library(zoo)
+library(ggplot2)
 
-letest = read.csv("C:\\Users\\juliena\\Desktop\\letest.csv")
-colnames(letest) = c("Date1", "Temp", "Date2", "Tide")
+hobo = read.csv("C:\\Users\\juliena\\Desktop\\Data\\HOBO data\\CSV files\\hobo.csv", as.is = T)
 
-date1 = letest$Date1
-date2 = letest$Date2
-temp = letest$Temp
-tide = letest$Water
+#convert Period to numeric
+hobo$xxx = sapply(strsplit(hobo$Period,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
 
-x = zoo(temp, order.by = c(date1))
-y = zoo(tide, order.by = c(date2))
+hobo_lm = lm(xxx ~ MHW + CharlestonHeight + Salinity, data = hobo)
+summary(hobo_lm)
+plot(xxx ~ MHW, data = hobo)
 
-plot(x)
-lines(y, col = 'red')
-
-
-dfx = letest[, c(2,3)]
-dfx$type = rep("dfx")
-colnames(dfx) = c("Date", "Value", "Type")
-zoo()
-
-dfy = letest[, c(4,5)]
-dfy$type = rep("dfy")
-colnames(dfy) = c("Date", "Value", "Type")
-
-df2 = na.omit(rbind(dfx, dfy))
-ggplot(df2, aes(x = Date, y = Value)) + geom_line() + theme_bw()
+p = ggplot(hobo, aes(CharlestonHeight, xxx))
+p + geom_point(aes(colour = factor(HOBO_ID))) + 
+  geom_smooth(method = 'lm', formula = y ~ x)
 
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-
-
-df =
-    structure(list(Date = structure(c(1410358440, 1410358740, 1410359040, 
-    1410359340, 1410359640, 1410359940, 1410373500, 1410373800, 1410374100, 
-    1410374400, 1410374700, 1410375000), tzone = "", class = c("POSIXct", 
-    "POSIXt")), count = c(0.07253886, 0.03626943, 0.07253886, 0.19689119, 
-    0.13989637, 0.88601036, 1, 0.47058824, 0, 0.11764706, 0, 0.05882353
-    ), type = c("df1", "df1", "df1", "df1", "df1", "df1", "df2", 
-    "df2", "df2", "df2", "df2", "df2")), .Names = c("Date", "count", 
-    "type"), row.names = c(NA, 12L), class = "data.frame")
-
-plot(df$count~df$Date, col = df$type)
-
-
-```
-
-Feesh
