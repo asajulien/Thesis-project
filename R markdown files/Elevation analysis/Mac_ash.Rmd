@@ -297,7 +297,7 @@ col_ramp = colorRampPalette(c('blue', 'red'))(length(sal_bins))
 int_cols = col_ramp[int_col_index]
 obs_cols = col_ramp[obs_col_index]
 
-par(mfrow=c(1, 2))
+par(mfrow=c(1, 1))
 plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
      col = obs_cols, xlab = "Elevation above MHW (m)", 
      ylab = "Probability of Geukensia demissa occurrence")

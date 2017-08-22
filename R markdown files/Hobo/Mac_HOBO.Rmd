@@ -6,7 +6,58 @@ output: html_document
 ---
 
 ```{r}
+library(ggplot2)
+#CHANGE:
+hobo = read.csv("C:\\Users\\juliena\\Desktop\\Data\\HOBO data\\CSV files\\hobo.csv", as.is = T)
 
+#convert Period to numeric
+hobo$Time = sapply(strsplit(hobo$Period,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+hobo_lm = lm(Time ~ MHW + CharlestonHeight + as.factor(Salinity), data = hobo)
+summary(hobo_lm)
+plot(hobo_lm)
+
+hobo_lm2 = lm(Time ~ CharlestonHeight * HOBO_ID, data = hobo)
+summary(hobo_lm2) #some differences in slope - what now? I think it's just because I don't have a lot of data.
+plot(hobo_lm2)
+
+hobo_lm3 = lm(Time ~ CharlestonHeight * as.factor(Salinity), data = hobo)
+summary(hobo_lm3)
+plot(hobo_lm3)
+
+hobo_aov = aov(Time ~ CharlestonHeight * as.factor(Salinity), data = hobo)
+summary(hobo_aov)
+
+hobo$HOBO_ID = factor(hobo$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
+
+#plots
+p = ggplot(hobo, aes(CharlestonHeight, Time))
+p + geom_point(aes(colour = factor(HOBO_ID))) + geom_smooth(method = 'lm', formula = y ~ x)
+
+p2 = ggplot(hobo, aes(CharlestonHeight, Time, colour = HOBO_ID))
+p2 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
+
+p3 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
+p3 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
+
+#Salinity as color and hobo id as points:
+p4 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
+p4 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA) + geom_point(aes(colour = as.factor(Salinity), shape = (HOBO_ID)))
+
+#3plots
+x = ggplot(hobo[hobo$Salinity == 8.35,], aes(CharlestonHeight, Time, colour = HOBO_ID))
+x + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
+
+x2 = ggplot(hobo[hobo$Salinity == 16.47,], aes(CharlestonHeight, Time, colour = HOBO_ID))
+x2 + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
+
+x3 = ggplot(hobo[hobo$Salinity == 23.05,], aes(CharlestonHeight, Time, colour = HOBO_ID))
+x3 + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
 
 ```
 

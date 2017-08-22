@@ -11,6 +11,7 @@ library(ggplot2)
 library(rms)
 library(pscl)
 library(pROC)
+library(rgl)
 
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
@@ -280,12 +281,46 @@ pR2(elev_x5)
 pR2(elev_x6)
 
 #plotting data and values predicted by models
-x_data = data.frame(MHW = seq(-1.2, 0.2, length.out = 50), salinity = rep(seq(0,35,1), each = 50))
+n_sal_bins = 10
+min_sal = min(ashgrid$salinity)
+max_sal = max(ashgrid$salinity)
+x_data = data.frame(MHW = seq(-1.2, 0.2, length.out = 50),
+                    salinity = rep(seq(min_sal, max_sal,
+                                       length.out=n_sal_bins), each = 50))
 
-plot(Mussel.presence ~ MHW, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation above MHW (m)", ylab = "Probability of Geukensia demissa occurrence")
+sal_bins = seq(min_sal, max_sal, length.out = n_sal_bins)
+int_col_index = as.numeric(cut(x_data$salinity, sal_bins,
+                           include.lowest = T))
+obs_col_index = as.numeric(cut(ashgrid$salinity, sal_bins, include.lowest = T))
+col_ramp = colorRampPalette(c('blue', 'red'))(length(sal_bins)) 
+int_cols = col_ramp[int_col_index]
+obs_cols = col_ramp[obs_col_index]
 
-lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
-      col='red')
+par(mfrow=c(1, 1))
+plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
+     col = obs_cols, xlab = "Elevation above MHW (m)", 
+     ylab = "Probability of Geukensia demissa occurrence")
+#lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
+#      col= int_cols)
+for(i in seq_along(sal_bins)) {
+    lines(x_data$MHW[int_col_index == i], 
+          predict(elev_x5, newdata=x_data[int_col_index == i, ],
+                  type='response'), col=col_ramp[i])
+}
+plot(jitter(Mussel.presence, .1) ~ salinity, data=ashgrid, pch = 20,
+     col = obs_cols, xlab = "Salinity", 
+     ylab = "Probability of Geukensia demissa occurrence")
+#lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
+#      col= int_cols)
+for(i in seq_along(sal_bins)) {
+    lines(x_data$salinity[int_col_index == i], 
+          predict(elev_x5, newdata=x_data[int_col_index == i, ],
+                  type='response'), col=col_ramp[i])
+}
+
+scatterplot3d(ashgrid$MHW, ashgrid$salinity, ashgrid$Mussel.presence)
+
+
 x_data$response =  predict(elev_x5, newdata=x_data, type='response')
 
 which(x_data == max(x_data$response), arr.ind=TRUE)
