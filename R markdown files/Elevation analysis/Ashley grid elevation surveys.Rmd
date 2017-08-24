@@ -296,6 +296,7 @@ col_ramp = colorRampPalette(c('blue', 'red'))(length(sal_bins))
 int_cols = col_ramp[int_col_index]
 obs_cols = col_ramp[obs_col_index]
 
+#tiff("Elev.tiff", width = 7, height = 5, units = 'in', res = 300)
 par(mfrow=c(1, 1))
 plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
      col = obs_cols, xlab = "Elevation above MHW (m)", 
@@ -307,14 +308,17 @@ for(i in seq_along(sal_bins)) {
           predict(elev_x5, newdata=x_data[int_col_index == i, ],
                   type='response'), col=col_ramp[i])
 }
+dev.off()
+
 
 #legend
-#layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
+
+#tiff("Legend.tiff", width = 2, height = 4, units = 'in', res = 300)
 legend_image <- as.raster(matrix(int_cols, ncol=1))
 plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (ppt)')
 text(x=1.5, y = seq(0,1,l=4), labels = seq(23,8,l=4))
 rasterImage(legend_image, 0, 0, 1, 1)
-
+dev.off()
 
 #salinity
 plot(jitter(Mussel.presence, .1) ~ salinity, data=ashgrid, pch = 20,
