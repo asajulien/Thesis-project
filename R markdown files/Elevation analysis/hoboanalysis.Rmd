@@ -19,26 +19,34 @@ hobo$Time = sapply(strsplit(hobo$Period,":"),
     }
 )
 
-hobo_lm = lm(Time ~ MHW + CharlestonHeight + as.factor(Salinity), data = hobo)
+hobo_lm = lm(Time ~ MHW + CharlestonHeight, data = hobo) #HOBO_ID/SITE???
 summary(hobo_lm)
 plot(hobo_lm)
 
-hobo_lm2 = lm(Time ~ CharlestonHeight * HOBO_ID, data = hobo)
-summary(hobo_lm2) #some differences in slope - what now? I think it's just because I don't have a lot of data.
+hobo_lm2 = lm(Time ~ MHW + CharlestonHeight + HOBO_ID, data = hobo)
+summary(hobo_lm2) #better than above and below models it seems. doesn't quite fit assumptions
 plot(hobo_lm2)
 
-hobo_lm3 = lm(Time ~ CharlestonHeight * as.factor(Salinity), data = hobo)
+hobo_lm3 = lm(Time ~ MHW + CharlestonHeight +  as.factor(Salinity), data = hobo)
 summary(hobo_lm3)
 plot(hobo_lm3)
 
-hobo_aov = aov(Time ~ CharlestonHeight * as.factor(Salinity), data = hobo)
-summary(hobo_aov)
+hobo_lm4 = lm(Time ~ MHW + CharlestonHeight +  Salinity, data = hobo)
+summary(hobo_lm4)
+plot(hobo_lm4)
+
+AIC(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4)
+anova(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4, test = 'LRT')
+
 
 hobo$HOBO_ID = factor(hobo$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
 
 #plots
-p = ggplot(hobo, aes(CharlestonHeight, Time))
-p + geom_point(aes(colour = factor(HOBO_ID))) + geom_smooth(method = 'lm', formula = y ~ x)
+p0 = ggplot(hobo, aes(CharlestonHeight, Time))
+p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x)
+
+p1 = ggplot(hobo, aes(MHW, Time))
+p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x)
 
 p2 = ggplot(hobo, aes(CharlestonHeight, Time, colour = HOBO_ID))
 p2 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
