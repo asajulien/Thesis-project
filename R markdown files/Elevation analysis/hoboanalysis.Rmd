@@ -8,6 +8,7 @@ output: html_document
 ##Inundation period
 ```{r}
 library(ggplot2)
+library(dplyr)
 
 hobo = read.csv("C:\\Users\\juliena\\Desktop\\Data\\HOBO data\\CSV files\\hobo.csv", as.is = T)
 
@@ -19,21 +20,21 @@ hobo$Time = sapply(strsplit(hobo$Period,":"),
     }
 )
 
+#standard error
+std.err = function(x)
+  sd(x)/sqrt(length(x))
+
 hobo_lm = lm(Time ~ MHW + CharlestonHeight, data = hobo) #HOBO_ID/SITE???
 summary(hobo_lm)
-plot(hobo_lm)
 
 hobo_lm2 = lm(Time ~ MHW + CharlestonHeight + HOBO_ID, data = hobo)
 summary(hobo_lm2) #better than above and below models it seems. doesn't quite fit assumptions
-plot(hobo_lm2)
 
 hobo_lm3 = lm(Time ~ MHW + CharlestonHeight +  as.factor(Salinity), data = hobo)
 summary(hobo_lm3)
-plot(hobo_lm3)
 
 hobo_lm4 = lm(Time ~ MHW + CharlestonHeight +  Salinity, data = hobo)
 summary(hobo_lm4)
-plot(hobo_lm4)
 
 AIC(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4)
 anova(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4, test = 'LRT')
@@ -54,9 +55,23 @@ p2 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
 p3 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
 p3 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
 
+#average time per hobo
+hobo_mhw = hobo %>%
+  group_by(HOBO_ID) %>%
+  select(HOBO_ID, MHW, Salinity, Time) %>%
+  summarise(mean(Time), mean(MHW), std.err(Time), mean(Salinity))
+colnames(hobo_mhw) = c("HOBO_ID", "Time", "MHW", "se_time", "Salinity")
+hobo_mhw$HOBO_ID = factor(hobo_mhw$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
+
+p4 = ggplot(hobo_mhw, aes(MHW, Time))
+p4 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time))
+
+mean_lm = lm(Time ~ MHW, data = hobo_mhw)
+summary(mean_lm)
+
 #Salinity as color and hobo id as points:
-p4 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
-p4 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA) + geom_point(aes(colour = as.factor(Salinity), shape = (HOBO_ID)))
+p5 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
+p5 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA) + geom_point(aes(colour = as.factor(Salinity), shape = (HOBO_ID)))
 
 #3plots
 x = ggplot(hobo[hobo$Salinity == 8.35,], aes(CharlestonHeight, Time, colour = HOBO_ID))
