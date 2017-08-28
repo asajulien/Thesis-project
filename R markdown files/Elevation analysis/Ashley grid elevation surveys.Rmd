@@ -13,7 +13,11 @@ library(pscl)
 library(pROC)
 library(rgl)
 
+#windows:
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
@@ -75,7 +79,11 @@ lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
 
 ##Elevation above MHW
 ```{r pressure, echo=FALSE}
+#windows:
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
@@ -185,7 +193,11 @@ wilcox.test(x = fit_pos, y = fit_neg)
 
 ##Elevation in relation to tidal position
 ```{r pressure, echo=FALSE}
+#windows:
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
@@ -243,7 +255,11 @@ lines(position_data4$Position, predict(elev_position4, newdata=position_data4, t
 
 ##Salinity as a continuous variable
 ```{r pressure, echo=FALSE}
+#windows:
 ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 

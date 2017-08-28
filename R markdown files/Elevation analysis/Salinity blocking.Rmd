@@ -14,7 +14,13 @@ library(ggmap)
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
+#windows:
 ashley.salinity = read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\ashley_salinity.csv")
+Sal_dist = read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\Salinity_distance.csv")
+
+#mac:
+ashley.salinity = read.csv("~/Documents/Ribbed mussel/Data/Salinity transect/CSV files/Ashley_salinity.csv")
+Sal_dist = read.csv("~/Documents/Ribbed mussel/Data/Salinity transect/CSV files/Salinity_distance.csv")
 
 temp.df = ashley.salinity %>%
   group_by(Site..) %>%
@@ -34,8 +40,6 @@ month.mn = temp.df %>%
 
 ## Maps
 ```{r, echo=FALSE}
-ashley.salinity = read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\ashley_salinity.csv")
-
 latlong = ashley.salinity %>%
   filter(Month != "October") %>% #REMOVE OCTOBER because of the 100 year flood (Hurricane Joaquin)
   group_by(Site..) %>%
@@ -73,9 +77,6 @@ ggmap(mymap) + geom_point(data=df.position, aes(x = mean.Longitude., y = mean.La
 
 ## Interpolating and continuous salinity
 ```{r, echo=FALSE}
-
-Sal_dist = read.csv("C:\\users\\juliena\\desktop\\data\\elevation\\salinity transect\\csv files\\Salinity_distance.csv")
-
 plot(Salinity ~ Distance.m, data = Sal_dist) #looks sigmoidal. found something online
 
 x = Sal_dist$Distance.m

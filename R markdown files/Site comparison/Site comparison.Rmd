@@ -17,7 +17,10 @@ library(lmtest)
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
+#windows:
 site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
+#mac:
+site.compare = read.csv("~/Documents/Ribbed mussel/Data/Site comparison/CSV files/Comparison.csv")
 
 #means, medians
 mean.lengths = site.compare %>%

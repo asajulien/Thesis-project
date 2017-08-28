@@ -13,8 +13,14 @@ library(MASS)
 library(dplyr)
 library(vegan)
 
+#windows:
 new_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
 legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
+
+#mac:
+new_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
+legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+
 #species richness:
 sp_rich = legare_net %>%
   group_by(Order) %>%

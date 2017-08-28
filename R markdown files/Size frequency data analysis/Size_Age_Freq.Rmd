@@ -7,12 +7,16 @@ output: html_document
 
 ##Size and age frequencies, FOLLY BEACH COUNTY PARK
 ```{r, echo=FALSE}
-fbcp_freq = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
 library(FSA)
 library(nlstools)
 library(ggplot2)
 library(lattice)
 library(dplyr)
+
+#windows:
+fbcp_freq = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
+#mac:
+fbcp_freq = read.csv("~/Documents/Ribbed mussel/Data/Size frequency/CSV files/sizeagefreq_fbcp.csv")
 
 std.err = function(x)
   sd(x)/sqrt(length(x))

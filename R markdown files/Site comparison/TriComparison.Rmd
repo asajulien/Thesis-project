@@ -10,8 +10,12 @@ output: html_document
 library(FSA)
 library(dplyr)
 
+#windows:
 fbcp_freq = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
 site.compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV files\\Comparison.csv")
+#mac:
+fbcp_freq = read.csv("~/Documents/Ribbed mussel/Data/Size frequency/CSV files/sizeagefreq_fbcp.csv")
+site.compare = read.csv("~/Documents/Ribbed mussel/Data/Site comparison/CSV files/Comparison.csv")
 
 xybby = fbcp_freq[, c(6,7)]
 xybby$Status = "Folly"

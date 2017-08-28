@@ -10,7 +10,9 @@ output: html_document
 library(ggplot2)
 library(dplyr)
 
+#windows:
 hobo = read.csv("C:\\Users\\juliena\\Desktop\\Data\\HOBO data\\CSV files\\hobo.csv", as.is = T)
+#mac: UPDATE
 
 #convert Period to numeric
 hobo$Time = sapply(strsplit(hobo$Period,":"),
