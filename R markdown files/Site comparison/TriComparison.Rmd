@@ -6,6 +6,7 @@ output: html_document
 ---
 
 #Comparison between Folly, Unharvested, and harvested sites
+##FOLLY AND UNHARVESTED
 ```{r cars}
 library(FSA)
 library(dplyr)
@@ -91,5 +92,66 @@ fitt = nls(vbt, data = site.compare, start = svt)
 cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
 BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
 
+```
+
+##FOLLY AND HARVESTED
+```{r}
+#models to compare
+HvbLKt = Length.mm ~ Linf[Status] * (1 - exp(-K[Status] * (Growth.bands - t0[Status])))
+HvbLK = Length.mm ~ Linf[Status] * (1 - exp(-K[Status] * (Growth.bands - t0)))
+HvbLt = Length.mm ~ Linf[Status] * (1 - exp(-K * (Growth.bands - t0[Status])))
+HvbKt = Length.mm ~ Linf * (1 - exp(-K[Status] * (Growth.bands - t0[Status])))
+HvbL = Length.mm ~ Linf[Status] * (1 - exp(-K * (Growth.bands - t0)))
+HvbK = Length.mm ~ Linf * (1 - exp(-K[Status] * (Growth.bands - t0)))
+Hvbt = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0[Status])))
+Hvb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
+
+
+#starting values. They are fairly similar so I'm going to use the same for each group (pooled).
+Hsv0 = vbStarts(Length.mm ~ Growth.bands, data = mydf_ha)
+HsvLKt = Map(rep, Hsv0, c(2,2,2))
+
+#fit model
+HfitLKt = nls(HvbLKt, data = mydf_ha, start = HsvLKt)
+residPlot(HfitLKt, col = rgb(0, 0, 0, 1/3))
+
+Hfit0 = nls(Hvb0, data = mydf_ha, start = Hsv0)
+residPlot(Hfit0)
+
+lrt(Hfit0, com = HfitLKt, com.name = "All param differ", sim.names = "No param differ")
+
+#differences in nested models
+svLK = Map(rep, sv0, c(2,2,1))
+svLt = Map(rep, sv0, c(2,1,2))
+svKt = Map(rep, sv0, c(1,2,2))
+
+fitLK = nls(vbLK, data = site.compare, start = svLK)
+fitLt = nls(vbLt, data = site.compare, start = svLt)
+fitKt = nls(vbKt, data = site.compare, start = svKt)
+
+lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
+sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
+
+#next subsets compared to fitLK, highest loglikelihood
+svL = Map(rep, sv0, c(2,1,1))
+svK = Map(rep, sv0, c(1,2,1))
+fitL = nls(vbL, data = site.compare, start = svL)
+fitK = nls(vbK, data = site.compare, start = svK)
+
+lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
+sim.names=c("Linf dif","K dif")) #Linf differs but K does not
+
+lrt(fitL,fitK,com=fitLKt,com.name="Linf,K,t dif",
+sim.names=c("Linf dif","K dif")) #JUST Linf DIFFERS
+
+#final check:
+lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
+
+#all together now
+svt = Map(rep, sv0, c(1,1,2))
+fitt = nls(vbt, data = site.compare, start = svt)
+
+cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
+BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
 ```
 
