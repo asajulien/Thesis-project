@@ -22,13 +22,11 @@ std.err = function(x)
   sd(x)/sqrt(length(x))
 
 #ggplot, by month
-fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June", "July")) #reordering the months
+fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June", "July"))
 
-sizeage.plot <- ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
+sizeage_plot = ggplot(data = fbcp_freq, aes(x = Length.mm)) + geom_histogram(binwidth = 5) + facet_grid(~Month.code) + theme_bw() + labs(x = "Length (mm)", y="Frequency")
 
-mn.lines = data.frame(Month.code = c("August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June", "July"), mn.size = c(81.03, 83.34, 86.32, 87.51, 75.92, 80.25, 85.18, 82.8, 86.39,0,0,0)) #visualizing the averages
-
-sizeage.plot + theme(axis.text = element_text(size=16), axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size = 18, face = "bold")) + geom_vline(aes(xintercept = mn.size), mn.lines) #BEAUTIFUL and you can change binwidths!!! Remember that Aug had 5 samples, vs. 10 in Sep and Oct
+sizeage_plot
 
 #percent hists 
 mydata = fbcp_freq %>%
@@ -39,21 +37,17 @@ pcent = ggplot(data = mydata, aes(x = Length)) + geom_histogram(aes(y=(..count..
 
 pcent
 
-#Number of juveniles
-juv.month = fbcp_freq %>%
-  filter(Length.mm < 30) %>% #Arbitrarily chose 30. Use a more informed size
-  group_by(Month.code, Quadrat.identifier) %>%
+#Percent by month
+tot_muss = fbcp_freq %>%
+  group_by(Month.code) %>%
   summarise(length(Length.mm))
+colnames(tot_muss) = c("Month", "Total")
 
-plot(juv.month$`length(Length.mm)` ~ juv.month$Month.code) #n=10 in some cases, 5 in others
+tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm < 17], fbcp_freq$Month.code[fbcp_freq$Length.mm < 17], length)
 
-#number of mussels by month
-nr.mussels = fbcp_freq %>%
-  group_by(Month.code, Quadrat.identifier) %>%
-  summarise(length(Length.mm))
-nr.age = fbcp_freq %>%
-  summarise(length(na.omit(Growth.bands)))
+tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 
+ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line()
 ```
 
 
@@ -122,6 +116,14 @@ lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 
 boxplot(von.length.fbcp ~ von.age.fbcp)
+
+#predict lengths for age
+pred_age = data.frame(von.age.fbcp = rep(seq(0, 15, 1),2))
+pred_age$response = predict(fitTypical.fbcp, newdata = pred_age, type = 'reponse')
+plot(pred_age$response ~ pred_age$von.age.fbcp)
+#0 bands = 17 mm
+#3 bands = 74 mm 
+#8 bands = 100 mm
 ```
 
 
@@ -154,10 +156,10 @@ limits.size <- aes(ymax = mn.lengths.fbcp$Length + mn.lengths.fbcp$SE.length, ym
 limits.age = aes(ymax = mn.lengths.fbcp$Age + mn.lengths.fbcp$SE.age, ymin = mn.lengths.fbcp$Age - mn.lengths.fbcp$SE.age)
 
 p.size <- ggplot(mn.lengths.fbcp, aes(Month, Length))
-p.size + geom_bar(stat = "identity", width = 0.75) + geom_errorbar(limits.size, width=0.25) + labs(x="Month",y="Length (mm)")
+p.size + geom_point(stat = "identity") + geom_errorbar(limits.size, width=0.25) + labs(x="Month",y="Length (mm)")
 
 p.age = ggplot(mn.lengths.fbcp, aes(Month, Age))
-p.age + geom_bar(stat = "identity", width = 0.75) + geom_errorbar(limits.age, width=0.25) + labs(x="Month",y="Growth bands")
+p.age + geom_point(stat = "identity") + geom_errorbar(limits.age, width=0.25) + labs(x="Month",y="Growth bands")
 ```
 
 
@@ -182,8 +184,9 @@ df.density = den.fbcp %>%
 colnames(df.density)<-c("Month","Density","SE.den")
 
 p.density <- ggplot(df.density,aes(x=Month,y=Density),position="dodge")
-p.density + geom_bar(stat="identity") + geom_errorbar(aes(ymax=Density+SE.den,ymin=Density-SE.den), width=0.25) + labs(x=expression(Month),y=expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p.density + geom_point(stat="identity") + geom_errorbar(aes(ymax=Density+SE.den,ymin=Density-SE.den), width=0.25) + labs(x=expression(Month),y=expression(Density~(individuals~m^{-2})))
 
+#NOT SURE IF THIS IS A SIGNAL OR DUE TO SAMPLING
 ```
 
 
