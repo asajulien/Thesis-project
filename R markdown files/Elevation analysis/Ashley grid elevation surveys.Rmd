@@ -279,14 +279,17 @@ elev_x4 = update(elev_x2, . ~ . + salinity)
 elev_x5 = update(elev_x4, . ~ . + I(salinity^2))
 elev_x6 = update(elev_x5, . ~ . - salinity)
 elev_x7 = update(elev_x5, . ~ . - MHW)
+#getting rid of issue of separation (but also makes model worse):
+elev_x8 = update(elev_x5, .~. - MHW)
 
 anova(full_x, elev_x, test='LRT')
 AIC(full_x, elev_x)
 
-anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, test='LRT')
-AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7) #model 5 is the best
+anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, test='LRT')
+AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8) #model 5 is the best
 
 summary(elev_x5) #has a lower and upper salinity tolerance - just like elevation - which might be why the quadratic equation works better
+summary(elev_x8)
 
 #model fits; pseudo r^2
 pR2(full_x)
@@ -295,6 +298,7 @@ pR2(elev_x2)
 pR2(elev_x4)
 pR2(elev_x5)
 pR2(elev_x6)
+pR2(elev_x8)
 
 #plotting data and values predicted by models
 n_sal_bins = 10
@@ -336,20 +340,7 @@ text(x=1.5, y = seq(0,1,l=4), labels = seq(23,8,l=4))
 rasterImage(legend_image, 0, 0, 1, 1)
 dev.off()
 
-#salinity
-plot(jitter(Mussel.presence, .1) ~ salinity, data=ashgrid, pch = 20,
-     col = obs_cols, xlab = "Salinity", 
-     ylab = "Probability of Geukensia demissa occurrence")
-#lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
-#      col= int_cols)
-for(i in seq_along(sal_bins)) {
-    lines(x_data$salinity[int_col_index == i], 
-          predict(elev_x5, newdata=x_data[int_col_index == i, ],
-                  type='response'), col=col_ramp[i])
-}
-
-scatterplot3d(ashgrid$MHW, ashgrid$salinity, ashgrid$Mussel.presence)
-
+plot3d(ashgrid$MHW, ashgrid$salinity, ashgrid$Mussel.presence)
 
 x_data$response =  predict(elev_x5, newdata=x_data, type='response')
 
