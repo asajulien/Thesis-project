@@ -256,7 +256,7 @@ lines(position_data4$Position, predict(elev_position4, newdata=position_data4, t
 ##Salinity as a continuous variable
 ```{r pressure, echo=FALSE}
 #windows:
-ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+ashgrid = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv")
 #mac:
 ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
 #manipulate data:
@@ -355,5 +355,18 @@ auc(g_x) #0.87, not too shabby
 
 ```
 
+##Test model
+```{r}
+follytest = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\FBCP_elevation_survey.csv")
+follytest$Mussel.presence = ifelse(follytest$Mussel.presence == 'y', 1, 0)
+follytest$salinity = rep(25) #JUST A GUESS, get some real data
+
+plot(jitter(Mussel.presence, .1) ~ MHW, data=follytest, pch = 20,
+     col = obs_cols, xlab = "Elevation above MHW (m)", 
+     ylab = "Probability of Geukensia demissa occurrence")
+lines(predict(elev_x5, newdata=follytest,
+                  type='response'))
+
+```
 
 d
