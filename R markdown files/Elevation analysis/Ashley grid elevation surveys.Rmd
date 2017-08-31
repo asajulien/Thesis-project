@@ -12,68 +12,6 @@ library(rms)
 library(pscl)
 library(pROC)
 library(rgl)
-
-#windows:
-ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
-#mac:
-ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
-#manipulate data:
-ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
-ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
-
-#All together
-ashglm = glm(Mussel.presence ~ Elevation * Block, family = binomial, data = ashgrid)
-summary(ashglm)
-
-full_mod = ashglm
-main_mod = update(full_mod, . ~ . - Elevation:Block)
-elev_mod = update(main_mod, . ~ . - Block)
-elev_mod2 = update(elev_mod, . ~ . + I(Elevation^2))
-elev_mod3 = update(elev_mod2, . ~ . + I(Elevation^3))
-elev_mod4 = update(elev_mod2, . ~ . + Block)
-elev_mod5 = update(elev_mod2, . ~ . + Block + Elevation:Block)
-
-anova(full_mod, main_mod, elev_mod, test='LRT')
-AIC(full_mod, main_mod, elev_mod)
-
-anova(elev_mod, elev_mod2, elev_mod4, elev_mod5, test='LRT')
-AIC(elev_mod, elev_mod2, elev_mod4, elev_mod5) #model 4 is the best
-
-#add salinity back in - plot both
-summary(elev_mod4)
-
-#model fits; pseudo r^2
-full_r2 = pR2(full_mod)
-main_r2 = pR2(main_mod)
-mod_r2 = pR2(elev_mod)
-mod2_r2 = pR2(elev_mod2)
-mod4_r2 = pR2(elev_mod4)
-mod5_r2 = pR2(elev_mod5)
-
-#plotting data and values predicted by models
-new_data = data.frame(Elevation = seq(0, 1, length.out = 50), Block = rep(c("20-25"), each = 50))
-new_data2 = data.frame(Elevation = seq(0, 1, length.out = 50), Block = rep(c("15-20"), each = 50))
-new_data3 = data.frame(Elevation = seq(0, 1, length.out = 50), Block = rep(c("10-15"), each = 50))
-new_data4 = data.frame(Elevation = seq(0, 1, length.out = 50), Block = rep(c("5-10"), each = 50))
-
-plot(Mussel.presence ~ Elevation, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation (m)", ylab = "Probability of Geukensia demissa occurrence")
-legend(-0.1, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
-text(-0.02, 0.78, "Salinity (ppt)")
-
-lines(new_data$Elevation, predict(elev_mod4, newdata=new_data, type='response'),
-      col='green')
-lines(new_data2$Elevation, predict(elev_mod4, newdata=new_data2, type='response'),
-      col='red')
-lines(new_data3$Elevation, predict(elev_mod4, newdata=new_data3, type='response'),
-      col='black')
-lines(new_data4$Elevation, predict(elev_mod4, newdata=new_data4, type='response'),
-      col='blue')
-
-lines(new_data$Elevation, predict(elev_mod, newdata=new_data, type='response'),
-      col='purple')
-lines(new_data$Elevation, predict(elev_mod2, newdata=new_data, type='response'),
-      col='pink')
-
 ```
 
 
@@ -140,54 +78,6 @@ lines(MHW_data$MHW, predict(elev_mhw, newdata=new_data, type='response'),
 lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
       col='pink')
 
-```
-
-##Goodness of fit/model diagnostics
-```{r}
-#sensitivity and specificity, ROC curves. There are 108 presences (I THINK) and 132 absences. Calculating these at different 'cutoffs'
-
-fit_mhw = elev_mhw4$fitted.values
-fit_mhw2 = elev_mhw4$fitted.values[ashgrid$Block == "20-25"] #1-60
-fit_mhw3 = elev_mhw4$fitted.values[ashgrid$Block == "15-20"] #61-120
-fit_mhw4 = elev_mhw4$fitted.values[ashgrid$Block == "10-15"] #121-180
-fit_mhw5 = elev_mhw4$fitted.values[ashgrid$Block == "5-10"] #181-240
-
-#Using the R package pROC
-summary(elev_mhw4)
-prob = predict(elev_mhw4, type = c("response")) #same as fit_mhw!
-
-ashgrid$prob = fit_mhw
-
-ashgrid$prob2 = fit_mhw2 #EACH OF THESE should ONLY be 60, BUT THEY REPEAT IN REGULAR DATA FRAME!
-ashgrid$prob3 = fit_mhw3
-ashgrid$prob4 = fit_mhw4
-ashgrid$prob5 = fit_mhw5
-
-g = roc(Mussel.presence ~ prob, data = ashgrid)
-g2 = roc(Mussel.presence[1:60] ~ prob2[1:60], data = ashgrid)
-g3 = roc(Mussel.presence[61:120] ~ prob3[61:120], data = ashgrid)
-g4 = roc(Mussel.presence[121:180] ~ prob4[121:180], data = ashgrid)
-g5 = roc(Mussel.presence[181:240] ~ prob5[181:240], data = ashgrid)
-
-plot(g)
-plot(g2)
-plot(g3)
-plot(g4)
-plot(g5)
-
-auc(g) #86.2%! Corroborated; see below.
-# "Although it is not obvious from its definition, the area under the ROC curve (AUC) has a somewhat appealing interpretation. It turns out that the AUC is the probability that if you were to take a random pair of observations, one with Y=1 and one with Y=0, the observation with Y=1 has a higher predicted probability than the other. The AUC thus gives the probability that the model correctly ranks such pairs of observations."
-auc(g2)
-auc(g3)
-auc(g4)
-auc(g5) #Not as good a fit for the most and least saline blocks, but not bad for the middle two. Not sure what to do about this discrepancy.
-
-#AUC (area under ROC)
-fit_pos = fit_mhw[ashgrid$Mussel.presence==1]
-fit_neg = fit_mhw[ashgrid$Mussel.presence==0]
-wilcox.test(x = fit_pos, y = fit_neg)
-12290/(108*132)
-#AUC = 86.2%
 ```
 
 
@@ -358,15 +248,18 @@ auc(g_x) #0.87, not too shabby
 ##Test model
 ```{r}
 follytest = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\FBCP_elevation_survey.csv")
+
 follytest$Mussel.presence = ifelse(follytest$Mussel.presence == 'y', 1, 0)
 follytest$salinity = rep(25) #JUST A GUESS, get some real data
 
-plot(jitter(Mussel.presence, .1) ~ MHW, data=follytest, pch = 20,
-     col = obs_cols, xlab = "Elevation above MHW (m)", 
-     ylab = "Probability of Geukensia demissa occurrence")
-lines(predict(elev_x5, newdata=follytest,
-                  type='response'))
+follytest = follytest[,c(5, 15, 44)]
 
+fit_folly = predict(elev_x5, newdata=follytest,
+                  type='response')
+
+g_folly = roc(Mussel.presence ~ fit_folly, data = follytest)
+plot(g_folly)
+auc(g_folly)#Not great at all. I think it's too small of a dataset though, with not enough of a range in elevation.
 ```
 
 d

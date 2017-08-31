@@ -43,11 +43,33 @@ tot_muss = fbcp_freq %>%
   summarise(length(Length.mm))
 colnames(tot_muss) = c("Month", "Total")
 
-tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm < 17], fbcp_freq$Month.code[fbcp_freq$Length.mm < 17], length)
+tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_freq$Month.code[fbcp_freq$Length.mm <= 17], length)
 
 tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 
 ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line()
+
+#Average percent by month, a bit convoluted
+by_quad = fbcp_freq %>%
+  group_by(Quadrat.identifier, Month.code) %>%
+  select(Quadrat.identifier, Month.code, Length.mm, Growth.bands) %>%
+  summarise(muss = length(Length.mm))
+
+se_juv = fbcp_freq %>%
+  group_by(Quadrat.identifier, Month.code) %>%
+  select(Quadrat.identifier, Month.code, Length.mm, Growth.bands) %>%
+  summarise(juvs = length(Growth.bands[Length.mm<=17])) 
+
+df_juvs = data.frame(Month = se_juv$Month.code, Juvs = se_juv$juvs/by_quad$muss * 100)
+
+av_juvs = df_juvs %>%
+  group_by(Month) %>%
+  summarise(mn_j = mean(Juvs), se_j = std.err(Juvs))
+
+ggplot(av_juvs, aes(Month, mn_j, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymin = mn_j - se_j, ymax = mn_j + se_j))
+
+summary(aov(df_juvs$Juvs ~ df_juvs$Month))
+
 ```
 
 
