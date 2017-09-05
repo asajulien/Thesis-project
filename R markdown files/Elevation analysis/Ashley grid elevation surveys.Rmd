@@ -232,7 +232,7 @@ dev.off()
 #tiff("Legend.tiff", width = 2, height = 4, units = 'in', res = 300)
 legend_image <- as.raster(matrix(int_cols, ncol=1))
 plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (ppt)')
-text(x=1.5, y = seq(0,1,l=4), labels = seq(23,8,l=4))
+text(x=1.5, y = seq(0,1,l=2), labels = seq(23,8,l=2))
 rasterImage(legend_image, 0, 0, 1, 1)
 dev.off()
 

@@ -47,6 +47,7 @@ hobo$HOBO_ID = factor(hobo$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_
 #plots
 p0 = ggplot(hobo, aes(CharlestonHeight, Time))
 p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x)
+#p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x) + labs(x = "Tidal height (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 18), strip.text = element_text(size=15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,7)
 
 p1 = ggplot(hobo, aes(MHW, Time))
 p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x)
@@ -58,32 +59,34 @@ p3 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
 p3 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
 
 #average time per hobo
-hobo_mhw = hobo %>%
+hobo_mn = hobo %>%
   group_by(HOBO_ID) %>%
-  select(HOBO_ID, MHW, Salinity, Time) %>%
-  summarise(mean(Time), mean(MHW), std.err(Time), mean(Salinity))
-colnames(hobo_mhw) = c("HOBO_ID", "Time", "MHW", "se_time", "Salinity")
-hobo_mhw$HOBO_ID = factor(hobo_mhw$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
+  select(HOBO_ID, MHW, Salinity, Time, CharlestonHeight) %>%
+  summarise(mean(Time), mean(MHW), std.err(Time), mean(Salinity), mean(CharlestonHeight))
+colnames(hobo_mn) = c("HOBO_ID", "Time", "MHW", "se_time", "Salinity", "Tide")
+hobo_mn$HOBO_ID = factor(hobo_mhw$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
 
-p4 = ggplot(hobo_mhw, aes(MHW, Time))
-p4 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time))
+p4 = ggplot(hobo_mn, aes(MHW, Time))
+p4 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time)) + labs(x = "Elevation from MHW (m)", y = "Time (h)")
 
-mean_lm = lm(Time ~ MHW, data = hobo_mhw)
-summary(mean_lm)
+#p4+geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time)) + labs(x = "Elevation from MHW (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 18), strip.text = element_text(size=15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,5)
 
-#Salinity as color and hobo id as points:
-p5 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
-p5 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA) + geom_point(aes(colour = as.factor(Salinity), shape = (HOBO_ID)))
+mn_lm = lm(Time ~ MHW, data = hobo_mn)
+summary(mn_lm)
 
-#3plots
-x = ggplot(hobo[hobo$Salinity == 8.35,], aes(CharlestonHeight, Time, colour = HOBO_ID))
-x + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
+#average time per day
+ht_mn = hobo %>%
+  group_by(Day) %>%
+  filter(n() >= 3) %>%
+  select(Time, CharlestonHeight) %>%
+  summarise(mean(Time), std.err(Time), mean(CharlestonHeight))
+colnames(ht_mn) = c("Day", "Time", "se_time", "Tide")
 
-x2 = ggplot(hobo[hobo$Salinity == 16.47,], aes(CharlestonHeight, Time, colour = HOBO_ID))
-x2 + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
+p5 = ggplot(ht_mn, aes(Tide, Time))
+p5 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time)) + labs(x = "Tidal height (m)", y = "Time (h)")
 
-x3 = ggplot(hobo[hobo$Salinity == 23.05,], aes(CharlestonHeight, Time, colour = HOBO_ID))
-x3 + geom_smooth(method = 'lm', formula = y ~ x) + geom_point()
+ht_lm = lm(Time ~ Tide, data = ht_mn)
+summary(ht_lm)
 ```
 
 
