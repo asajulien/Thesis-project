@@ -29,6 +29,9 @@ std.err = function(x)
 
 hobo_lm = lm(Time ~ MHW + CharlestonHeight, data = hobo) #HOBO_ID/SITE???
 summary(hobo_lm)
+par(mfrow=c(1,2))
+termplot(hobo_lm, partial.resid = T, se = T)
+plot(hobo$CharlestonHeight, residuals(lm(Time ~ MHW, data=hobo)))
 
 hobo_lm2 = lm(Time ~ MHW + CharlestonHeight + HOBO_ID, data = hobo)
 summary(hobo_lm2)
