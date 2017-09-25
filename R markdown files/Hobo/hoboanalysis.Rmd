@@ -9,6 +9,7 @@ output: html_document
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(lme4)
 
 #windows:
 hobo = read.csv("C:\\Users\\juliena\\Desktop\\Data\\HOBO data\\CSV files\\hobo.csv", as.is = T)
@@ -23,6 +24,9 @@ hobo$Time = sapply(strsplit(hobo$Period,":"),
     }
 )
 
+#Salinity to as factor:
+hobo$Salinity = as.factor(hobo$Salinity)
+
 #standard error
 std.err = function(x)
   sd(x)/sqrt(length(x))
@@ -32,6 +36,9 @@ summary(hobo_lm)
 par(mfrow=c(1,2))
 termplot(hobo_lm, partial.resid = T, se = T)
 plot(hobo$CharlestonHeight, residuals(lm(Time ~ MHW, data=hobo)))
+
+hobo_mix = lmer(Time ~ MHW + CharlestonHeight + (1|HOBO_ID) + (1|Salinity), data = hobo)
+summary(hobo_mix)
 
 hobo_lm2 = lm(Time ~ MHW + CharlestonHeight + HOBO_ID, data = hobo)
 summary(hobo_lm2)
