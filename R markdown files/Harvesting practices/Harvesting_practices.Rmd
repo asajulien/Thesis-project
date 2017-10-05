@@ -1,0 +1,37 @@
+---
+title: "Harvesting practices"
+author: "Asa Julien"
+date: "October 5, 2017"
+output: html_document
+---
+
+##Biomass
+```{r}
+library(ggplot2)
+library(dplyr)
+
+#windows:
+biomass = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\mass.csv")
+#mac:
+
+std.err = function(x)
+  sd(x)/sqrt(length(x))
+
+mass_aov = aov(Weight ~ Treatment, data = biomass)
+summary(mass_aov)
+TukeyHSD(mass_aov)
+plot(mass_aov)
+
+av_mass = biomass %>%
+  group_by(Treatment)%>%
+  select(Block, Treatment, Weight) %>%
+  summarise(mean(Weight), std.err(Weight))
+colnames(av_mass) = c("Treatment", "Wt", "se.wt")
+av_mass$Treatment = factor(av_mass$Treatment, levels = c("C", "P", "F"))
+
+p_mass = ggplot(av_mass, aes(Treatment, Wt))
+p_mass + geom_point() + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1)
+
+
+```
+
