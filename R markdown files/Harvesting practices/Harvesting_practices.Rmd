@@ -13,6 +13,7 @@ library(dplyr)
 #windows:
 biomass = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\mass.csv")
 #mac:
+biomass = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV files/mass.csv")
 
 std.err = function(x)
   sd(x)/sqrt(length(x))
@@ -27,11 +28,48 @@ av_mass = biomass %>%
   select(Block, Treatment, Weight) %>%
   summarise(mean(Weight), std.err(Weight))
 colnames(av_mass) = c("Treatment", "Wt", "se.wt")
-av_mass$Treatment = factor(av_mass$Treatment, levels = c("C", "P", "F"))
+av_mass$Treatment = factor(av_mass$Treatment, levels = c("Control", "Partial", "Full"))
 
 p_mass = ggplot(av_mass, aes(Treatment, Wt))
 p_mass + geom_point() + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1)
 
-
 ```
 
+##Stems
+```{r}
+#windows:
+stems = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\Stems.csv")
+#mac:
+stems = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV files/Stems.csv")
+
+#density
+
+stemdensity = stems %>%
+  group_by(Treatment, Block) %>%
+  select(Block, Treatment, Length) %>%
+  summarise(length(Length))
+colnames(stemdensity) = c("Treatment", "Block", "Density")
+stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Partial", "Full"))
+
+dens_aov = aov(Density ~ Treatment, data = stemdensity)
+summary(dens_aov)
+
+#length
+
+ln_aov = aov(Length ~ Treatment, data = stems)
+summary(ln_aov)
+
+#%flowering
+
+flowering = stems %>%
+  group_by(Treatment, Block) %>%
+  select(Block, Treatment, Flowering) %>%
+  summarise(sum(Flowering)/length(Flowering))
+colnames(flowering) = c("Treatment", "Block", "Flower")
+
+plot(Flower ~ Treatment, data = flowering)
+
+flower_aov = aov(asin(sqrt(Flower)) ~ Treatment, data = flowering) #transformed data
+summary(flower_aov)
+plot(flower_aov)
+```
