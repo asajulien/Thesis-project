@@ -18,10 +18,13 @@ biomass = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV file
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
-mass_aov = aov(Weight ~ Treatment, data = biomass)
+mass_aov = aov(Weight ~ Treatment/Block, data = biomass)
 summary(mass_aov)
 TukeyHSD(mass_aov)
 plot(mass_aov)
+
+krusk_mass = kruskal.test(Weight ~ Treatment, data = biomass)
+krusk_mass
 
 av_mass = biomass %>%
   group_by(Treatment)%>%
@@ -51,12 +54,12 @@ stemdensity = stems %>%
 colnames(stemdensity) = c("Treatment", "Block", "Density")
 stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Partial", "Full"))
 
-dens_aov = aov(Density ~ Treatment, data = stemdensity)
+dens_aov = aov(Density ~ Treatment/Block, data = stemdensity)
 summary(dens_aov)
 
 #length
 
-ln_aov = aov(Length ~ Treatment, data = stems)
+ln_aov = aov(Length ~ Treatment/Block, data = stems)
 summary(ln_aov)
 
 #%flowering
@@ -69,7 +72,7 @@ colnames(flowering) = c("Treatment", "Block", "Flower")
 
 plot(Flower ~ Treatment, data = flowering)
 
-flower_aov = aov(asin(sqrt(Flower)) ~ Treatment, data = flowering) #transformed data
+flower_aov = aov(asin(sqrt(Flower)) ~ Treatment/Block, data = flowering) #transformed data
 summary(flower_aov)
 plot(flower_aov)
 ```
