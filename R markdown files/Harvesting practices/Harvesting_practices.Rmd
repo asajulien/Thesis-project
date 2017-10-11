@@ -9,6 +9,7 @@ output: html_document
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(FSA)
 
 #windows:
 biomass = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\mass.csv")
@@ -25,6 +26,7 @@ plot(mass_aov)
 
 krusk_mass = kruskal.test(Weight ~ Treatment, data = biomass)
 krusk_mass
+dunnTest(Weight ~ Treatment, data = biomass)
 
 av_mass = biomass %>%
   group_by(Treatment)%>%
@@ -56,11 +58,26 @@ stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Par
 
 dens_aov = aov(Density ~ Treatment/Block, data = stemdensity)
 summary(dens_aov)
+TukeyHSD(dens_aov)
+
+stem_mn = stemdensity %>%
+  group_by(Treatment) %>%
+  summarise(mean(Density), std.err(Density))
+colnames(stem_mn) = c("Treatment", "mn_dens", "se_dens")
+
+ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1)
 
 #length
 
 ln_aov = aov(Length ~ Treatment/Block, data = stems)
 summary(ln_aov)
+
+#percentage of larger stems
+hist(stems$Length, breaks = 20)
+stem_cent = stems %>%
+  group_by(Treatment) %>%
+  select(Treatment, Length) %>%
+  summarise(length(Treatment[Length > 500])/length(Treatment)) #kind of arbitrary
 
 #%flowering
 
@@ -69,10 +86,17 @@ flowering = stems %>%
   select(Block, Treatment, Flowering) %>%
   summarise(sum(Flowering)/length(Flowering))
 colnames(flowering) = c("Treatment", "Block", "Flower")
+flowering$Treatment = factor(flowering$Treatment, levels = c("Control", "Partial", "Full"))
 
-plot(Flower ~ Treatment, data = flowering)
+flower_mn = flowering %>%
+  group_by(Treatment) %>%
+  summarise(mean(Flower) * 100, std.err(Flower) * 100)
+colnames(flower_mn) = c("Treatment", "mn_flower", "se_flower")
+
+ggplot(flower_mn, aes(Treatment, mn_flower)) + geom_point() + geom_errorbar(aes(ymin = mn_flower - se_flower, ymax = mn_flower + se_flower), width = 0.1) + ylab("Percent flowering")
 
 flower_aov = aov(asin(sqrt(Flower)) ~ Treatment/Block, data = flowering) #transformed data
 summary(flower_aov)
+TukeyHSD(flower_aov)
 plot(flower_aov)
 ```
