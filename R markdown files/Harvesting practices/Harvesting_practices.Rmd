@@ -19,7 +19,7 @@ biomass = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV file
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
-mass_aov = aov(Weight ~ Treatment/Block, data = biomass)
+mass_aov = aov(Weight ~ Treatment + Block, data = biomass) #log+1 transform? and do both with and without wet ones
 summary(mass_aov)
 TukeyHSD(mass_aov)
 plot(mass_aov)
@@ -56,8 +56,8 @@ stemdensity = stems %>%
 colnames(stemdensity) = c("Treatment", "Block", "Density")
 stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Partial", "Full"))
 
-dens_aov = aov(Density ~ Treatment/Block, data = stemdensity)
-summary(dens_aov)
+dens_aov = aov(Density ~ Treatment + Block, data = stemdensity)
+summary(dens_aov) #effect of block!
 TukeyHSD(dens_aov)
 
 stem_mn = stemdensity %>%
@@ -69,8 +69,9 @@ ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin
 
 #length
 
-ln_aov = aov(Length ~ Treatment/Block, data = stems)
-summary(ln_aov)
+ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
+ln_krusk
+dunnTest(Length ~ Treatment, data = stems)
 
 #percentage of larger stems
 hist(stems$Length, breaks = 20)
@@ -95,7 +96,7 @@ colnames(flower_mn) = c("Treatment", "mn_flower", "se_flower")
 
 ggplot(flower_mn, aes(Treatment, mn_flower)) + geom_point() + geom_errorbar(aes(ymin = mn_flower - se_flower, ymax = mn_flower + se_flower), width = 0.1) + ylab("Percent flowering")
 
-flower_aov = aov(asin(sqrt(Flower)) ~ Treatment/Block, data = flowering) #transformed data
+flower_aov = aov(asin(sqrt(Flower)) ~ Treatment + Block, data = flowering) #transformed data
 summary(flower_aov)
 TukeyHSD(flower_aov)
 plot(flower_aov)
