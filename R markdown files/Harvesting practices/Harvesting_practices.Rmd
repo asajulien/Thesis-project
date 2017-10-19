@@ -68,10 +68,10 @@ colnames(stem_mn) = c("Treatment", "mn_dens", "se_dens")
 ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1)
 
 #length
-
 ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
 ln_krusk
 dunnTest(Length ~ Treatment, data = stems)
+
 
 #percentage of larger stems
 hist(stems$Length, breaks = 20)
@@ -79,6 +79,26 @@ stem_cent = stems %>%
   group_by(Treatment) %>%
   select(Treatment, Length) %>%
   summarise(length(Treatment[Length > 500])/length(Treatment)) #kind of arbitrary
+
+#AVERAGE STEM LENGTH PER PLOT IN MM
+tot_stln = stems %>%
+  group_by(Treatment, Block) %>%
+  select(Treatment, Block, Length) %>%
+  summarise(sum(Length)/length(Length))
+colnames(tot_stln) = c("Treatment", "Block", "Totln")
+
+totln_aov = aov(Totln ~ Treatment + Block, data = tot_stln)
+summary(totln_aov)
+TukeyHSD(totln_aov)
+plot(totln_aov)
+
+totln_mn = tot_stln %>%
+  group_by(Treatment) %>%
+  summarise(mean(Totln), std.err(Totln))
+colnames(totln_mn) = c("Treatment", "mn_totln", "se_totln")
+totln_mn$Treatment = factor(totln_mn$Treatment, levels = c("Control", "Partial", "Full"))
+
+ggplot(totln_mn, aes(Treatment, mn_totln)) + geom_point() + geom_errorbar(aes(ymin = mn_totln - se_totln, ymax = mn_totln + se_totln), width = 0.1)
 
 #%flowering
 
