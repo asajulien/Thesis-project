@@ -47,6 +47,8 @@ stems = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV f
 #mac:
 stems = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV files/Stems.csv")
 
+stems$Treatment = factor(stems$Treatment, levels = c("Control", "Partial", "Full"))
+
 #density
 
 stemdensity = stems %>%
@@ -72,6 +74,9 @@ ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
 ln_krusk
 dunnTest(Length ~ Treatment, data = stems)
 
+ln_aov = aov(Length ~ Treatment/Block, data = stems)
+summary(ln_aov)
+TukeyHSD(ln_aov)
 
 #percentage of larger stems
 hist(stems$Length, breaks = 20)
@@ -79,6 +84,16 @@ stem_cent = stems %>%
   group_by(Treatment) %>%
   select(Treatment, Length) %>%
   summarise(length(Treatment[Length > 500])/length(Treatment)) #kind of arbitrary
+
+meanln = stems %>%
+  group_by(Treatment) %>%
+  select(Treatment, Length) %>%
+  summarise(mean(Length), std.err(Length), median(Length))
+colnames(meanln) = c("Treatment", "Mean_length", "SE_length", "Median_length")
+
+ggplot(meanln, aes(Treatment, Mean_length)) + geom_point() + geom_errorbar(aes(ymin = Mean_length - SE_length, ymax = Mean_length + SE_length), width = 0.1)
+
+plot(Length ~ Treatment, data = stems)
 
 #AVERAGE STEM LENGTH PER PLOT IN MM
 tot_stln = stems %>%
