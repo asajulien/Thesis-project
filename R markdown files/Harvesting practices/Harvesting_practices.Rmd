@@ -136,3 +136,33 @@ summary(flower_aov)
 TukeyHSD(flower_aov)
 plot(flower_aov)
 ```
+
+##Recruitment and size
+```{r}
+#windows:
+recruits = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\sizeage.csv")
+#mac:
+recruits = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV files/sizeage.csv")
+
+yoty = recruits %>%
+  group_by(Block, Treatment) %>%
+  select(Block, Treatment, Length, Bands) %>%
+  summarise(length(Bands[Bands == "0"]) + length(Bands[Bands == "1"]))
+colnames(yoty) = c("Block", "Treatment", "Recruits")
+yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full"))
+
+recruits_glm = glm(Recruits ~ Treatment, data = yoty, family = poisson)
+summary(recruits_glm) #no overdispersion?
+
+1 - pchisq(summary(recruits_glm)$deviance, 
+           summary(recruits_glm)$df.residual
+           )
+
+ggplot(yoty, aes(Recruits, fill = Treatment)) + geom_histogram(binwidth = 0.5, position = "dodge")
+
+
+with(recruits, hist(Length, breaks = 50))
+with(recruits[recruits$Treatment == "Control",], hist(Length, breaks = 50))
+with(recruits[recruits$Treatment == "Partial",], hist(Length, breaks = 50))
+with(recruits[recruits$Treatment == "Full",], hist(Length, breaks = 50))
+```
