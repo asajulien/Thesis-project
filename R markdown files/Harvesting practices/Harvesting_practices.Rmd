@@ -58,9 +58,9 @@ stemdensity = stems %>%
 colnames(stemdensity) = c("Treatment", "Block", "Density")
 stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Partial", "Full"))
 
-dens_aov = aov(Density ~ Treatment + Block, data = stemdensity)
-summary(dens_aov) #effect of block!
-TukeyHSD(dens_aov)
+dens_glm = glm(Density ~ Treatment + Block, data = stemdensity, family = "quasipoisson")
+summary(dens_glm) #effect of block!
+#full is significant, but overdispersion when poisson is used here. Try family = quasipoisson
 
 stem_mn = stemdensity %>%
   group_by(Treatment) %>%
@@ -74,7 +74,7 @@ ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
 ln_krusk
 dunnTest(Length ~ Treatment, data = stems)
 
-ln_aov = aov(Length ~ Treatment/Block, data = stems)
+ln_aov = aov(Length ~ Treatment + Block, data = stems)
 summary(ln_aov)
 TukeyHSD(ln_aov)
 
@@ -95,11 +95,11 @@ ggplot(meanln, aes(Treatment, Mean_length)) + geom_point() + geom_errorbar(aes(y
 
 plot(Length ~ Treatment, data = stems)
 
-#AVERAGE STEM LENGTH PER PLOT IN MM
+#AVERAGE STEM LENGTH PER PLOT IN MM, bit of a cop out
 tot_stln = stems %>%
   group_by(Treatment, Block) %>%
   select(Treatment, Block, Length) %>%
-  summarise(sum(Length)/length(Length))
+  summarise(mean(Length))
 colnames(tot_stln) = c("Treatment", "Block", "Totln")
 
 totln_aov = aov(Totln ~ Treatment + Block, data = tot_stln)
@@ -150,6 +150,8 @@ yoty = recruits %>%
   summarise(length(Bands[Bands == "0"]) + length(Bands[Bands == "1"]))
 colnames(yoty) = c("Block", "Treatment", "Recruits")
 yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full"))
+
+#could use predicted size based on age to determine who's a recruit (42.9 mm for 1 growth band)
 
 recruits_glm = glm(Recruits ~ Treatment, data = yoty, family = poisson)
 summary(recruits_glm) #no overdispersion?
