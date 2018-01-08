@@ -104,7 +104,7 @@ svTypical.unharvested = vbStarts(von.length.unharvested ~ von.age.unharvested, p
 unlist(svTypical.unharvested) 
 svTypical.unharvested
 
-von.list.unharvested = list(Linf = 100.83, K = 0.36, t0 = -0.47) #using same Linf variable - CAREFUL
+von.list.unharvested = list(Linf = 101.72, K = 0.32, t0 = -0.63) #using same Linf variable - CAREFUL
 von.list.unharvested
 
 #nls and model
@@ -122,7 +122,7 @@ boxplot(Length.mm ~ Growth.bands, data = unharvested.site)
 unharvested_boot = na.omit(unharvested.site[, c(3,4)])
 colnames(unharvested_boot) = c("un_Length", "un_Age")
 un_formula <- as.formula(un_Length ~ un_Linf * (1 - exp(-un_K * (un_Age - un_t0))))
-un_nls1 <- nls(un_formula, start = list(un_Linf = 100.83, un_K = 0.36, un_t0 = -0.47), data = unharvested_boot)
+un_nls1 <- nls(un_formula, start = list(un_Linf = 101.72, un_K = 0.32, un_t0 = -0.63), data = unharvested_boot)
 un_strap1 <- nlsBoot(un_nls1, niter = 999)
 plot(un_strap1)
 plot(un_strap1, type = "boxplot", ask = FALSE)
@@ -162,7 +162,7 @@ svTypical.harvested = vbStarts(von.length.harvested ~ von.age.harvested, plot = 
 unlist(svTypical.harvested) 
 svTypical.harvested
 
-von.list.harvested = list(Linf = 110.66, K = 0.29, t0 = -0.65) #using same Linf variable - CAREFUL
+von.list.harvested = list(Linf = 107.65, K = 0.33, t0 = -0.58) #using same Linf variable - CAREFUL
 von.list.harvested
 
 #nls and model
@@ -181,7 +181,7 @@ boxplot(Length.mm ~ Growth.bands, data = harvested.site)
 harvested_boot = na.omit(harvested.site[, c(3,4)])
 colnames(harvested_boot) = c("h_Length", "h_Age")
 h_formula <- as.formula(h_Length ~ h_Linf * (1 - exp(-h_K * (h_Age - h_t0))))
-h_nls1 <- nls(h_formula, start = list(h_Linf = 110.66, h_K = 0.29, h_t0 = -0.65), data = harvested_boot)
+h_nls1 <- nls(h_formula, start = list(h_Linf = 107.65, h_K = 0.33, h_t0 = -0.58), data = harvested_boot)
 h_strap1 <- nlsBoot(h_nls1, niter = 999)
 plot(h_strap1)
 plot(h_strap1, type = "boxplot", ask = FALSE)
