@@ -10,6 +10,7 @@ output: html_document
 library(ggplot2)
 library(dplyr)
 library(FSA)
+library(MASS)
 
 #windows:
 biomass = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\mass.csv")
@@ -20,6 +21,8 @@ std.err = function(x)
   sd(x)/sqrt(length(x))
 
 mass_aov = aov(Weight ~ Treatment + Block, data = biomass) #log+1 transform? and do both with and without wet ones
+stepAIC(mass_aov)
+mass_aov = aov(log(Weight+1) ~ Treatment, data = biomass)
 summary(mass_aov)
 TukeyHSD(mass_aov)
 plot(mass_aov)
