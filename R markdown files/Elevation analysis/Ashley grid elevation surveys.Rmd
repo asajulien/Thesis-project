@@ -14,135 +14,6 @@ library(pROC)
 library(rgl)
 ```
 
-
-##Elevation above MHW
-```{r pressure, echo=FALSE}
-#windows:
-ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
-#mac:
-ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
-#manipulate data:
-ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
-ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
-
-#All together - something weird goes on when above chunk is executed, but the code below will work
-ashglm_mhw = glm(Mussel.presence ~ MHW * Block, family = binomial, data = ashgrid)
-summary(ashglm_mhw)
-
-full_mhw = ashglm_mhw
-main_mhw = update(full_mhw, . ~ . - MHW:Block)
-elev_mhw = update(main_mhw, . ~ . - Block)
-elev_mhw2 = update(elev_mhw, . ~ . + I(MHW^2))
-elev_mhw3 = update(elev_mhw2, . ~ . + I(MHW^3))
-elev_mhw4 = update(elev_mhw2, . ~ . + Block)
-elev_mhw5 = update(elev_mhw2, . ~ . + Block + MHW:Block)
-
-anova(full_mhw, main_mhw, elev_mhw, test='LRT')
-AIC(full_mhw, main_mhw, elev_mhw)
-
-anova(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5, test='LRT')
-AIC(elev_mhw, elev_mhw2, elev_mhw4, elev_mhw5) #model 4 is the best
-
-#add salinity back in - plot both
-summary(elev_mhw4)
-
-#model fits; pseudo r^2
-pR2(full_mhw)
-pR2(main_mhw)
-pR2(elev_mhw)
-pR2(elev_mhw2)
-pR2(elev_mhw4)
-pR2(elev_mhw5)
-
-#plotting data and values predicted by models
-MHW_data = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("20-25"), each = 50))
-MHW_data2 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("15-20"), each = 50))
-MHW_data3 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("10-15"), each = 50))
-MHW_data4 = data.frame(MHW = seq(-1.2, .2, length.out = 50), Block = rep(c("5-10"), each = 50))
-
-plot(Mussel.presence ~ MHW, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Elevation above MHW (m)", ylab = "Probability of Geukensia demissa occurrence")
-legend(-1.1, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
-text(-1.03, 0.78, "Salinity (ppt)")
-
-lines(MHW_data$MHW, predict(elev_mhw4, newdata=MHW_data, type='response'),
-      col='green')
-lines(MHW_data2$MHW, predict(elev_mhw4, newdata=MHW_data2, type='response'),
-      col='red')
-lines(MHW_data3$MHW, predict(elev_mhw4, newdata=MHW_data3, type='response'),
-      col='black')
-lines(MHW_data4$MHW, predict(elev_mhw4, newdata=MHW_data4, type='response'),
-      col='blue')
-
-lines(MHW_data$MHW, predict(elev_mhw, newdata=new_data, type='response'),
-      col='purple')
-lines(MHW_data$MHW, predict(elev_mhw2, newdata=new_data, type='response'),
-      col='pink')
-
-```
-
-
-##Elevation in relation to tidal position
-```{r pressure, echo=FALSE}
-#windows:
-ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
-#mac:
-ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
-#manipulate data:
-ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
-ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
-
-#All together - something weird goes on when above chunk is executed, but the code below will work
-ashglm_position = glm(Mussel.presence ~ Position * Block, family = binomial, data = ashgrid)
-summary(ashglm_position)
-
-full_position = ashglm_position
-main_position = update(full_position, . ~ . - Position:Block)
-elev_position = update(main_position, . ~ . - Block)
-elev_position2 = update(elev_position, . ~ . + I(Position^2))
-elev_position3 = update(elev_position2, . ~ . + I(Position^3))
-elev_position4 = update(elev_position2, . ~ . + Block)
-elev_position5 = update(elev_position2, . ~ . + Block + Position:Block)
-
-anova(full_position, main_position, elev_position, test='LRT')
-AIC(full_position, main_position, elev_position)
-
-anova(elev_position, elev_position2, elev_position4, elev_position5, test='LRT')
-AIC(elev_position, elev_position2, elev_position4, elev_position5) #model 4 is the best
-
-#add salinity back in - plot both
-summary(elev_position4)
-
-#model fits; pseudo r^2
-pR2(full_position)
-pR2(main_position)
-pR2(elev_position)
-pR2(elev_position2)
-pR2(elev_position4)
-pR2(elev_position5)
-
-#plotting data and values predicted by models
-position_data = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("20-25"), each = 50))
-position_data2 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("15-20"), each = 50))
-position_data3 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("10-15"), each = 50))
-position_data4 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("5-10"), each = 50))
-
-plot(Mussel.presence ~ Position, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Tidal position (%)", ylab = "Probability of Geukensia demissa occurrence")
-legend(.4, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
-text(0.44, 0.78, "Salinity (ppt)")
-
-lines(position_data$Position, predict(elev_position4, newdata=position_data, type='response'),
-      col='green')
-lines(position_data2$Position, predict(elev_position4, newdata=position_data2, type='response'),
-      col='red')
-lines(position_data3$Position, predict(elev_position4, newdata=position_data3, type='response'),
-      col='black')
-lines(position_data4$Position, predict(elev_position4, newdata=position_data4, type='response'),
-      col='blue')
-
-
-```
-
-
 ##Salinity as a continuous variable
 ```{r pressure, echo=FALSE}
 #windows:
@@ -227,24 +98,22 @@ ci_dat = predict(elev_x5, newdata = x_data, type = 'response', se.fit = T)
 with(ci_dat, lines(x_data$MHW, (fit+1.96*se.fit), lty=2))
 with(ci_dat, lines(x_data$MHW, (fit-1.96*se.fit), lty=2))
 
-dev.off()
-
+#dev.off()
 
 #legend
-
 #tiff("Legend.tiff", width = 2, height = 4, units = 'in', res = 300)
 legend_image <- as.raster(matrix(int_cols, ncol=1))
 plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (ppt)')
 text(x=1.5, y = seq(0,1,l=2), labels = seq(23,8,l=2))
 rasterImage(legend_image, 0, 0, 1, 1)
-dev.off()
+#dev.off()
 
 plot3d(ashgrid$MHW, ashgrid$salinity, ashgrid$Mussel.presence)
 
 x_data$response =  predict(elev_x5, newdata=x_data, type='response')
 
 which(x_data == max(x_data$response), arr.ind=TRUE)
-x_data[987,]
+x_data[337,]
 
 #ROC curve
 fit_x = elev_x5$fitted.values
@@ -253,3 +122,65 @@ plot(g_x)
 auc(g_x) #0.87, not too shabby
 
 ```
+
+##Elevation in relation to tidal position
+```{r pressure, echo=FALSE}
+#windows:
+ashgrid = read.csv(("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv"))
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
+#All together - something weird goes on when above chunk is executed, but the code below will work
+ashglm_position = glm(Mussel.presence ~ Position * Block, family = binomial, data = ashgrid)
+summary(ashglm_position)
+
+full_position = ashglm_position
+main_position = update(full_position, . ~ . - Position:Block)
+elev_position = update(main_position, . ~ . - Block)
+elev_position2 = update(elev_position, . ~ . + I(Position^2))
+elev_position3 = update(elev_position2, . ~ . + I(Position^3))
+elev_position4 = update(elev_position2, . ~ . + Block)
+elev_position5 = update(elev_position2, . ~ . + Block + Position:Block)
+
+anova(full_position, main_position, elev_position, test='LRT')
+AIC(full_position, main_position, elev_position)
+
+anova(elev_position, elev_position2, elev_position4, elev_position5, test='LRT')
+AIC(elev_position, elev_position2, elev_position4, elev_position5) #model 4 is the best
+
+#add salinity back in - plot both
+summary(elev_position4)
+
+#model fits; pseudo r^2
+pR2(full_position)
+pR2(main_position)
+pR2(elev_position)
+pR2(elev_position2)
+pR2(elev_position4)
+pR2(elev_position5)
+
+#plotting data and values predicted by models
+position_data = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("20-25"), each = 50))
+position_data2 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("15-20"), each = 50))
+position_data3 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("10-15"), each = 50))
+position_data4 = data.frame(Position = seq(.2, 1.2, length.out = 50), Block = rep(c("5-10"), each = 50))
+
+plot(Mussel.presence ~ Position, data=ashgrid, pch = 20, col = ashgrid$Block, xlab = "Tidal position (%)", ylab = "Probability of Geukensia demissa occurrence")
+legend(.4, 1, unique(ashgrid$Block), col = c("green", "red", "black", "blue"), pch = 20)
+text(0.44, 0.78, "Salinity (ppt)")
+
+lines(position_data$Position, predict(elev_position4, newdata=position_data, type='response'),
+      col='green')
+lines(position_data2$Position, predict(elev_position4, newdata=position_data2, type='response'),
+      col='red')
+lines(position_data3$Position, predict(elev_position4, newdata=position_data3, type='response'),
+      col='black')
+lines(position_data4$Position, predict(elev_position4, newdata=position_data4, type='response'),
+      col='blue')
+
+
+```
+

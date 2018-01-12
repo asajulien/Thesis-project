@@ -20,9 +20,11 @@ biomass = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV file
 std.err = function(x)
   sd(x)/sqrt(length(x))
 
-mass_aov = aov(Weight ~ Treatment + Block, data = biomass) #log+1 transform? and do both with and without wet ones
+biomass = biomass[biomass$Notes != "Wet",]
+mass_aov = aov(Weight ~ Treatment + Block, data = biomass)
 stepAIC(mass_aov)
-mass_aov = aov(log(Weight+1) ~ Treatment, data = biomass)
+detach("package:MASS", unload = T)
+mass_aov = aov(log(Weight + 1) ~ Treatment, data = biomass)
 summary(mass_aov)
 TukeyHSD(mass_aov)
 plot(mass_aov)
@@ -39,8 +41,9 @@ colnames(av_mass) = c("Treatment", "Wt", "se.wt")
 av_mass$Treatment = factor(av_mass$Treatment, levels = c("Control", "Partial", "Full"))
 
 p_mass = ggplot(av_mass, aes(Treatment, Wt))
-p_mass + geom_point() + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1)
+p_mass + geom_point() + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1) + labs(x = "", y = "Weight (g)")
 
+#Conclusion: After a full year, biomass in Full harvest plots was significantly lower than both control and partially harvested plots (ANOVA, Tukey's HSD, and Kruskal test). Partially harvested plots displayed an intermediate response. Samples that were partially damp were removed from analysis.
 ```
 
 ##Stems
@@ -63,23 +66,19 @@ stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Par
 
 dens_glm = glm(Density ~ Treatment + Block, data = stemdensity, family = "quasipoisson")
 summary(dens_glm) #effect of block!
-#full is significant, but overdispersion when poisson is used here. Try family = quasipoisson
+#full is significant, but overdispersion when poisson is used here (residual deviance > degrees of freedom is the rule of thumb). Try family = quasipoisson
 
 stem_mn = stemdensity %>%
   group_by(Treatment) %>%
   summarise(mean(Density), std.err(Density))
 colnames(stem_mn) = c("Treatment", "mn_dens", "se_dens")
 
-ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1)
+ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1) #Conclusion: While it appears that there is a difference in stem density based on treatment, only the block effect is significant, according to the quasipoisson regression
 
 #length
 ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
 ln_krusk
 dunnTest(Length ~ Treatment, data = stems)
-
-ln_aov = aov(Length ~ Treatment + Block, data = stems)
-summary(ln_aov)
-TukeyHSD(ln_aov)
 
 #percentage of larger stems
 hist(stems$Length, breaks = 20)
@@ -94,29 +93,11 @@ meanln = stems %>%
   summarise(mean(Length), std.err(Length), median(Length))
 colnames(meanln) = c("Treatment", "Mean_length", "SE_length", "Median_length")
 
-ggplot(meanln, aes(Treatment, Mean_length)) + geom_point() + geom_errorbar(aes(ymin = Mean_length - SE_length, ymax = Mean_length + SE_length), width = 0.1)
+ggplot(meanln, aes(Treatment, Mean_length)) + geom_point() + geom_errorbar(aes(ymin = Mean_length - SE_length, ymax = Mean_length + SE_length), width = 0.1) #means are not a good way to look at length
 
-plot(Length ~ Treatment, data = stems)
+plot(Length ~ Treatment, xlab = "", ylab = "Length (mm)", data = stems)
 
-#AVERAGE STEM LENGTH PER PLOT IN MM, bit of a cop out
-tot_stln = stems %>%
-  group_by(Treatment, Block) %>%
-  select(Treatment, Block, Length) %>%
-  summarise(mean(Length))
-colnames(tot_stln) = c("Treatment", "Block", "Totln")
-
-totln_aov = aov(Totln ~ Treatment + Block, data = tot_stln)
-summary(totln_aov)
-TukeyHSD(totln_aov)
-plot(totln_aov)
-
-totln_mn = tot_stln %>%
-  group_by(Treatment) %>%
-  summarise(mean(Totln), std.err(Totln))
-colnames(totln_mn) = c("Treatment", "mn_totln", "se_totln")
-totln_mn$Treatment = factor(totln_mn$Treatment, levels = c("Control", "Partial", "Full"))
-
-ggplot(totln_mn, aes(Treatment, mn_totln)) + geom_point() + geom_errorbar(aes(ymin = mn_totln - se_totln, ymax = mn_totln + se_totln), width = 0.1)
+#Conclusion: no difference in median stem length between treatments
 
 #%flowering
 
@@ -135,9 +116,14 @@ colnames(flower_mn) = c("Treatment", "mn_flower", "se_flower")
 ggplot(flower_mn, aes(Treatment, mn_flower)) + geom_point() + geom_errorbar(aes(ymin = mn_flower - se_flower, ymax = mn_flower + se_flower), width = 0.1) + ylab("Percent flowering")
 
 flower_aov = aov(asin(sqrt(Flower)) ~ Treatment + Block, data = flowering) #transformed data
+require(MASS)
+stepAIC(flower_aov)
+detach("package:MASS", unload = T)
+flower_aov = aov(asin(sqrt(Flower)) ~ Treatment, data = flowering)
 summary(flower_aov)
 TukeyHSD(flower_aov)
 plot(flower_aov)
+#Conclusion: percent of stems flowering is lower in fully harvested plots than in the control. The partial harvest displays an intermediate response.
 ```
 
 ##Recruitment and size
@@ -157,7 +143,7 @@ yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full")
 #could use predicted size based on age to determine who's a recruit (42.9 mm for 1 growth band)
 
 recruits_glm = glm(Recruits ~ Treatment, data = yoty, family = poisson)
-summary(recruits_glm) #no overdispersion?
+summary(recruits_glm) #no overdispersion? or very slight
 
 1 - pchisq(summary(recruits_glm)$deviance, 
            summary(recruits_glm)$df.residual
@@ -170,4 +156,6 @@ with(recruits, hist(Length, breaks = 50))
 with(recruits[recruits$Treatment == "Control",], hist(Length, breaks = 50))
 with(recruits[recruits$Treatment == "Partial",], hist(Length, breaks = 50))
 with(recruits[recruits$Treatment == "Full",], hist(Length, breaks = 50))
+
+#When both 0 and 1-growth band individuals are included in the analysis, there are significant differences in number of recruits between each treatment; controls has the most, full the least. Partial is intermediate. When only age 0 mussels are considered, partial & full harvest become the same essentially (no recruitment, except for 1), and control still has the most recruits
 ```

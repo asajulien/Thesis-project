@@ -28,6 +28,8 @@ hobo$Time = sapply(strsplit(hobo$Period,":"),
 #Salinity to as factor:
 hobo$Salinity = as.factor(hobo$Salinity)
 
+#NOTE: MHW refers to the elevation of the particular position, not the tidal height!
+
 #standard error
 std.err = function(x)
   sd(x)/sqrt(length(x))
@@ -44,19 +46,6 @@ summary(hobo_mix)
 hobo_mix2 = lme(Time ~ MHW + CharlestonHeight, data = hobo, random = ~ 1 | Salinity/HOBO_ID)
 summary(hobo_mix2) #same exact model
 
-
-hobo_lm2 = lm(Time ~ MHW + CharlestonHeight + HOBO_ID, data = hobo)
-summary(hobo_lm2)
-
-hobo_lm3 = lm(Time ~ MHW + CharlestonHeight +  as.factor(Salinity), data = hobo)
-summary(hobo_lm3)
-
-hobo_lm4 = lm(Time ~ MHW + CharlestonHeight + Salinity, data = hobo)
-summary(hobo_lm4)
-
-AIC(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4)
-anova(hobo_lm, hobo_lm2, hobo_lm3, hobo_lm4, test = 'LRT')
-
 hobo$HOBO_ID = factor(hobo$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_4","hobo_5","hobo_6","hobo_7","hobo_8","hobo_9","hobo_10","hobo_11","hobo_12"))
 
 #plots
@@ -66,12 +55,6 @@ p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x)
 
 p1 = ggplot(hobo, aes(MHW, Time))
 p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x)
-
-p2 = ggplot(hobo, aes(CharlestonHeight, Time, colour = HOBO_ID))
-p2 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
-
-p3 = ggplot(hobo, aes(CharlestonHeight, Time, colour = as.factor(Salinity)))
-p3 + geom_smooth(method = 'lm', formula = y ~ x, fill = NA)
 
 #average time per hobo
 hobo$Salinity = as.numeric(hobo$Salinity)
