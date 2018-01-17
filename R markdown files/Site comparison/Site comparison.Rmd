@@ -46,6 +46,14 @@ mean.den = den.compare %>%
 mean.den
 colnames(mean.den) = c("Status", "Date", "Density", "SE.den")
 
+nr.mussels = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(Length.mm))
+
+nr.age = site.compare %>%
+  group_by(Status) %>%
+  summarise(length(na.omit(Growth.bands)))
+
 feb_compare = site.compare[site.compare$Date == "2/6/2017",]
 may_compare = site.compare[site.compare$Date == "5/18/2017",]
 
@@ -207,27 +215,6 @@ lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 ```
 
-ss
-
-```{r, echo=FALSE}
-
-#both plots together
-par(mfrow = c(1,2)) #get scales equal
-fitPlot(fitTypical.unharvested, xlab="Number of growth bands", ylab="Length (mm)", main="Unharvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
-fitPlot(fitTypical.harvested, xlab="Number of growth bands", ylab="Length (mm)", main="Harvested", cex.axis=1.2, cex.lab=1.4, font.lab=2, xlim = c(0, 15), ylim = c(0,130))
-par(mfrow = c(1,1))
-
-
-nr.mussels = site.compare %>%
-  group_by(Status) %>%
-  summarise(length(Length.mm))
-
-nr.age = site.compare %>%
-  group_by(Status) %>%
-  summarise(length(na.omit(Growth.bands)))
-```
-
-sss
 ##Comparison of VB equations (just site comparison for now)
 ```{r, echo=FALSE}
 #models to compare, potentially

@@ -68,6 +68,10 @@ dens_glm = glm(Density ~ Treatment + Block, data = stemdensity, family = "quasip
 summary(dens_glm) #effect of block!
 #full is significant, but overdispersion when poisson is used here (residual deviance > degrees of freedom is the rule of thumb). Try family = quasipoisson
 
+1 - pchisq(summary(dens_glm)$deviance, 
+           summary(dens_glm)$df.residual
+           ) #more evidence of overdispersion (so make sure to use quasipoisson distribution)
+
 stem_mn = stemdensity %>%
   group_by(Treatment) %>%
   summarise(mean(Density), std.err(Density))
