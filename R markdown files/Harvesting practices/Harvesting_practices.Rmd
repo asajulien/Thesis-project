@@ -140,18 +140,32 @@ recruits = read.csv("~/Documents/Ribbed mussel/Data/Harvesting practices/CSV fil
 yoty = recruits %>%
   group_by(Block, Treatment) %>%
   select(Block, Treatment, Length, Bands) %>%
-  summarise(length(Bands[Bands == "0"]) + length(Bands[Bands == "1"]))
+  summarise(length(Bands[Bands == 0])) #nothing with 1 growth band
 colnames(yoty) = c("Block", "Treatment", "Recruits")
 yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full"))
 
 #could use predicted size based on age to determine who's a recruit (42.9 mm for 1 growth band)
 
+#quick presence-absence
+yoty_pa = yoty
+yoty_pa$Recruits = c(0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,1,0,1,0,0,1,0,0) #FIXX
+recruits_logr = glm(Recruits ~ Treatment, data = yoty_pa, family = binomial)
+summary(recruits_logr) #very similar post hoc to poisson
+
+#count data
 recruits_glm = glm(Recruits ~ Treatment, data = yoty, family = poisson)
 summary(recruits_glm) #no overdispersion? or very slight
 
 1 - pchisq(summary(recruits_glm)$deviance, 
            summary(recruits_glm)$df.residual
            )
+
+library(multcomp)
+summary(glht(recruits_glm, mcp(Treatment="Tukey")))
+detach("package:multcomp", unload = T)
+detach("package:TH.data", unload=T)
+detach("package:MASS", unload = T)
+
 
 ggplot(yoty, aes(Recruits, fill = Treatment)) + geom_histogram(binwidth = 0.5, position = "dodge")
 
