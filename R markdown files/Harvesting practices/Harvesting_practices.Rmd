@@ -147,9 +147,9 @@ yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full")
 #could use predicted size based on age to determine who's a recruit (42.9 mm for 1 growth band)
 
 #quick presence-absence
-yoty_pa = yoty
-yoty_pa$Recruits = c(0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,1,0,1,0,0,1,0,0) #FIXX
-recruits_logr = glm(Recruits ~ Treatment, data = yoty_pa, family = binomial)
+yoty$y_n = ifelse(yoty$Recruits == 0, 0, 1)
+
+recruits_logr = glm(y_n ~ Treatment, data = yoty, family = binomial)
 summary(recruits_logr) #very similar post hoc to poisson
 
 #count data
@@ -161,7 +161,8 @@ summary(recruits_glm) #no overdispersion? or very slight
            )
 
 library(multcomp)
-summary(glht(recruits_glm, mcp(Treatment="Tukey")))
+summary(glht(recruits_logr, mcp(Treatment="Tukey")))
+summary(glht(recruits_glm, mcp(Treatment="Tukey"))) #similar. something is weird with all zeroes though... says it's not significantly different.
 detach("package:multcomp", unload = T)
 detach("package:TH.data", unload=T)
 detach("package:MASS", unload = T)
