@@ -40,6 +40,8 @@ par(mfrow=c(1,2))
 termplot(hobo_lm, partial.resid = T, se = T)
 plot(hobo$CharlestonHeight, residuals(lm(Time ~ MHW, data=hobo)))
 
+#From NOAA: MHW is 1.65 m above MLLW datum
+
 hobo_mix = lmer(Time ~ MHW + CharlestonHeight + (1|HOBO_ID) + (1|Salinity), data = hobo)
 summary(hobo_mix)
 
