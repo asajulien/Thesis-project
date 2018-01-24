@@ -91,4 +91,31 @@ ht_lm = lm(Time ~ Tide, data = ht_mn)
 summary(ht_lm)
 ```
 
+##Use mixed effects model to predict average inundation period of observed data
+```{r}
+#windows:
+ashgrid = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Elevation\\CSV files\\Ash_grids.csv")
+#mac:
+ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids.csv")
+#manipulate data:
+ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
+ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
+
+site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.67457, 23.05144)) #YOU SHOULD DOUBLE CHECK THESE AND MAKE SURE THEY ARE CALCULATED WELL
+
+ashgrid$Salinity = rep(site_sal, each = 30) #salinity at each site is now continuous, based on interpolation from Kelsey's data
+
+predict_mix = lmer(Time ~ MHW + CharlestonHeight + (1|Salinity), data = hobo) #HOBO_ID removed... can't really use the mixed effects model to predict? Maybe just use hobo_lm
+summary(predict_mix)
+
+elev_frame = ashgrid %>%
+  select(Grid.ID, MHW, Mussel.presence, Salinity)
+
+elev_frame$CharlestonHeight = rep(1.65, length.out = 240)
+
+
+elev_frame$inun_times = predict(predict_mix, newdata = elev_frame, type = 'response', allow.new.levels = TRUE) #or just use hobo_lm
+plot(jitter(Mussel.presence, .1) ~ inun_times, data=elev_frame, pch = 20)
+mean(elev_frame$inun_times[elev_frame$Mussel.presence == 1])
+```
 
