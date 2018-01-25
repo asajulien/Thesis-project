@@ -53,10 +53,11 @@ hobo$HOBO_ID = factor(hobo$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3","hobo_
 #plots
 p0 = ggplot(hobo, aes(CharlestonHeight, Time))
 p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x)
-#p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x) + labs(x = "Tidal height (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 18), strip.text = element_text(size=15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,7)
+#p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x) + labs(x = "Tidal height (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size = 13)) + ylim(0,7) + scale_colour_continuous(name = "Elevation (m)")
 
 p1 = ggplot(hobo, aes(MHW, Time))
 p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x)
+#p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x) + labs(x = "Elevation from MHW (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size = 13)) + ylim(0,7) + scale_colour_continuous(name = "Tidal height (m)\n")
 
 #average time per hobo
 hobo$Salinity = as.numeric(hobo$Salinity)
@@ -70,8 +71,6 @@ hobo_mn$HOBO_ID = factor(hobo_mn$HOBO_ID, levels = c("hobo_1","hobo_2","hobo_3",
 
 p4 = ggplot(hobo_mn, aes(MHW, Time))
 p4 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time)) + labs(x = "Elevation from MHW (m)", y = "Time (h)")
-
-#p4+geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(aes(ymin = Time - se_time, ymax = Time + se_time)) + labs(x = "Elevation from MHW (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 18), strip.text = element_text(size=15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,5)
 
 mn_lm = lm(Time ~ MHW, data = hobo_mn)
 summary(mn_lm)
