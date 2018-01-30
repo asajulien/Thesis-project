@@ -44,6 +44,16 @@ plot(hobo$CharlestonHeight, residuals(lm(Time ~ MHW, data=hobo)))
 
 hobo_mix = lmer(Time ~ MHW + CharlestonHeight + (1|HOBO_ID) + (1|Salinity), data = hobo)
 summary(hobo_mix)
+plot(hobo_mix)
+qqnorm(resid(hobo_mix))
+qqline(resid(hobo_mix))
+
+#I have no idea if this is a good idea:
+hobo_squared = lmer(I(Time)^2 ~ MHW + CharlestonHeight + (1|HOBO_ID) + (1|Salinity), data = hobo)
+summary(hobo_squared)
+plot(hobo_squared)
+qqnorm(resid(hobo_squared))
+qqline(resid(hobo_squared))
 
 hobo_mix2 = lme(Time ~ MHW + CharlestonHeight, data = hobo, random = ~ 1 | Salinity/HOBO_ID)
 summary(hobo_mix2) #same exact model
