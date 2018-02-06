@@ -24,7 +24,7 @@ ashgrid = read.csv("~/Documents/Ribbed mussel/Data/Elevation/CSV files/Ash_grids
 ashgrid$Position = with(ashgrid, MLW/(MLW-MHW))
 ashgrid$Mussel.presence = ifelse(ashgrid$Mussel.presence == 'Present', 1, 0)
 
-site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.67457, 23.05144)) #YOU SHOULD DOUBLE CHECK THESE AND MAKE SURE THEY ARE CALCULATED WELL
+site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.67457, 23.05144))
 
 ashgrid$salinity = rep(site_sal, each = 30) #salinity at each site is now continuous, based on interpolation from Kelsey's data
 
@@ -41,16 +41,16 @@ elev_x5 = update(elev_x4, . ~ . + I(salinity^2))
 elev_x6 = update(elev_x5, . ~ . - salinity)
 elev_x7 = update(elev_x5, . ~ . - MHW)
 #getting rid of issue of separation (but also makes model worse):
-elev_x8 = update(elev_x5, .~. - MHW)
+elev_x8 = update(elev_x5, .~. - MHW, - salinity)
 #interaction:
-elev_int = update(elev_x4, . ~ . * salinity)
-elev_int2 = update(elev_x, . ~ . + I(salinity^2))
+elev_int = update(elev_x5, . ~ . * salinity)
 
 anova(full_x, elev_x, test='LRT')
 AIC(full_x, elev_x)
 
-anova(full_x, elev_x, elev_x2, elev_x4, elev_int, elev_x5, elev_int2, test='LRT')
-AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, elev_int2) #model 5 is the best, no evidence for interaction
+anova(full_x, elev_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, test='LRT')
+AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int) #model 5 is the best, no evidence for interaction
+anova(elev_x5, elev_int, test = 'LRT')
 
 summary(elev_x5) #has a lower and upper salinity tolerance - just like elevation - which might be why the quadratic equation works better
 summary(elev_x8)
