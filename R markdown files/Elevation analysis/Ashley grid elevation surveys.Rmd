@@ -34,6 +34,7 @@ summary(ashglm_x)
 
 full_x = ashglm_x
 elev_x = update(full_x, . ~ . - salinity)
+salinity_x = update(full_x, . ~ . - MHW)
 elev_x2 = update(elev_x, . ~ . + I(MHW^2))
 elev_x3 = update(elev_x2, . ~ . + I(MHW^3))
 elev_x4 = update(elev_x2, . ~ . + salinity)
@@ -46,9 +47,10 @@ elev_x8 = update(elev_x5, .~. - MHW, - salinity)
 elev_int = update(elev_x5, . ~ . * salinity)
 
 anova(full_x, elev_x, test='LRT')
-AIC(full_x, elev_x)
+anova(full_x, salinity_x, test='LRT')
+AIC(full_x, elev_x, salinity_x)
 
-anova(full_x, elev_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, test='LRT')
+anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, test='LRT')
 AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int) #model 5 is the best, no evidence for interaction
 anova(elev_x5, elev_int, test = 'LRT')
 
