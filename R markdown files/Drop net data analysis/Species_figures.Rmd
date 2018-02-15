@@ -122,6 +122,13 @@ colnames(simp_season) = c("Treatment", "Season", "Simpson", "SE.simp")
 p_seassimp = ggplot(simp_season, aes(Treatment, Simpson), position="dodge") + facet_grid(~Season)
 p_seassimp + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 
+rich_season = new_df %>%
+  group_by(Treatment, Season) %>%
+  summarise(mean(Richness), std.err(Richness))
+colnames(rich_season) = c("Treatment", "Season", "Richness", "SE.rich")
+
+p_seasrich = ggplot(rich_season, aes(Treatment, Richness), position="dodge") + facet_grid(~Season)
+p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 ```
 
 ##size.freq
@@ -149,10 +156,13 @@ plot(Abundance-PalaemonetesPugio ~ Treatment, data = new_df[new_df$CharlestonHei
 ```{r}
 spp_df = new_df %>%
   filter(Month != "July") %>%
-  select(PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, Month) %>%
+  filter(Month != "July/Aug") %>%
+  select(PalaemonetesPugio, FundulusHeteroclitus, CallinectesSapidus, LitopenaeusSetiferus, LeiostomusXanthurus, Month) %>%
   group_by(Month) %>%
-  summarise(mean(PalaemonetesPugio), mean(FundulusHeteroclitus), mean(CallinectesSapidus), mean(LitopenaeusSetiferus), std.err(PalaemonetesPugio), std.err(FundulusHeteroclitus), std.err(CallinectesSapidus), std.err(LitopenaeusSetiferus))
-colnames(spp_df) = c("Month", "Pp", "Fh", "Cs", "Ls", "se.pp", "se.fh", "se.cs", "se.ls")
+  summarise(mean(PalaemonetesPugio), mean(FundulusHeteroclitus), mean(CallinectesSapidus), mean(LitopenaeusSetiferus), mean(LeiostomusXanthurus), std.err(PalaemonetesPugio), std.err(FundulusHeteroclitus), std.err(CallinectesSapidus), std.err(LitopenaeusSetiferus), std.err(LeiostomusXanthurus))
+colnames(spp_df) = c("Month", "Pp", "Fh", "Cs", "Ls", "Lx", "se.pp", "se.fh", "se.cs", "se.ls", "se.lx")
+
+spp_df$Month = factor(spp_df$Month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")) #Ordering the months
 
 #Palaemonetes pugio
 ggplot(spp_df, aes(Month, Pp, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Pp + se.pp, ymin = Pp - se.pp), width=0.25)
@@ -165,6 +175,18 @@ ggplot(spp_df, aes(Month, Cs, group = 1)) + geom_point() + geom_line() + geom_er
 
 #Litopenaeus setiferus
 ggplot(spp_df, aes(Month, Ls, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Ls + se.ls, ymin = Ls - se.ls), width=0.25)
+
+#Leiostomus xanthurus
+ggplot(spp_df, aes(Month, Lx, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Lx + se.lx, ymin = Lx - se.lx), width=0.25)
+
+#C. sapidus size
+csap_df = legare_net %>%
+  filter(Species == "Callinectes sapidus")
+csap_df$Month = c(rep("July 2016", 4), rep("August 2016", 17), rep("September", 28), rep("October", 15), rep("November", 14), rep("December", 6), rep("January", 1), rep("February", 4), rep("March", 6), rep("April", 4), rep("May", 3), rep("June 2017", 1), rep("July 2017", 1), rep("August 2017", 1))
+csap_df$Month = factor(csap_df$Month, levels = c("July 2016", "August 2016", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June 2017", "July 2017", "August 2017"))
+
+ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + facet_grid(.~Month) + labs(x = "Length (mm)", y = "Frequency (number)")
+#unequal sample sizes
 ```
 
 
