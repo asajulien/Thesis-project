@@ -30,19 +30,19 @@ sp_rich = legare_net %>%
 #new_df$Abundance = sum(new_df[,seq(8,18)])
 
 #models
-test_x = lm(log(Abundance + 1) ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
 summary(test_x)
 plot(test_x)
 
-test_y = lm(Richness ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+test_y = lm(Richness ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
 summary(test_y)
 plot(test_y)
 
-test_z = lm(Shannon ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df) 
+test_z = lm(Shannon ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
 summary(test_z)
 plot(test_z)
 
-test_w = lm(Simpson ~ Salinity + Temperature + CharlestonHeight + Treatment + Pairing, data = new_df)
+test_w = lm(Simpson ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df)
 summary(test_w)
 plot(test_w)
 ```
