@@ -128,7 +128,7 @@ rich_season = new_df %>%
 colnames(rich_season) = c("Treatment", "Season", "Richness", "SE.rich")
 
 p_seasrich = ggplot(rich_season, aes(Treatment, Richness), position="dodge") + facet_grid(~Season)
-p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Species richness") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
 ```
 
 ##size.freq
