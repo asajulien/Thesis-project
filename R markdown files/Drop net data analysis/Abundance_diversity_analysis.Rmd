@@ -72,10 +72,10 @@ marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(Temperature) + Condition(Sa
 
 plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
 
-ordi_plot = ordiplot(marsh_rda2, type = "none")
+ordi_plot = ordiplot(marsh_rda, type = "points")
 text(ordi_plot, "species", col="blue", cex=1)
-points(ordi_plot, "centroids", pch = 19, col = c("red", "black"), cex = 3)
-legend(2, 2, c("Mussels", "No mussels"), col = c("red", "black"), pch = 19)
+points(ordi_plot, "centroids", pch = 19, col = c("blue", "black"), cex = 2)
+legend(2, 2, c("Mussels", "No mussels"), col = c("blue", "black"), pch = 19)
 
 anova(marsh_rda2, by = 'margin', permutations = 2000)
 RsquareAdj(marsh_rda2) #really low
@@ -88,5 +88,10 @@ marsh_cca = cca(marsh_2 ~ Treatment + Temperature + Salinity + CharlestonHeight,
 marsh_cca
 plot(marsh_cca, display=  c('sp', 'cn'))
 anova(marsh_cca, by = 'margin', permutations = 2000)
+
+ordi_plot2 = ordiplot(marsh_cca, type = "points")
+text(ordi_plot, "species", col="blue", cex=1)
+points(ordi_plot, "centroids", pch = 19, col = c("blue", "black"), cex = 2)
+legend(8, 5, c("Mussels", "No mussels"), col = c("blue", "black"), pch = 19)
 ```
 ##end
