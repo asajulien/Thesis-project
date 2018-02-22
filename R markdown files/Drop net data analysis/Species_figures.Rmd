@@ -33,6 +33,7 @@ with(legare_net, tapply(Species, Species, length))
 
 ##Figures
 ```{r, echo=FALSE}
+##tiff("x1.tiff", width = 6, height = 5, units = 'in', res = 300)
 #Simple comparisons-------------------------------------------------------
 df_compare = new_df %>%
   group_by(Treatment) %>%
@@ -40,16 +41,16 @@ df_compare = new_df %>%
 colnames(df_compare) <- c("Treatment","Abundance","SE.abun", "Shannon", "SE.shannon", "Simpson", "SE.simpson", "Richness", "SE.richness") #CAREFUL OF NAME OVERLAP! WITH LOWER SECTIONS
 
 compare_abun = ggplot(df_compare, aes(x = Treatment, y = Abundance), position="dodge")
-compare_abun + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance- SE.abun), width=0.15) + labs(x = expression(), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
+compare_abun + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance- SE.abun), width=0.15) + labs(x = expression(), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,15)
 
 compare_shan = ggplot(df_compare, aes(x = Treatment, y = Shannon), position="dodge")
-compare_shan + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Shannon + SE.shannon, ymin = Shannon - SE.shannon), width=0.15) + labs(x = expression(), y = expression(Shannon~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
+compare_shan + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Shannon + SE.shannon, ymin = Shannon - SE.shannon), width=0.15) + labs(x = expression(), y = expression(Shannon~diversity)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,0.8)
 
 compare_simp = ggplot(df_compare, aes(x = Treatment, y = Simpson),position="dodge")
-compare_simp + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Simpson + SE.simpson, ymin = Simpson - SE.simpson), width=0.15) + labs(x = expression(), y = expression(Simpson~diversity)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
+compare_simp + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Simpson + SE.simpson, ymin = Simpson - SE.simpson), width=0.15) + labs(x = expression(), y = expression(Simpson~diversity)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,0.6)
 
 compare_rich = ggplot(df_compare, aes(x = Treatment, y = Richness), position = "dodge")
-compare_rich + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Richness + SE.richness, ymin = Richness - SE.richness), width=0.15) + labs(x = expression(), y = expression(Species~richness)) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=20,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
+compare_rich + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Richness + SE.richness, ymin = Richness - SE.richness), width=0.15) + labs(x = expression(), y = expression(Species~richness)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,3)
 
 #Abundance by month -----------------------------------------
 p0 = ggplot(new_df, aes(Treatment, Abundance)) + geom_boxplot()
@@ -102,8 +103,7 @@ abun_season = new_df %>%
 colnames(abun_season) = c("Treatment", "Season", "Abundance", "SE.abun")
 
 p_seasabun = ggplot(abun_season, aes(Treatment, Abundance), position="dodge") + facet_grid(~Season)
-p_seasabun + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Season) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size = 11,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
-
+p_seasabun + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Season) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,25)
 
 shan_season = new_df %>%
   group_by(Treatment, Season) %>%
@@ -111,7 +111,7 @@ shan_season = new_df %>%
 colnames(shan_season) = c("Treatment","Season","Shannon","SE.shan")
 
 p_seasshan = ggplot(shan_season, aes(Treatment, Shannon), position = "dodge") + facet_grid(~Season)
-p_seasshan + geom_bar(stat = "identity") + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Shannon diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p_seasshan + geom_bar(stat = "identity") + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Shannon diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,1.2)
 
 
 simp_season = new_df %>%
@@ -120,7 +120,7 @@ simp_season = new_df %>%
 colnames(simp_season) = c("Treatment", "Season", "Simpson", "SE.simp")
 
 p_seassimp = ggplot(simp_season, aes(Treatment, Simpson), position="dodge") + facet_grid(~Season)
-p_seassimp + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p_seassimp + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,0.8)
 
 rich_season = new_df %>%
   group_by(Treatment, Season) %>%
@@ -128,7 +128,7 @@ rich_season = new_df %>%
 colnames(rich_season) = c("Treatment", "Season", "Richness", "SE.rich")
 
 p_seasrich = ggplot(rich_season, aes(Treatment, Richness), position="dodge") + facet_grid(~Season)
-p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Species richness") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
+p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Species richness") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,4)
 ```
 
 ##size.freq
@@ -165,28 +165,31 @@ colnames(spp_df) = c("Month", "Pp", "Fh", "Cs", "Ls", "Lx", "se.pp", "se.fh", "s
 spp_df$Month = factor(spp_df$Month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")) #Ordering the months
 
 #Palaemonetes pugio
-ggplot(spp_df, aes(Month, Pp, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Pp + se.pp, ymin = Pp - se.pp), width=0.25)
+ggplot(spp_df, aes(Month, Pp, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Pp + se.pp, ymin = Pp - se.pp), width=0.25) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=11), axis.text.y = element_text(size = 15)) + ylim(0,25) + labs(y =  expression(italic(Palaemonetes~pugio)~abundance))
 
 #Fundulus heteroclitus
-ggplot(spp_df, aes(Month, Fh, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Fh + se.fh, ymin = Fh - se.fh), width=0.25)
+ggplot(spp_df, aes(Month, Fh, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Fh + se.fh, ymin = Fh - se.fh), width=0.25)  + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=11), axis.text.y = element_text(size = 15)) + scale_y_continuous(breaks = seq(0,10,2)) + labs(y =  expression(italic(Fundulus~heteroclitus)~abundance))
 
 #Callinectes sapidus
-ggplot(spp_df, aes(Month, Cs, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Cs + se.cs, ymin = Cs - se.cs), width=0.25)
+ggplot(spp_df, aes(Month, Cs, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Cs + se.cs, ymin = Cs - se.cs), width=0.25) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=11), axis.text.y = element_text(size = 15)) + scale_y_continuous(breaks = seq(0,2.5,1)) + labs(y =  expression(italic(Callinectes~sapidus)~abundance))
+
 
 #Litopenaeus setiferus
-ggplot(spp_df, aes(Month, Ls, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Ls + se.ls, ymin = Ls - se.ls), width=0.25)
+ggplot(spp_df, aes(Month, Ls, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Ls + se.ls, ymin = Ls - se.ls), width=0.25) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=11), axis.text.y = element_text(size = 15)) + ylim(0,7) + labs(y =  expression(italic(Litopenaeus~setiferus)~abundance))
+
 
 #Leiostomus xanthurus
-ggplot(spp_df, aes(Month, Lx, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Lx + se.lx, ymin = Lx - se.lx), width=0.25)
+ggplot(spp_df, aes(Month, Lx, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymax = Lx + se.lx, ymin = Lx - se.lx), width=0.25) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=11), axis.text.y = element_text(size = 15)) + scale_y_continuous(breaks = seq(0,1.5,1)) + labs(y =  expression(italic(Leiostomus~xanthurus)~abundance))
+
 
 #C. sapidus size
 csap_df = legare_net %>%
   filter(Species == "Callinectes sapidus")
-csap_df$Month = c(rep("July 2016", 4), rep("August 2016", 17), rep("September", 28), rep("October", 15), rep("November", 14), rep("December", 6), rep("January", 1), rep("February", 4), rep("March", 6), rep("April", 4), rep("May", 3), rep("June 2017", 1), rep("July 2017", 1), rep("August 2017", 1))
-csap_df$Month = factor(csap_df$Month, levels = c("July 2016", "August 2016", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June 2017", "July 2017", "August 2017"))
+csap_df$Month = c(rep("Jul. 2016", 4), rep("Aug. 2016", 17), rep("Sep.", 28), rep("Oct.", 15), rep("Nov.", 14), rep("Dec.", 6), rep("Jan.", 1), rep("Feb.", 4), rep("Mar.", 6), rep("Apr.", 4), rep("May", 3), rep("Jun.", 1), rep("Jul. 2017", 1), rep("Aug. 2017", 1))
+csap_df$Month = factor(csap_df$Month, levels = c("Jul. 2016", "Aug. 2016", "Sep.", "Oct.", "Nov.", "Dec.", "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul. 2017", "Aug. 2017"))
 
-ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + facet_grid(.~Month) + labs(x = "Length (mm)", y = "Frequency (number)")
-#unequal sample sizes
+ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + facet_grid(.~Month) + labs(x = "Length (mm)", y = "Frequency (number)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 10, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,15)
+#unequal sample sizes geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5)
 ```
 
 
