@@ -43,7 +43,7 @@ colnames(av_mass) = c("Treatment", "Wt", "se.wt")
 av_mass$Treatment = factor(av_mass$Treatment, levels = c("Control", "Partial", "Full"))
 
 p_mass = ggplot(av_mass, aes(Treatment, Wt))
-p_mass + geom_point() + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1) + labs(x = "", y = "Weight (g)") + annotate("text", x = "Full", y = 62, label = "*", size = 10)
+p_mass + geom_bar(stat = "identity", width = 0.7) + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1) + labs(x = "", y = "Weight (g)") + annotate("text", x = "Full", y = 62, label = "*", size = 10)
 
 #Conclusion: After a full year, biomass in Full harvest plots was significantly lower than both control and partially harvested plots (ANOVA, Tukey's HSD, and Kruskal test). Partially harvested plots displayed an intermediate response. Samples that were partially damp were removed from analysis.
 ```
@@ -76,7 +76,7 @@ stem_mn = stemdensity %>%
   summarise(mean(Density), std.err(Density))
 colnames(stem_mn) = c("Treatment", "mn_dens", "se_dens")
 
-ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_point() + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1) #Conclusion: While it appears that there is a difference in stem density based on treatment, only the block effect is significant, according to the quasipoisson regression
+ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_bar(stat = "identity", width = 0.7) + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1) + labs (x = "", y = "Stem density") #Conclusion: While it appears that there is a difference in stem density based on treatment, only the block effect is significant, according to the quasipoisson regression
 
 #length
 ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
@@ -108,7 +108,7 @@ flower_mn = flowering %>%
   summarise(mean(Flower) * 100, std.err(Flower) * 100)
 colnames(flower_mn) = c("Treatment", "mn_flower", "se_flower")
 
-ggplot(flower_mn, aes(Treatment, mn_flower)) + geom_point() + geom_errorbar(aes(ymin = mn_flower - se_flower, ymax = mn_flower + se_flower), width = 0.1) + ylab("Percent flowering") + annotate("text", x = "Full", y = 9.5, label = "*", size = 10)
+ggplot(flower_mn, aes(Treatment, mn_flower)) + geom_bar(stat = "identity", width = 0.7) + geom_errorbar(aes(ymin = mn_flower - se_flower, ymax = mn_flower + se_flower), width = 0.1) + ylab("Percent flowering") + xlab("") + annotate("text", x = "Full", y = 9.5, label = "*", size = 10)
 
 flower_aov = aov(asin(sqrt(Flower)) ~ Treatment + Block, data = flowering) #transformed data
 require(MASS)
