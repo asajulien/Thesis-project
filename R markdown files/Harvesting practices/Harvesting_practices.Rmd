@@ -133,10 +133,11 @@ recruits$Block = as.factor(recruits$Block)
 yoty = recruits %>%
   group_by(Block, Treatment) %>%
   select(Block, Treatment, Length, Bands) %>%
-  summarise(length(Bands[Bands == 0])) #nothing with 1 growth band
-colnames(yoty) = c("Block", "Treatment", "Recruits")
+  summarise(length(Bands[Bands == 0]), length(Bands)) #nothing with 1 growth band
+colnames(yoty) = c("Block", "Treatment", "Recruits", "All")
 yoty$Treatment = factor(yoty$Treatment, levels = c("Control", "Partial", "Full"))
 
+sum(yoty$Recruits)/sum(yoty$All)
 #could use predicted size based on age to determine who's a recruit (42.9 mm for 1 growth band)
 
 #quick presence-absence
