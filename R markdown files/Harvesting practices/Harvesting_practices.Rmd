@@ -66,7 +66,7 @@ stemdensity = stems %>%
 colnames(stemdensity) = c("Treatment", "Block", "Density")
 stemdensity$Treatment = factor(stemdensity$Treatment, levels = c("Control", "Partial", "Full"))
 
-dens_glm = aov(Density ~ Treatment, data = stemdensity) #no effect of block
+dens_glm = aov(log(Density+1) ~ Treatment, data = stemdensity) #no effect of block
 summary(dens_glm)
 plot(dens_glm)
 #no differences; may be due to outliers though
