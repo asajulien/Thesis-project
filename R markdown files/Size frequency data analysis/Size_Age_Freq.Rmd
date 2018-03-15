@@ -43,7 +43,7 @@ tot_muss = fbcp_freq %>%
   summarise(length(Length.mm))
 colnames(tot_muss) = c("Month", "Total")
 
-tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_freq$Month.code[fbcp_freq$Length.mm <= 17], length)
+tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_freq$Month.code[fbcp_freq$Length.mm <= 17], length) #17 mm = length at age 0; 43 mm length at age 1 (so <43); they tell different stories. I think recruits are going to be small, so there's a lot to be said for keeping it at 17.
 
 tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 

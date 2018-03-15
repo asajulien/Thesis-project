@@ -194,7 +194,6 @@ lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 
 ##Comparison of VB equations (just site comparison for now)
 ```{r, echo=FALSE}
-#models to compare, potentially
 vbLKt = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0[Location])))
 vbLK = Length.mm ~ Linf[Location] * (1 - exp(-K[Location] * (Growth.bands - t0)))
 vbLt = Length.mm ~ Linf[Location] * (1 - exp(-K * (Growth.bands - t0[Location])))
@@ -205,14 +204,14 @@ vbt = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0[Location])))
 vb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
 
 #starting values. They are fairly similar so I'm going to use the same for each group (pooled).
-sv0 = vbStarts(Length.mm ~ Growth.bands, data = site.compare)
+sv0 = vbStarts(Length.mm ~ Growth.bands, data = site_compare)
 svLKt = Map(rep, sv0, c(2,2,2))
 
 #fit model
-fitLKt = nls(vbLKt, data = site.compare, start = svLKt)
+fitLKt = nls(vbLKt, data = site_compare, start = svLKt)
 residPlot(fitLKt, col = rgb(0, 0, 0, 1/3))
 
-fit0 = nls(vb0, data = site.compare, start = sv0)
+fit0 = nls(vb0, data = site_compare, start = sv0)
 residPlot(fit0)
 
 lrt(fit0, com = fitLKt, com.name = "All param differ", sim.names = "No param differ") #Differences!
@@ -223,9 +222,9 @@ svLK = Map(rep, sv0, c(2,2,1))
 svLt = Map(rep, sv0, c(2,1,2))
 svKt = Map(rep, sv0, c(1,2,2))
 
-fitLK = nls(vbLK, data = site.compare, start = svLK)
-fitLt = nls(vbLt, data = site.compare, start = svLt)
-fitKt = nls(vbKt, data = site.compare, start = svKt)
+fitLK = nls(vbLK, data = site_compare, start = svLK)
+fitLt = nls(vbLt, data = site_compare, start = svLt)
+fitKt = nls(vbKt, data = site_compare, start = svKt)
 
 lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
 sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
@@ -233,8 +232,8 @@ sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
 #next subsets compared to fitLK, highest loglikelihood
 svL = Map(rep, sv0, c(2,1,1))
 svK = Map(rep, sv0, c(1,2,1))
-fitL = nls(vbL, data = site.compare, start = svL)
-fitK = nls(vbK, data = site.compare, start = svK)
+fitL = nls(vbL, data = site_compare, start = svL)
+fitK = nls(vbK, data = site_compare, start = svK)
 
 lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
 sim.names=c("Linf dif","K dif")) #Linf differs but K does not
@@ -247,7 +246,7 @@ lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
 
 #all together now
 svt = Map(rep, sv0, c(1,1,2))
-fitt = nls(vbt, data = site.compare, start = svt)
+fitt = nls(vbt, data = site_compare, start = svt)
 
 cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
 BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
