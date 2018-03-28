@@ -24,9 +24,26 @@ fbcp_freq = read.csv("~/Documents/Ribbed mussel/Data/Size frequency/CSV files/si
 temp_site = site_compare[,c(3,5,6)]
 temp_folly = fbcp_freq[,c(1,6,7)]
 
+all_sites = rbind(temp_site, temp_folly)
+
 un_folly = rbind(temp_site[temp_site$Location == "St. Pierre Creek",], temp_folly)
 
 h_folly = rbind(temp_site[temp_site$Location == "Fish Creek",], temp_folly)
+```
+
+#comparisons of length, age, density
+```{r}
+kruskal.test(Length.mm ~ Location, data = all_sites)
+dunnTest(Length.mm ~ Location, data = all_sites)
+
+kruskal.test(Growth.bands ~ Location, data = all_sites)
+dunnTest(Growth.bands ~ Location, data = all_sites)
+
+#Density
+all_den = rbind(den.fbcp[,c(6,7,5)], den_compare[,c(1,3,4)])
+allden_aov = aov (sqrt(Density) ~ Status, data = all_den) #note square root transformation
+summary(allden_aov)
+TukeyHSD(allden_aov) #Both harvested and unharvested sites were significantly greater in density than the Folly site, not from each other though
 ```
 
 #Unharvested - Folly

@@ -22,6 +22,33 @@ site_compare = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Site comparison\\CSV
 #mac:
 site_compare = read.csv("~/Documents/Ribbed mussel/Data/Site comparison/CSV files/Comparison.csv")
 
+#statistical comparisons length, age, density
+
+#length
+wilcox.test(Length.mm ~ Status, data = site_compare)
+wilcox.test(Length.mm ~ Status, data = site_compare[site_compare$Date == "2/6/2017",])
+wilcox.test(Length.mm ~ Status, data = site_compare[site_compare$Date == "5/18/2017",])
+wilcox.test(Length.mm ~ Status, data = site_compare[site_compare$Date == "August",])
+wilcox.test(Length.mm ~ Status, data = site_compare[site_compare$Date == "November",])
+
+#Age
+wilcox.test(Growth.bands ~ Status, data = site_compare)
+wilcox.test(Growth.bands ~ Status, data = site_compare[site_compare$Date == "2/6/2017",])
+wilcox.test(Growth.bands ~ Status, data = site_compare[site_compare$Date == "5/18/2017",])
+wilcox.test(Growth.bands ~ Status, data = site_compare[site_compare$Date == "August",]) #NSD
+wilcox.test(Growth.bands ~ Status, data = site_compare[site_compare$Date == "November",]) #NSD
+
+den_compare = site_compare %>%
+  group_by(Status, Quadrat.ID, Date) %>%
+  summarise(length(Length.mm) / 0.0625)
+colnames(den_compare) = c("Status", "ID", "Date", "Density")
+
+den_aov = aov(Density ~ Status * Date, data = den_compare) #perfect model assumptions; effect of date
+summary(den_aov)
+
+#Comparison of harvested, unharvested, and folly sites in a different markdown - maybe just combine everything into a single ANOVA or Kruskal-wallis test in order to avoid multiple comparisons. Be mindful of season.
+
+#general descriptives
 mn_lengths = site_compare %>%
   group_by(Status, Date) %>%
   summarise(mean(Length.mm), std.err(Length.mm), mean(na.omit(Growth.bands)), std.err(na.omit(Growth.bands)))
@@ -29,11 +56,6 @@ mn_lengths = site_compare %>%
 med_lengths = site_compare %>%
   group_by(Status, Date) %>%
   summarise(median(Length.mm), median(na.omit(Growth.bands)))
-
-den_compare = site_compare %>%
-  group_by(Status, Quadrat.ID, Date) %>%
-  summarise(length(Length.mm))
-
 mn_den = den_compare %>%
   group_by(Status, Date) %>%
   summarise(mean(`length(Length.mm)` / 0.0625), std.err(`length(Length.mm)` / 0.0625))
@@ -51,6 +73,9 @@ feb_compare = site_compare[site_compare$Date == "2/6/2017",]
 may_compare = site_compare[site_compare$Date == "5/18/2017",]
 aug_compare = site_compare[site_compare$Date == "August",]
 nov_compare = site_compare[site_compare$Date == "November",]
+
+#percent above/below size range
+length(site_compare$Length.mm[site_compare$Status == "Harvested" & site_compare$Length.mm >= 76.2])/length(site_compare$Length.mm[site_compare$Status == "Harvested"])
 ```
 
 ##Histograms
@@ -144,6 +169,11 @@ UCI[i] <- quantile(un_pv,0.975)
 }
 lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+
+#predict lengths for age
+un_predage = data.frame(von.age.unharvested = rep(seq(0, 15, 1),1))
+un_predage$response = predict(fitTypical.unharvested, newdata = un_predage, type = 'reponse')
+plot(un_predage$response ~ un_predage$von.age.unharvested)
 ```
 
 ##Size at age relationship, harvested
@@ -190,6 +220,11 @@ UCI[i] <- quantile(h_pv,0.975)
 }
 lines(UCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
 lines(LCI~ages2plot,type="l",col="blue",lwd=2,lty=2)
+
+#predict lengths for age
+h_predage = data.frame(von.age.harvested = rep(seq(0, 15, 1),1))
+h_predage$response = predict(fitTypical.harvested, newdata = h_predage, type = 'reponse')
+plot(h_predage$response ~ h_predage$von.age.harvested)
 ```
 
 ##Comparison of VB equations (just site comparison for now)

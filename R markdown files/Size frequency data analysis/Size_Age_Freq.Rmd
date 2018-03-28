@@ -44,7 +44,7 @@ tot_muss = fbcp_freq %>%
 colnames(tot_muss) = c("Month", "Total")
 
 tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_freq$Month.code[fbcp_freq$Length.mm <= 17], length) #17 mm = length at age 0; 43 mm length at age 1 (so <43); they tell different stories. I think recruits are going to be small, so there's a lot to be said for keeping it at 17.
-
+  
 tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 
 ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line()
@@ -69,6 +69,9 @@ av_juvs = df_juvs %>%
 ggplot(av_juvs, aes(Month, mn_j, group = 1)) + geom_point() + geom_line() + geom_errorbar(aes(ymin = mn_j - se_j, ymax = mn_j + se_j))
 
 summary(aov(df_juvs$Juvs ~ df_juvs$Month))
+
+#percent above/below size range
+length(fbcp_freq$Length.mm[fbcp_freq$Length.mm >= 76.2])/length(fbcp_freq$Length.mm)
 
 ```
 
@@ -196,8 +199,9 @@ den.fbcp$size[den.fbcp$Quadrat.identifier == "8a"] = 0.04
 
 den.fbcp$density = den.fbcp$`length(Length.mm)`/den.fbcp$size
 colnames(den.fbcp) = c("Month", "QuadID", "Musselcount", "Quadsize", "Density")
+den.fbcp$Status = rep("Folly")
 
-den.fbcp
+den.fbcp$Date = den.fbcp$Month
 
 ##barplots of average densities:
 df.density = den.fbcp %>%
