@@ -29,6 +29,8 @@ sp_rich = legare_net %>%
 #new_df = new_df[,-7]
 #new_df$Abundance = sum(new_df[,seq(8,18)])
 
+new_df$Season = c(rep("Summer 2016", 18), rep("Fall 2016", 32), rep("Winter 2017", 24), rep("Spring 2017", 24), rep("Summer 2017", 12))
+
 #models
 test_x = lm(log(Abundance + 1) ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
 summary(test_x)
