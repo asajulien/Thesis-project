@@ -129,7 +129,7 @@ quantile(pv,c(0.025,0.975))
 
 #confidence interval
 ages2plot <- 0:18
-fitPlot(fitTypical.fbcp,xlab="Age",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
+fitPlot(fitTypical.fbcp,xlab="Age (growth bands)",ylab="Total Length (mm)",xlim=range(ages2plot),main="")
 LCI <- UCI <- numeric(length(ages2plot))
 
 for (i in 1:length(ages2plot)) {
