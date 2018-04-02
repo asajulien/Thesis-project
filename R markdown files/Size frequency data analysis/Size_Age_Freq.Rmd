@@ -47,7 +47,8 @@ tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_fre
   
 tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 
-ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line()
+ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line() + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + labs(x = "", y="Percent of all individuals") + scale_y_continuous(limits = c(0, 7))
+
 
 #Average percent by month, a bit convoluted
 by_quad = fbcp_freq %>%
