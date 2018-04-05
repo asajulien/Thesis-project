@@ -16,6 +16,7 @@ library(vegan)
 #windows:
 new_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
 legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Legare.csv")
+#ngs_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Without grass shrimp\\no_grass_shrimp.csv")
 
 #mac:
 new_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
@@ -24,27 +25,24 @@ legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.
 #species richness:
 sp_rich = legare_net %>%
   group_by(Order) %>%
-  summarise(length(unique(Species))) #doesn't include traps with zero...
+  summarise(length(unique(Species)))
 
-#new_df = new_df[,-7]
-#new_df$Abundance = sum(new_df[,seq(8,18)])
-
-new_df$Season = c(rep("Summer 2016", 18), rep("Fall 2016", 32), rep("Winter 2017", 24), rep("Spring 2017", 24), rep("Summer 2017", 12))
+new_df$Season = c(rep("Fall 2016", 42), rep("Winter 2017", 44), rep("Spring 2017", 24)) #N = 21, 22, 12
 
 #models
-test_x = lm(log(Abundance + 1) ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
+test_x = lm(log(Abundance + 1) ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) 
 summary(test_x)
 plot(test_x)
 
-test_y = lm(Richness ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
+test_y = lm(Richness ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) 
 summary(test_y)
 plot(test_y)
 
-test_z = lm(Shannon ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df) 
+test_z = lm(Shannon ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) 
 summary(test_z)
 plot(test_z)
 
-test_w = lm(Simpson ~ Treatment * Temperature + CharlestonHeight + Salinity + Pairing, data = new_df)
+test_w = lm(Simpson ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) #resids not good
 summary(test_w)
 plot(test_w)
 ```
