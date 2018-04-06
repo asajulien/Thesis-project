@@ -162,7 +162,7 @@ phys_frame$Date = as.Date(phys_frame$Date)
 phys_frame$Order = as.factor(seq(1:28))
 
 
-ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) +ylab("Temperature (?C)")
+ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) +ylab("Temperature (°C)")
                       
 with(phys_frame, plot(Salinity ~ Order, pch = 16))
 with(phys_frame, plot(CharlestonHeight ~ Order, pch = 16))
