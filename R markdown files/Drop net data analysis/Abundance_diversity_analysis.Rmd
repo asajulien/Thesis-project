@@ -21,6 +21,7 @@ legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\L
 #mac:
 new_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
 legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Legare.csv")
+#ngs_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Without grass shrimp/no_grass_shrimp.csv")
 
 #species richness:
 sp_rich = legare_net %>%
@@ -33,6 +34,7 @@ new_df$Season = c(rep("Fall 2016", 42), rep("Winter 2017", 44), rep("Spring 2017
 test_x = lm(log(Abundance + 1) ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) 
 summary(test_x)
 plot(test_x)
+#cube root transform white shrimp abundance for its analysis
 
 test_y = lm(Richness ~ Treatment * Season + CharlestonHeight + Salinity, data = new_df) 
 summary(test_y)

@@ -23,7 +23,7 @@ legare_net = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\l
 new_df = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/Diversity_abundance.csv")
 legare_net = read.csv("~/Documents/Ribbed mussel/Data/Drop net/CSV files/legare.csv")
 
-new_df$Season = c(rep("Summer 2016", 18), rep("Fall 2016", 32), rep("Winter 2017", 24), rep("Spring 2017", 24), rep("Summer 2017", 12))
+new_df$Season = c(rep("Fall 2016", 42), rep("Winter 2017", 44), rep("Spring 2017", 24)) #N = 21, 22, 12
 
 #abundance by treatment
 with(legare_net, tapply(Species, Treatment, length))
@@ -52,49 +52,9 @@ compare_simp + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax
 compare_rich = ggplot(df_compare, aes(x = Treatment, y = Richness), position = "dodge")
 compare_rich + geom_bar(stat = "identity", width = 0.5) + geom_errorbar(aes(ymax = Richness + SE.richness, ymin = Richness - SE.richness), width=0.15) + labs(x = expression(), y = expression(Species~richness)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,3)
 
-#Abundance by month -----------------------------------------
-p0 = ggplot(new_df, aes(Treatment, Abundance)) + geom_boxplot()
-p0 + labs(x = "Treatment", y = "Shannon index")
-
-new_df$Month = factor(new_df$Month, levels = c("July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June")) #Ordering the months
-
-##Barplots of averages:
-df_abundance = new_df %>%
-  filter(Month != "July") %>% #REMOVE JULY, since I only have one set of samples at this point
-  group_by(Treatment, Month)%>%
-  summarise(mean(Abundance), std.err(Abundance))
-colnames(df_abundance) = c("Treatment", "Month", "Abundance", "SE.abun")
-
-p_abundance = ggplot(df_abundance,aes(Treatment, Abundance), position="dodge") + facet_grid(~Month)
-p_abundance + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Month) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size = 11,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
-
-#ANCOVA, indices-----------------------------------
-p2 = ggplot(new_df, aes(Treatment, Shannon)) + geom_boxplot()
-p2 + facet_grid(~Month) + labs(x = "Treatment", y = "Shannon index")
-
-df_shannon = new_df %>%
-  filter(Month!="July") %>% #REMOVE JULY, since I only have one set of samples at this point
-  group_by(Treatment,Month) %>%
-  summarise(mean(Shannon),std.err(Shannon))
-colnames(df_shannon) = c("Treatment","Month","Shannon","SE.shan")
-
-p_shannon = ggplot(df_shannon, aes(Treatment, Shannon), position = "dodge") + facet_grid(~Month)
-p_shannon + geom_bar(stat = "identity") + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25) + facet_grid(~Month) + labs(x = "Treatment", y = "Shannon diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
-
-#############################################################################
-
-df_simpson = new_df %>%
-  filter(Month != "July") %>% #REMOVE JULY, since I only have one set of samples at this point
-  group_by(Treatment, Month) %>%
-  summarise(mean(Simpson), std.err(Simpson))
-colnames(df_simpson) = c("Treatment", "Month", "Simpson", "SE.simp")
-
-p_simpson = ggplot(df_simpson, aes(Treatment, Simpson), position="dodge") + facet_grid(~Month)
-p_simpson + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25) + facet_grid(~Month) + labs(x = "Treatment", y = "Simpson diversity index") + theme(axis.title = element_text(size = 20,face = "bold"), strip.text = element_text(size=18,face = "bold"), axis.text.x = element_text(size=13,face = "bold"), axis.text.y = element_text(size = 13, face = "bold"))
-
 ##Abundance and diversity, by season #########################################
 
-new_df$Season = factor(new_df$Season, levels = c("Summer 2016", "Fall 2016", "Winter 2017", "Spring 2017", "Summer 2017")) #Ordering the months
+new_df$Season = factor(new_df$Season, levels = c("Fall 2016", "Winter 2017", "Spring 2017")) #Ordering the months
 
 ##Barplots of averages:
 abun_season = new_df %>%
@@ -103,7 +63,7 @@ abun_season = new_df %>%
 colnames(abun_season) = c("Treatment", "Season", "Abundance", "SE.abun")
 
 p_seasabun = ggplot(abun_season, aes(Treatment, Abundance), position="dodge") + facet_grid(~Season)
-p_seasabun + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Season) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,25)
+p_seasabun + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Season) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,25) + xlab("")
 
 shan_season = new_df %>%
   group_by(Treatment, Season) %>%
@@ -202,7 +162,7 @@ phys_frame$Date = as.Date(phys_frame$Date)
 phys_frame$Order = as.factor(seq(1:28))
 
 
-ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) +ylab("Temperature (°C)")
+ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) +ylab("Temperature (?C)")
                       
 with(phys_frame, plot(Salinity ~ Order, pch = 16))
 with(phys_frame, plot(CharlestonHeight ~ Order, pch = 16))
