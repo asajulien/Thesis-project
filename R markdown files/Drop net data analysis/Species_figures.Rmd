@@ -60,18 +60,18 @@ new_df$Season = factor(new_df$Season, levels = c("Fall 2016", "Winter 2017", "Sp
 abun_season = new_df %>%
   group_by(Treatment, Season)%>%
   summarise(mean(Abundance), std.err(Abundance))
-colnames(abun_season) = c("Treatment", "Season", "Abundance", "SE.abun")
+colnames(abun_season) = c("Plot type", "Season", "Abundance", "SE.abun")
 
-p_seasabun = ggplot(abun_season, aes(Treatment, Abundance), position="dodge") + facet_grid(~Season)
-p_seasabun + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25) + facet_grid(~Season) + labs(x = expression(Treatment), y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,25) + xlab("")
+p_seasabun = ggplot(abun_season, aes(Season, Abundance, fill = Treatment))
+p_seasabun + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25, position = position_dodge(.9)) + labs(x = "", y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,25) + scale_fill_grey() + theme(legend.title=element_blank())
 
 shan_season = new_df %>%
   group_by(Treatment, Season) %>%
   summarise(mean(Shannon),std.err(Shannon))
 colnames(shan_season) = c("Treatment","Season","Shannon","SE.shan")
 
-p_seasshan = ggplot(shan_season, aes(Treatment, Shannon), position = "dodge") + facet_grid(~Season)
-p_seasshan + geom_bar(stat = "identity") + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Shannon diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,1.2)
+p_seasshan = ggplot(shan_season, aes(Season, Shannon, fill = Treatment))
+p_seasshan + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25, position = position_dodge(.9)) + labs(x = "", y = "Shannon diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,1) + scale_fill_grey() + theme(legend.title=element_blank())
 
 
 simp_season = new_df %>%
@@ -79,16 +79,16 @@ simp_season = new_df %>%
   summarise(mean(Simpson), std.err(Simpson))
 colnames(simp_season) = c("Treatment", "Season", "Simpson", "SE.simp")
 
-p_seassimp = ggplot(simp_season, aes(Treatment, Simpson), position="dodge") + facet_grid(~Season)
-p_seassimp + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Simpson diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,0.8)
+p_seassimp = ggplot(simp_season, aes(Season, Simpson, fill = Treatment))
+p_seassimp + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Simpson diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,0.6) + scale_fill_grey() + theme(legend.title=element_blank())
 
 rich_season = new_df %>%
   group_by(Treatment, Season) %>%
   summarise(mean(Richness), std.err(Richness))
 colnames(rich_season) = c("Treatment", "Season", "Richness", "SE.rich")
 
-p_seasrich = ggplot(rich_season, aes(Treatment, Richness), position="dodge") + facet_grid(~Season)
-p_seasrich + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25) + facet_grid(~Season) + labs(x = "Treatment", y = "Species richness") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,4)
+p_seasrich = ggplot(rich_season, aes(Season, Richness, fill = Treatment))
+p_seasrich + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Species richness") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,4) + scale_fill_grey() + theme(legend.title=element_blank())
 ```
 
 ##size.freq
@@ -148,7 +148,7 @@ csap_df = legare_net %>%
 csap_df$Month = c(rep("Jul. 2016", 4), rep("Aug. 2016", 17), rep("Sep.", 28), rep("Oct.", 15), rep("Nov.", 14), rep("Dec.", 6), rep("Jan.", 1), rep("Feb.", 4), rep("Mar.", 6), rep("Apr.", 4), rep("May", 3), rep("Jun.", 1), rep("Jul. 2017", 1), rep("Aug. 2017", 1))
 csap_df$Month = factor(csap_df$Month, levels = c("Jul. 2016", "Aug. 2016", "Sep.", "Oct.", "Nov.", "Dec.", "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul. 2017", "Aug. 2017"))
 
-ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + facet_grid(.~Month) + labs(x = "Length (mm)", y = "Frequency (number)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 10, face = "bold"), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + ylim(0,15)
+ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + labs(x = "Length (mm)", y = "Frequency (number)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,15)
 #unequal sample sizes geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5)
 ```
 

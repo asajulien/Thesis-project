@@ -12,6 +12,7 @@ library(lattice)
 library(MASS)
 library(dplyr)
 library(vegan)
+library(FSA)
 
 #windows:
 new_df = read.csv("C:\\users\\juliena\\desktop\\data\\drop net\\csv files\\Diversity_abundance.csv")
