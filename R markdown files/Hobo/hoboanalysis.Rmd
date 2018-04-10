@@ -98,6 +98,9 @@ p5 + geom_point() + geom_smooth(method = 'lm', formula = y ~ x) + geom_errorbar(
 
 ht_lm = lm(Time ~ Tide, data = ht_mn)
 summary(ht_lm)
+
+#p5 = ggplot(hobo, aes(MHW, Time, colour = as.factor(Salinity)))
+#p5 + geom_smooth(method = 'lm', formula = y ~ x, se=F) + geom_point(aes(colour = as.factor(Salinity))) + labs(x = "Elevation from MHW (m)", y = "Inundation period (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size = 13)) + ylim(0,7) + scale_colour_discrete(name = "Site salinity (‰)\n")
 ```
 
 ##Use mixed effects model to predict average inundation period of observed data
