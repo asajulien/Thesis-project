@@ -44,6 +44,7 @@ elev_x6 = update(elev_x5, . ~ . - salinity)
 elev_x7 = update(elev_x5, . ~ . - MHW)
 #getting rid of issue of separation (but also makes model worse):
 elev_x8 = update(elev_x5, .~. - MHW, - salinity)
+elev_x9 = update(salinity_x2, . ~ . + MHW)
 #interaction:
 elev_int = update(elev_x5, . ~ . - MHW + MHW * salinity)
 
@@ -123,6 +124,10 @@ fit_x = elev_x5$fitted.values
 g_x = roc(Mussel.presence ~ fit_x, data = ashgrid)
 plot(g_x)
 auc(g_x) #0.87, not too shabby
+
+#just to visualize the relative position
+xxx = ashgrid[,c(1,6,15)]
+ggplot(xxx, aes(x = Elevation, y = Position)) + geom_point(aes(colour = Grid.ID))
 ```
 
 ##Elevation in relation to tidal position
