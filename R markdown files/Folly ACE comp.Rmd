@@ -39,11 +39,32 @@ dunnTest(Length.mm ~ Location, data = all_sites)
 kruskal.test(Growth.bands ~ Location, data = all_sites)
 dunnTest(Growth.bands ~ Location, data = all_sites)
 
+wilcox.test(Length.mm ~ Location, data = un_folly)
+wilcox.test(Growth.bands ~ Location, data = un_folly)
+
 #Density
 all_den = rbind(den.fbcp[,c(6,7,5)], den_compare[,c(1,3,4)])
+unfoll_den = all_den[all_den$Status != "Harvested",]
 allden_aov = aov (sqrt(Density) ~ Status, data = all_den) #note square root transformation
+unfoll_aovden = aov(sqrt(Density)~Status, data = unfoll_den)
 summary(allden_aov)
 TukeyHSD(allden_aov) #Both harvested and unharvested sites were significantly greater in density than the Folly site, not from each other though
+
+#fc-spc
+site_compare$Location = factor(site_compare$Location, levels=c("Fish Creek", "St. Pierre Creek"), labels=c("Fish Creek (harvested)", "St. Pierre Creek (unharvested)"))
+
+ggplot(na.omit(site_compare), aes(x = Growth.bands, y = Length.mm, group = Location)) + geom_point(aes(colour = Location)) + geom_smooth(method = "nls", formula = y ~ Linf * (1 - exp(-K * (x - t0))), method.args = list(start=c(Linf = 108.54, K = 0.29, t0 = -0.65)), se=F, aes(col = Location)) + scale_y_continuous(name = "Length (mm)", limits = c(0, 120)) + xlab("Age (growth bands)")
+
+#spc-fb
+un_folly$Location = factor(un_folly$Location, levels=c("St. Pierre Creek", "Folly Beach County Park (side B)"), labels=c("St. Pierre Creek (unharvested)", "Folly Beach"))
+
+ggplot(na.omit(un_folly), aes(x = Growth.bands, y = Length.mm, group = Location)) + geom_point(aes(colour = Location)) + geom_smooth(method = "nls", formula = y ~ Linf * (1 - exp(-K * (x - t0))), method.args = list(start=c(Linf = 108.54, K = 0.29, t0 = -0.65)), se=F, aes(col = Location)) + scale_y_continuous(name = "Length (mm)", limits = c(0, 120)) + xlab("Age (growth bands)")
+
+#all
+all_sites$Location = factor(all_sites$Location, levels=c("Fish Creek", "St. Pierre Creek", "Folly Beach County Park (side B)"), labels=c("Harvested ACE", "Unharvested ACE", "Folly Beach"))
+
+ggplot(na.omit(all_sites), aes(x = Growth.bands, y = Length.mm, group = Location)) + geom_point(aes(colour = Location), alpha = 0.3) + geom_smooth(method = "nls", formula = y ~ Linf * (1 - exp(-K * (x - t0))), method.args = list(start=c(Linf = 108.54, K = 0.29, t0 = -0.65)), se=F, aes(col = Location)) + scale_y_continuous(name = "Total length (mm)", limits = c(0, 120)) + xlab("Age (growth bands)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size = 13)) + theme(legend.text=element_text(size=8))
+
 ```
 
 #Unharvested - Folly
@@ -60,7 +81,12 @@ vb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
 
 #starting values. They are fairly similar so I'm going to use the same for each group (pooled).
 sv0 = vbStarts(Length.mm ~ Growth.bands, data = un_folly)
-svLKt = Map(rep, sv0, c(2,2,2))
+svLKt = list(Linf = c(103.2192,103.2192), K = c(0.356,0.356), t0 = c(-0.4745,-0.4745))
+
+library(minpack.lm)
+curve_x = nlsLM(Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0))), start = sv0, data = un_folly)
+coef(curve_x) #103.22, 0.36, -0.47
+
 
 #fit model
 fitLKt = nls(vbLKt, data = un_folly, start = svLKt)

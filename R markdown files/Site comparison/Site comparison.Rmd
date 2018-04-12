@@ -95,6 +95,22 @@ ggplot(data = site_compare[site_compare$Status == "Harvested",], aes(x = Length.
 #by season, unharvested
 ggplot(data = site_compare[site_compare$Status == "Unharvested",], aes(x = Length.mm)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Date) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)", title = "Unharvested") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = c(seq(0, 20, 5)))
 
+#both sites, by season
+ggplot(data = site_compare, aes(x = Length.mm)) + geom_histogram(data = site_compare[site_compare$Status == "Harvested",], fill = "black", alpha = 0.4, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + geom_histogram(data = site_compare[site_compare$Status == "Unharvested",], fill = "red", alpha = 0.3, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Date) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)", title = "") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5))
+
+#both sites, feb - may
+f_m = site_compare[site_compare$Date != "November",]
+f_m = f_m[f_m$Date != "August",] #sloppy but whatever
+
+ggplot(data = f_m, aes(x = Length.mm)) + geom_histogram(data = f_m[f_m$Status == "Harvested",], fill = "black", alpha = 0.4, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + geom_histogram(data = f_m[f_m$Status == "Unharvested",], fill = "red", alpha = 0.3, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Date) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)", title = "") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5))
+
+
+#both sites, aug-nov
+au_nov = site_compare[site_compare$Date != "May",]
+au_nov = au_nov[au_nov$Date != "February",]
+
+ggplot(data = au_nov, aes(x = Length.mm)) + geom_histogram(data = au_nov[au_nov$Status == "Harvested",], fill = "black", alpha = 0.4, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + geom_histogram(data = au_nov[au_nov$Status == "Unharvested",], fill = "red", alpha = 0.3, aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Date) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)", title = "") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5))
+
 #average densities
 feb_dens = ggplot(mn_den, aes(x = Status, y = Density, width = 0.5), position="dodge") + facet_grid(~Date)
 feb_dens + geom_bar(stat="identity") + geom_errorbar(aes(ymax = Density + SE.den, ymin = Density - SE.den), width = 0.15) + labs(x = expression(Site), y = expression(Density~(individuals~m^{-2}))) + theme(axis.title = element_text(size = 22,face = "bold"), strip.text = element_text(size=20,face = "bold"), axis.text.x = element_text(size=18,face = "bold"), axis.text.y = element_text(size = 15, face = "bold"))
