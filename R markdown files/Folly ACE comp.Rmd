@@ -92,7 +92,7 @@ coef(curve_x) #103.22, 0.36, -0.47
 fitLKt = nls(vbLKt, data = un_folly, start = svLKt)
 residPlot(fitLKt, col = rgb(0, 0, 0, 1/3))
 
-fit0 = nls(vb0, data = site_compare, start = sv0)
+fit0 = nls(vb0, data = un_folly, start = list(Linf = 103.2192, K = 0.356, t0 = -0.4745))
 residPlot(fit0)
 
 lrt(fit0, com = fitLKt, com.name = "All param differ", sim.names = "No param differ") #Differences!
@@ -103,9 +103,9 @@ svLK = Map(rep, sv0, c(2,2,1))
 svLt = Map(rep, sv0, c(2,1,2))
 svKt = Map(rep, sv0, c(1,2,2))
 
-fitLK = nls(vbLK, data = site_compare, start = svLK)
-fitLt = nls(vbLt, data = site_compare, start = svLt)
-fitKt = nls(vbKt, data = site_compare, start = svKt)
+fitLK = nls(vbLK, data = un_folly, start = svLK)
+fitLt = nls(vbLt, data = un_folly, start = svLt)
+fitKt = nls(vbKt, data = un_folly, start = svKt)
 
 lrt(fitLK,fitLt,fitKt,com=fitLKt,com.name="All param diff",
 sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
@@ -113,8 +113,8 @@ sim.names=c("Linf,K diff","Linf,t0 diff","K,t0 diff"))
 #next subsets compared to fitLK, highest loglikelihood
 svL = Map(rep, sv0, c(2,1,1))
 svK = Map(rep, sv0, c(1,2,1))
-fitL = nls(vbL, data = site_compare, start = svL)
-fitK = nls(vbK, data = site_compare, start = svK)
+fitL = nls(vbL, data = un_folly, start = svL)
+fitK = nls(vbK, data = un_folly, start = svK)
 
 lrt(fitL,fitK,com=fitLK,com.name="Linf,K dif",
 sim.names=c("Linf dif","K dif")) #Linf differs but K does not
@@ -127,7 +127,7 @@ lrt(fit0, com = fitL,com.name = "Linf dif", sim.names = "No param dif")
 
 #all together now
 svt = Map(rep, sv0, c(1,1,2))
-fitt = nls(vbt, data = site_compare, start = svt)
+fitt = nls(vbt, data = un_folly, start = svt)
 
 cbind(AIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0),
 BIC(fitLKt,fitLK,fitLt,fitKt,fitL,fitK,fitt,fit0)) #Just different L inf seems to be the best model I think
@@ -147,13 +147,18 @@ vb0 = Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0)))
 
 #starting values. They are fairly similar so I'm going to use the same for each group (pooled).
 sv0 = vbStarts(Length.mm ~ Growth.bands, data = h_folly)
-svLKt = Map(rep, sv0, c(2,2,2))
+svLKt = list(Linf = c(105.52,105.52), K = c(0.35,0.35), t0 = c(-0.49,-0.49))
+
 
 #fit model
+library(minpack.lm)
+curve_x = nlsLM(Length.mm ~ Linf * (1 - exp(-K * (Growth.bands - t0))), start = sv0, data = h_folly)
+coef(curve_x) #105.52, 0.35, -0.49
+
 fitLKt = nls(vbLKt, data = h_folly, start = svLKt)
 residPlot(fitLKt, col = rgb(0, 0, 0, 1/3))
 
-fit0 = nls(vb0, data = site_compare, start = sv0)
+fit0 = nls(vb0, data = h_folly, start = list(Linf = 105.52, K = 0.35, t0 = -0.49))
 residPlot(fit0)
 
 lrt(fit0, com = fitLKt, com.name = "All param differ", sim.names = "No param differ") #Differences!
