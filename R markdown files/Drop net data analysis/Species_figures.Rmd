@@ -60,7 +60,7 @@ new_df$Season = factor(new_df$Season, levels = c("Fall 2016", "Winter 2017", "Sp
 abun_season = new_df %>%
   group_by(Treatment, Season)%>%
   summarise(mean(Abundance), std.err(Abundance))
-colnames(abun_season) = c("Plot type", "Season", "Abundance", "SE.abun")
+colnames(abun_season) = c("Treatment", "Season", "Abundance", "SE.abun")
 
 p_seasabun = ggplot(abun_season, aes(Season, Abundance, fill = Treatment))
 p_seasabun + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25, position = position_dodge(.9)) + labs(x = "", y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,25) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0))
@@ -150,7 +150,7 @@ csap_df$Month = factor(csap_df$Month, levels = c("Jul. 2016", "Aug. 2016", "Sep.
 csap_df$Season = c(rep("Fall 2016", 64), rep("Winter 2017", 33), rep("Spring 2017", 8))
 csap_df$Season = factor(csap_df$Season, levels = c("Fall 2016", "Winter 2017", "Spring 2017"))
 
-ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + labs(x = "Length (mm)", y = "Frequency (number)") + facet_grid(~Season) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,15)
+ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + labs(x = "Length (mm)", y = "Number collected") + facet_grid(~Season) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_y_continuous(expand = c(0,0))
 #unequal sample sizes geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5)
 ```
 

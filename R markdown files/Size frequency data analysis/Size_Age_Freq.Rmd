@@ -35,7 +35,7 @@ mydata = fbcp_freq %>%
   
 pcent = ggplot(data = mydata, aes(x = Length)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Month) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)") 
 
-pcent + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5))
+pcent + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5), expand = c(0,0))
 
 #Percent by month
 tot_muss = fbcp_freq %>%
