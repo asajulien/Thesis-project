@@ -89,14 +89,14 @@ fit <- nls(y ~ SSlogis(x, Asym, xmid, scal), data = data.frame(x, y))
 summary(fit)
 
 alpha = coef(fit)
-plot(Salinity ~ Distance.m, data = Sal_dist)
-curve(alpha[1]/(1 + exp(-(x - alpha[2])/alpha[3])), add = T, col = "red")  # Fitted model
+plot(Salinity ~ Distance.m, data = Sal_dist, xlab = "Distance downstream (m)", ylab = "Salinity (ppt)", cex.lab = 1)
+curve(alpha[1]/(1 + exp(-(x - alpha[2])/alpha[3])), add = T, col = "black")  # Fitted model
 curve(24.525/(1 + exp(-(x - 13106.12)/3953.79)), add = T, col = "red")
 
 xxx = Sal_dist$xxx
 fitxxx = 24.525/(1 + exp(-(xxx - 13106.12)/3953.79))
 
-points(xxx, fitxxx, col='blue', pch = 16)
+points(xxx, fitxxx, col='black', pch = 17)
 
 #>>Models with salinity as a continuous variable
 
