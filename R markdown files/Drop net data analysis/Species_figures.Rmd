@@ -63,7 +63,7 @@ abun_season = new_df %>%
 colnames(abun_season) = c("Treatment", "Season", "Abundance", "SE.abun")
 
 p_seasabun = ggplot(abun_season, aes(Season, Abundance, fill = Treatment))
-p_seasabun + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25, position = position_dodge(.9)) + labs(x = "", y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold"), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,25) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0))
+p_seasabun + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Abundance + SE.abun, ymin = Abundance-SE.abun), width=0.25, position = position_dodge(.9)) + labs(x = "", y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, face = "bold", colour = "black"), strip.text = element_text(size = 15, face = "bold", colour = "black"), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + ylim(0,25) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0)) + labs(title = "A.")
 
 shan_season = new_df %>%
   group_by(Treatment, Season) %>%
@@ -71,7 +71,7 @@ shan_season = new_df %>%
 colnames(shan_season) = c("Treatment","Season","Shannon","SE.shan")
 
 p_seasshan = ggplot(shan_season, aes(Season, Shannon, fill = Treatment))
-p_seasshan + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25, position = position_dodge(.9)) + labs(x = "", y = "Shannon diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,1) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0))
+p_seasshan + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Shannon+SE.shan, ymin = Shannon-SE.shan), width=0.25, position = position_dodge(.9)) + labs(x = "", y = "Shannon's diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + ylim(0,1) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0)) + labs(title = "B.")
 
 
 simp_season = new_df %>%
@@ -80,7 +80,7 @@ simp_season = new_df %>%
 colnames(simp_season) = c("Treatment", "Season", "Simpson", "SE.simp")
 
 p_seassimp = ggplot(simp_season, aes(Season, Simpson, fill = Treatment))
-p_seassimp + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Simpson diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,0.6) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0))
+p_seassimp + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Simpson + SE.simp, ymin = Simpson - SE.simp), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Simpson's diversity index") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15, face = "bold"), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + ylim(0,0.6) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0)) + labs(title = "C.")
 
 rich_season = new_df %>%
   group_by(Treatment, Season) %>%
@@ -88,7 +88,7 @@ rich_season = new_df %>%
 colnames(rich_season) = c("Treatment", "Season", "Richness", "SE.rich")
 
 p_seasrich = ggplot(rich_season, aes(Season, Richness, fill = Treatment))
-p_seasrich + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Species richness") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + ylim(0,4) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0))
+p_seasrich + geom_bar(position = position_dodge(), stat="identity", colour = 'black') + geom_errorbar(aes(ymax = Richness + SE.rich, ymin = Richness - SE.rich), width = 0.25, position = position_dodge(.9)) + labs(x = "", y = "Species richness") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + ylim(0,4) + scale_fill_grey() + theme(legend.title=element_blank()) + scale_y_continuous(expand = c(0,0)) + labs(title = "D.")
 ```
 
 ##size.freq
@@ -150,7 +150,7 @@ csap_df$Month = factor(csap_df$Month, levels = c("Jul. 2016", "Aug. 2016", "Sep.
 csap_df$Season = c(rep("Fall 2016", 64), rep("Winter 2017", 33), rep("Spring 2017", 8))
 csap_df$Season = factor(csap_df$Season, levels = c("Fall 2016", "Winter 2017", "Spring 2017"))
 
-ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5) + labs(x = "Length (mm)", y = "Number collected") + facet_grid(~Season) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_y_continuous(expand = c(0,0))
+ggplot(data = csap_df, aes(Total.Length..mm.)) + geom_histogram(binwidth = 5, fill = "black") + labs(x = "Length (mm)", y = "Number collected") + facet_grid(~Season) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, colour = "black"), strip.text = element_text(size = 15, colour = "black"), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + scale_y_continuous(expand = c(0,0))
 #unequal sample sizes geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..]), binwidth = 5)
 ```
 
@@ -160,12 +160,15 @@ phys_frame = new_df %>%
   select(Date, Month, Temperature, Salinity, CharlestonHeight, Season)
 phys_frame = unique(phys_frame)
 phys_frame$Order = as.factor(seq(1:28))
+tapply(new_df$Abundance, new_df$Date, sum)
+phys_frame$Abun = c(43, 66, 21, 48, 60, 15, 12, 93, 36, 67, 100, 112, 17, 37, 18, 8, 1, 3, 25, 7, 54, 45, 15, 20, 146, 116, 34, 28)
 
-ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15), axis.ticks.x = element_blank(), legend.position = "none") +ylab("Temperature (°C)") + geom_rect(aes(xmin = 0.75, xmax = 11.25, ymin = 0, ymax = Inf), alpha = 0.005) + geom_rect(aes(xmin = 22.75, xmax = 28.25, ymin = 0, ymax = Inf), alpha = 0.005) + scale_y_continuous(expand = c(0,0.25))
+ggplot(phys_frame, aes(Order, Temperature)) + geom_point() + scale_x_discrete(breaks = c(6,16,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + xlab(NULL) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.ticks.x = element_blank(), legend.position = "none") +ylab("Temperature (°C)") + geom_rect(aes(xmin = 0.75, xmax = 11.25, ymin = 0, ymax = Inf), alpha = 0.005) + geom_rect(aes(xmin = 22.75, xmax = 28.25, ymin = 0, ymax = Inf), alpha = 0.005) + scale_y_continuous(expand = c(0,0.25)) + geom_text(aes(x = 4, y = 5, label = "Aug - Oct 2016")) + geom_text(aes(x = 15, y = 5, label = "Nov 2016 - Apr 2017")) + geom_text(aes(x = 25.5, y = 5, label = "Apr - Aug 2017"))
 
 with(phys_frame, plot(Salinity ~ Order, pch = 16))
 with(phys_frame, plot(CharlestonHeight ~ Order, pch = 16))
 
+ggplot(phys_frame, aes(Order, Abun)) + geom_point() + scale_x_discrete(breaks = c(5,15,25), labels=c("Fall 2016","Winter 2017","Spring 2017")) + labs(x = NULL, y = expression(Nekton~abundance~(individuals~m^{-2}))) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.ticks.x = element_blank(), legend.position = "none") + geom_rect(aes(xmin = 0.75, xmax = 11.25, ymin = 0, ymax = Inf), alpha = 0.005) + geom_rect(aes(xmin = 22.75, xmax = 28.25, ymin = 0, ymax = Inf), alpha = 0.005) + scale_y_continuous(expand = c(0,1)) + geom_text(aes(x = 4, y = 125, label = "Aug - Oct 2016")) + geom_text(aes(x = 15, y = 125, label = "Nov 2016 - Apr 2017")) + geom_text(aes(x = 25.5, y = 125, label = "Apr - Aug 2017"))
 
 ```
 
