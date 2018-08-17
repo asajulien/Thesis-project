@@ -67,7 +67,7 @@ p0 + geom_point(aes(colour = MHW)) + geom_smooth(method = 'lm', formula = y ~ x)
 
 p1 = ggplot(hobo, aes(MHW, Time))
 p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x)
-#p1 + geom_point(aes(colour = CharlestonHeight)) + geom_smooth(method = 'lm', formula = y ~ x, se = F, colour = "black") + labs(x = "Elevation from MHW (m)", y = "Time (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size = 13)) + ylim(0,7) + scale_colour_continuous(low="gray", high="black", name = "Tidal height (m)\n")
+#p1 + geom_point(aes(fill = CharlestonHeight), colour = 'black', pch = 21) + geom_smooth(method = 'lm', formula = y ~ x, se = F, colour = "black") + labs(x = "Site elevation (from MHW, m)", y = "Inundation period (h)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size=15), axis.text.x = element_text(size=13, colour = 'black'), axis.text.y = element_text(size = 13, colour = 'black')) + ylim(0,7) + scale_fill_continuous(low="white", high="black", name = "Tidal height (m)\n")
 
 #average time per hobo
 hobo$Salinity = as.numeric(hobo$Salinity)

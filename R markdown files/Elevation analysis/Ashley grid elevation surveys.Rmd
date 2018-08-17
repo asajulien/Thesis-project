@@ -85,7 +85,12 @@ int_cols = col_ramp[int_col_index]
 obs_cols = col_ramp[obs_col_index]
 
 #tiff("Elev.tiff", width = 7, height = 5, units = 'in', res = 300)
-par(mfrow=c(1, 1))
+#tiff("x1.tiff", width = 4200, height = 3000, units = 'px', res = 750)
+#first in inches, second in pixels!
+par(mfrow=c(1,1))
+par(mar=c(c(5, 4, 4, 0) + 0.1))
+layout(matrix(1:2, ncol = 2), widths = c(4,1), heights = c(1,1))
+layout.show(n=2)
 plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
      col = obs_cols, xlab = "Elevation from MHW (m)", 
      ylab = expression(Probability~of~italic(Geukensia~demissa)~occurrence))
@@ -94,22 +99,29 @@ plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
 for(i in seq_along(sal_bins)) {
     lines(x_data$MHW[int_col_index == i], 
           predict(elev_x5, newdata=x_data[int_col_index == i, ],
-                  type='response'), col=col_ramp[i])
+                  type='response'), col=col_ramp[i], lwd = 1.8)
 }
 
-#95% confidence intervals; messy
-ci_dat = predict(elev_x5, newdata = x_data, type = 'response', se.fit = T)
-with(ci_dat, lines(x_data$MHW, (fit+1.96*se.fit), lty=2))
-with(ci_dat, lines(x_data$MHW, (fit-1.96*se.fit), lty=2))
+text(x = -0.15, y = c(0.06, 0.18, 0.42, 0.67, 0.77, 0.905), labels = c('8.4‰', '10.0‰', '11.6‰', '13.3‰', '23.0‰', '18.2‰'), cex = 0.8)
 
-#dev.off()
+par(mar=c(c(5, 1, 4, 2) + 0.1))
 
 #legend
 #tiff("Legend.tiff", width = 2, height = 4, units = 'in', res = 300)
 legend_image <- as.raster(matrix(int_cols, ncol=1))
-plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (???)')
-text(x=1.5, y = seq(0,1,l=2), labels = seq(23,8,l=2))
-rasterImage(legend_image, 0, 0, 1, 1)
+legend_image = apply(legend_image, 2, rev) #reverses image!
+plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (‰)', font.main = 1, cex.main = 0.95)
+text(x=0.1, y = seq(0,1,l=2), labels = seq(8,23,l=2))
+rasterImage(legend_image, 0.25, 0, 1, 1)
+#dev.off()
+
+par(mar=c(c(5, 4, 4, 2) + 0.1)) #default
+
+#95% confidence intervals; messy
+#ci_dat = predict(elev_x5, newdata = x_data, type = 'response', se.fit = T)
+#with(ci_dat, lines(x_data$MHW, (fit+1.96*se.fit), lty=2))
+#with(ci_dat, lines(x_data$MHW, (fit-1.96*se.fit), lty=2))
+
 #dev.off()
 
 plot3d(ashgrid$MHW, ashgrid$salinity, ashgrid$Mussel.presence)
