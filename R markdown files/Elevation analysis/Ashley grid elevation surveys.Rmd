@@ -28,7 +28,7 @@ site_sal = rev(c(8.35149, 10.96029, 13.86604, 14.23241, 16.46788, 18.12259, 22.6
 
 ashgrid$salinity = rep(site_sal, each = 30) #salinity at each site is now continuous, based on interpolation from Kelsey's data
 
-#models
+#models and model selection
 ashglm_x = glm(Mussel.presence ~ MHW + salinity, family = binomial, data = ashgrid)
 summary(ashglm_x)
 
@@ -43,18 +43,23 @@ elev_x5 = update(elev_x4, . ~ . + I(salinity^2))
 elev_x6 = update(elev_x5, . ~ . - salinity)
 elev_x7 = update(elev_x5, . ~ . - MHW)
 #getting rid of issue of separation (but also makes model worse):
-elev_x8 = update(elev_x5, .~. - MHW, - salinity)
+elev_x8 = update(elev_x5, .~. - MHW - salinity)
 elev_x9 = update(salinity_x2, . ~ . + MHW)
 #interaction:
 elev_int = update(elev_x5, . ~ . - MHW + MHW * salinity)
+#additional combinations
+elev_x11 = update(elev_x5, . ~ . - MHW - I(salinity^2))
+elev_x12 = update(elev_x5, . ~ . - MHW - salinity - I(salinity^2))
+elev_x13 = update(elev_x5, . ~ . - MHW - salinity - I(MHW^2))
+elev_x14 = update(elev_x5, . ~ . - I(MHW^2) - salinity)
 
 anova(full_x, elev_x, test='LRT')
 anova(full_x, salinity_x, test='LRT')
 AIC(full_x, elev_x, salinity_x)
 
-anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, test='LRT')
-AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int) #model 5 is the best, no evidence for interaction
-anova(elev_x5, elev_int, test = 'LRT')
+anova(full_x, elev_x2, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, elev_x11, elev_x12, elev_x13, elev_x14, test='LRT')
+AIC(full_x, elev_x2, elev_x3, elev_x4, elev_x5, elev_x6, elev_x7, elev_x8, elev_int, elev_x11, elev_x12, elev_x13, elev_x14) #model 5 is the best, no evidence for interaction
+anova(elev_x5, elev_int, test = 'LRT') #NO SIG DIFF, go with less complex model (ie no interaction)
 
 summary(elev_x5) #has a lower and upper salinity tolerance - just like elevation - which might be why the quadratic equation works better
 summary(elev_x8)
@@ -66,7 +71,22 @@ pR2(elev_x2)
 pR2(elev_x4)
 pR2(elev_x5)
 pR2(elev_x6)
+pR2(elev_x7)
 pR2(elev_x8)
+pR2(elev_int)
+pR2(elev_x9)
+pR2(elev_x11)
+pR2(elev_x12)
+pR2(elev_x13)
+pR2(elev_x14)
+pR2(salinity_x)
+pR2(salinity_x2)
+
+#ROC curve; insert model in fit_x object
+fit_x = elev_x5$fitted.values
+g_x = roc(Mussel.presence ~ fit_x, data = ashgrid)
+plot(g_x)
+auc(g_x) #0.87, not too shabby
 
 #plotting data and values predicted by models
 n_sal_bins = 10
@@ -130,12 +150,6 @@ x_data$response =  predict(elev_x5, newdata=x_data, type='response')
 
 which(x_data == max(x_data$response), arr.ind=TRUE)
 x_data[337,]
-
-#ROC curve
-fit_x = elev_x5$fitted.values
-g_x = roc(Mussel.presence ~ fit_x, data = ashgrid)
-plot(g_x)
-auc(g_x) #0.87, not too shabby
 
 #just to visualize the relative position
 xxx = ashgrid[,c(1,6,15)]
