@@ -100,7 +100,7 @@ sal_bins = seq(min_sal, max_sal, length.out = n_sal_bins)
 int_col_index = as.numeric(cut(x_data$salinity, sal_bins,
                            include.lowest = T))
 obs_col_index = as.numeric(cut(ashgrid$salinity, sal_bins, include.lowest = T))
-col_ramp = colorRampPalette(c('blue', 'red'))(length(sal_bins)) 
+col_ramp = colorRampPalette(c('light gray', 'black'))(length(sal_bins)) 
 int_cols = col_ramp[int_col_index]
 obs_cols = col_ramp[obs_col_index]
 
@@ -113,7 +113,7 @@ layout(matrix(1:2, ncol = 2), widths = c(4,1), heights = c(1,1))
 layout.show(n=2)
 plot(jitter(Mussel.presence, .1) ~ MHW, data=ashgrid, pch = 20,
      col = obs_cols, xlab = "Elevation from MHW (m)", 
-     ylab = expression(Probability~of~italic(Geukensia~demissa)~occurrence))
+     ylab = expression(Probability~of~italic(Geukensia~demissa)~occurrence),      las = 1)
 #lines(x_data$MHW, predict(elev_x5, newdata=x_data, type='response'),
 #      col= int_cols)
 for(i in seq_along(sal_bins)) {
@@ -122,7 +122,7 @@ for(i in seq_along(sal_bins)) {
                   type='response'), col=col_ramp[i], lwd = 1.8)
 }
 
-text(x = -0.15, y = c(0.06, 0.18, 0.42, 0.67, 0.77, 0.905), labels = c('8.4‰', '10.0‰', '11.6‰', '13.3‰', '23.0‰', '18.2‰'), cex = 0.8)
+text(x = -0.15, y = c(0.06, 0.18, 0.42, 0.67, 0.77, 0.905), labels = c('8.4', '10.0', '11.6', '13.3', '23.0', '18.2'), cex = 0.8)
 
 par(mar=c(c(5, 1, 4, 2) + 0.1))
 
@@ -130,7 +130,7 @@ par(mar=c(c(5, 1, 4, 2) + 0.1))
 #tiff("Legend.tiff", width = 2, height = 4, units = 'in', res = 300)
 legend_image <- as.raster(matrix(int_cols, ncol=1))
 legend_image = apply(legend_image, 2, rev) #reverses image!
-plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (‰)', font.main = 1, cex.main = 0.95)
+plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'Salinity (ppt)', font.main = 1, cex.main = 0.95)
 text(x=0.1, y = seq(0,1,l=2), labels = seq(8,23,l=2))
 rasterImage(legend_image, 0.25, 0, 1, 1)
 #dev.off()
