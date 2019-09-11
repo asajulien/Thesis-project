@@ -3,6 +3,8 @@ title: "Size and age frequencies"
 author: "Asa Julien"
 date: "August 2, 2016"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ##Size and age frequencies, FOLLY BEACH COUNTY PARK
