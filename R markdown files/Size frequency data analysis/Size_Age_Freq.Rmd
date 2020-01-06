@@ -14,6 +14,7 @@ library(nlstools)
 library(ggplot2)
 library(lattice)
 library(dplyr)
+library(cowplot)
 
 #windows:
 fbcp_freq = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Size frequency\\CSV files\\sizeagefreq_fbcp.csv")
@@ -22,6 +23,8 @@ fbcp_freq = read.csv("~/Documents/Ribbed mussel/Data/Size frequency/CSV files/si
 
 std.err = function(x)
   sd(x)/sqrt(length(x))
+
+##tiff("x1.tiff", width = 6, height = 5, units = 'in', res = 300)
 
 #ggplot, by month
 fbcp_freq$Month.code = factor(fbcp_freq$Month.code, levels = c("August","September","October","November","December", "January", "February", "March", "April", "May", "June", "July"))
@@ -35,9 +38,7 @@ mydata = fbcp_freq %>%
   select(Length.mm, Month.code)
   colnames(mydata) = c("Length", "Month")
   
-pcent = ggplot(data = mydata, aes(x = Length)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5) + facet_grid(.~Month) + theme_bw() + labs(x = "Length (mm)", y="Frequency (%)") 
-
-pcent + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=15), axis.text.y = element_text(size = 15)) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(breaks = seq(0, 20, 5), expand = c(0,0))
+ggplot(data = mydata, aes(x = Length)) + geom_histogram(aes(y=(..count..)/tapply(..count..,..PANEL..,sum)[..PANEL..] * 100), binwidth = 5, fill = 1) + facet_grid(.~Month) + theme_bw() + labs(x = expression(italic(Geukensia~demissa)~shell~height~(mm)), y="Frequency (%)") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 12), axis.text.x = element_text(size=15, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + scale_x_continuous(breaks = c(seq(0, 100, 50))) + scale_y_continuous(limit = c(0, 20), breaks = seq(0, 20, 5), expand = c(0,0))
 
 #Percent by month
 tot_muss = fbcp_freq %>%
@@ -49,8 +50,7 @@ tot_muss$Juvs =  tapply(fbcp_freq$Length.mm[fbcp_freq$Length.mm <= 17], fbcp_fre
   
 tot_muss$perjuvs = tot_muss$Juvs/tot_muss$Total * 100
 
-ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_point() + geom_line() + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=10), axis.text.y = element_text(size = 15)) + labs(x = "", y="Percent of all individuals") + scale_y_continuous(limits = c(0, 7))
-
+ggplot(tot_muss, aes(Month, perjuvs, group = 1)) + geom_bar(stat = "identity", fill = "black") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, colour = "black"), strip.text = element_text(size = 15, colour = "black"), axis.text.x = element_text(size=12, colour = "black"), axis.text.y = element_text(size = 15, colour = "black")) + labs(x = "Month", y=expression(Percent~of~italic(Geukensia~demissa)~identified~as~recruits)) + scale_x_discrete(labels=c("Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul")) + (scale_y_continuous(limits = c(0,7), expand = c(0,0), breaks = c(0:7))) # width 7, height 7! not 7:5
 
 #Average percent by month, a bit convoluted
 by_quad = fbcp_freq %>%

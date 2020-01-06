@@ -78,9 +78,14 @@ marsh_rda2 = rda(sqrt(marsh) ~ Treatment + Condition(SeasonX) + Condition(Salini
 
 plot(marsh_rda2, display = c('sp', 'cn')) #ordiplot
 
-ordi_plot = ordiplot(marsh_rda, type = "points")
+ordi_plot = ordiplot(marsh_rda, type = "points", col = 'black', col.main = 'black', col.lab = 'black', col.axis = 'black')
+ordi_plot = ordiplot(marsh_rda, type = "none", col = 'black')
 points(ordi_plot, "centroids", pch = c(19, 19, 18, 17, 15, 8, 13), col = c("dark grey", "black", "black", "black", "black", "black", "black"), cex = c(2,2,0.03,0.03,0.03, 0.03,0.03)) #ALL FUCKED UP RIGHT NOW
 legend(2, 2.6, c("Mussels", "No Mussels"), col = c("dark grey", "black"), pch = c(19, 19))
+
+points(ordi_plot, "sites", col = 'black', cex = 0.5)
+
+ordiarrows(marsh_rda, Salinity, label = T)
 
 text(ordi_plot, "species", col="blue", cex=1)
 
