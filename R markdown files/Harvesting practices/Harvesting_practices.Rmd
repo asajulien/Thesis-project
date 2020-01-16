@@ -11,6 +11,7 @@ library(ggplot2)
 library(dplyr)
 library(FSA)
 library(MASS)
+library(cowplot)
 
 #windows:
 biomass = read.csv("C:\\Users\\juliena\\Desktop\\Data\\Harvesting practices\\CSV files\\mass.csv")
@@ -119,6 +120,14 @@ summary(flower_aov)
 TukeyHSD(flower_aov)
 plot(flower_aov)
 #Conclusion: percent of stems flowering is lower in fully harvested plots than in the control. The partial harvest displays an intermediate response.
+
+#All of the plotssss 7:7 ratio
+plot_grid(aaa1, aaa4, aaa2, aaa3, labels = "AUTO", label_x = 0.01, align = "v", ncol = 2)
+
+#harvesting data - confidential makes means difficult
+lbs_rm = read.csv("~/Documents/Ribbed mussel/Data/pounds.csv")
+
+ggplot(lbs_rm, aes(Year, Pounds, group = 1)) + geom_bar(stat = "identity", fill = "black") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, colour = "black"), strip.text = element_text(size = 15, colour = "black"), axis.text.x = element_text(size=12, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 12, colour = "black")) + labs(x = "Year range", y=expression(Cumulative~reported~harvest~of~italic(G.~demissa)~(shell~pounds))) + (scale_y_continuous(expand = c(0,0), limits = c(0,40000)))
 ```
 
 ##Recruitment and size
@@ -172,8 +181,4 @@ with(recruits[recruits$Treatment == "Partial",], hist(Length, breaks = 50))
 with(recruits[recruits$Treatment == "Full",], hist(Length, breaks = 50))
 
 #When both 0 and 1-growth band individuals are included in the analysis, there are significant differences in number of recruits between each treatment; controls has the most, full the least. Partial is intermediate. When only age 0 mussels are considered, partial & full harvest become the same essentially (no recruitment, except for 1), and control still has the most recruits
-
-
-#All of the plotssss 7:7 ratio
-plot_grid(aaa1, aaa4, aaa2, aaa3, labels = "AUTO", label_x = 0.01, align = "v", ncol = 2)
 ```
