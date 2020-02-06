@@ -44,7 +44,7 @@ colnames(av_mass) = c("Treatment", "Wt", "se.wt")
 av_mass$Treatment = factor(av_mass$Treatment, levels = c("Control", "Partial", "Full"))
 
 p_mass = ggplot(av_mass, aes(Treatment, Wt))
-aaa1 = p_mass + geom_bar(stat = "identity", width = 0.7, fill = 1) + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1) + labs(x = "", y = expression(Aboveground~italic(S.~alterniflora)~biomass~(g))) + annotate("text", x = "Full", y = 62, label = "*", size = 10)  + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 13), strip.text = element_text(size = 13), axis.text.x = element_text(size=13, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 10)) + scale_y_continuous(limits = c(0,120), expand = c(0,0))
+aaa1 = p_mass + geom_bar(stat = "identity", width = 0.7, fill = 1) + geom_errorbar(aes(ymin = Wt - se.wt, ymax = Wt + se.wt), width = 0.1) + labs(x = "Harvest treatment", y = expression(Aboveground~italic(S.~alterniflora)~biomass~(g))) + annotate("text", x = "Full", y = 62, label = "*", size = 10)  + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 13), strip.text = element_text(size = 13), axis.text.x = element_text(size=13, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 10), axis.title.x = element_text(size = 15)) + scale_y_continuous(limits = c(0,120), expand = c(0,0))
 
 #Conclusion: After a full year, biomass in Full harvest plots was significantly lower than both control and partially harvested plots (ANOVA, Tukey's HSD, and Kruskal test). Partially harvested plots displayed an intermediate response. Samples that were partially damp were removed from analysis.
 ```
@@ -77,7 +77,7 @@ stem_mn = stemdensity %>%
   summarise(mean(Density), std.err(Density))
 colnames(stem_mn) = c("Treatment", "mn_dens", "se_dens")
 
-aaa2 = ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_bar(stat = "identity", width = 0.7, fill = 1) + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1) + labs (x = "Harvest treatment", y = expression(Number~of~stems~per~0.0625~m^2)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=13, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 10)) + scale_y_continuous(breaks = c(0,5,10,15,20,25,30,35), limits = c(0,35), expand = c(0,0))
+aaa2 = ggplot(stem_mn, aes(Treatment, mn_dens)) + geom_bar(stat = "identity", width = 0.7, fill = 1) + geom_errorbar(aes(ymin = mn_dens - se_dens, ymax = mn_dens + se_dens), width = 0.1) + labs(x = "", y = expression(Number~of~stems~per~0.0625~m^2)) + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15), strip.text = element_text(size = 15), axis.text.x = element_text(size=13, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 10)) + scale_y_continuous(breaks = c(0,5,10,15,20,25,30,35), limits = c(0,35), expand = c(0,0))
 
 #length
 ln_krusk = kruskal.test(Length ~ Treatment, data = stems)
@@ -122,12 +122,12 @@ plot(flower_aov)
 #Conclusion: percent of stems flowering is lower in fully harvested plots than in the control. The partial harvest displays an intermediate response.
 
 #All of the plotssss 7:7 ratio
-plot_grid(aaa1, aaa4, aaa2, aaa3, labels = "AUTO", label_x = 0.01, align = "v", ncol = 2)
+plot_grid(aaa2, aaa4, aaa1, aaa3, labels = "AUTO", label_x = 0.01, align = "v", ncol = 2)
 
 #harvesting data - confidential makes means difficult
 lbs_rm = read.csv("~/Documents/Ribbed mussel/Data/pounds.csv")
 
-ggplot(lbs_rm, aes(Year, Pounds, group = 1)) + geom_bar(stat = "identity", fill = "black") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, colour = "black"), strip.text = element_text(size = 15, colour = "black"), axis.text.x = element_text(size=12, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 12, colour = "black")) + labs(x = "Year range", y=expression(Cumulative~reported~harvest~of~italic(G.~demissa)~(shell~pounds))) + (scale_y_continuous(expand = c(0,0), limits = c(0,40000)))
+ggplot(lbs_rm, aes(Year, Pounds, group = 1)) + geom_bar(stat = "identity", fill = "black") + theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + theme(axis.title = element_text(size = 15, colour = "black"), strip.text = element_text(size = 15, colour = "black"), axis.text.x = element_text(size=12, colour = "black"), axis.text.y = element_text(size = 15, colour = "black"), axis.title.y = element_text(size = 12, colour = "black")) + labs(x = "Year range", y=expression(Total~reported~harvest~of~italic(G.~demissa)~(shell~pounds))) + (scale_y_continuous(expand = c(0,0), limits = c(0,40000)))
 ```
 
 ##Recruitment and size
